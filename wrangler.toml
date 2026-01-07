@@ -3,4 +3,4 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 [[kv_namespaces]]
 binding = "KV"
-id = "REPLACE_WITH_YOUR_KV_ID"
+id = "7ca1b58440e24577aa82d6d2187c35b0"
