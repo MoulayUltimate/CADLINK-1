@@ -1,0 +1,15 @@
+{
+    "payment": {
+        "stripeLink": "https://buy.stripe.com/test_link",
+        "dodoApiKey": "",
+        "returnUrl": "https://cadlink.us/success"
+    },
+    "analytics": {
+        "googleAnalyticsId": "",
+        "googleAdsTag": ""
+    },
+    "general": {
+        "enableCountryDetection": true,
+        "supportEmail": "contact@cadlink.us"
+    }
+}
