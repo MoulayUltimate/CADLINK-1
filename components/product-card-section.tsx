@@ -121,7 +121,7 @@ export function ProductCardSection() {
                     <button
                       onClick={handleAddToCart}
                       // Mobile optimized button size
-                      className="flex-1 w-full h-[64px] sm:h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white text-lg sm:text-base font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5"
+                      className="flex-1 w-full h-[72px] sm:h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white text-xl sm:text-base font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5 active:scale-95"
                     >
                       Add to Cart
                     </button>

@@ -27,7 +27,7 @@ export function FeaturesBar() {
     return (
         <div className="bg-white border-y border-gray-100 py-6">
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                     {features.map((feature, index) => (
                         <div key={index} className="flex items-center gap-3 justify-start md:justify-start">
                             <div className="bg-[#0168A0]/10 p-2.5 rounded-full">
