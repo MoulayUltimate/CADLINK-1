@@ -50,7 +50,7 @@ export default function CheckoutPage() {
                 })
                 .catch((err) => {
                     console.error("System error:", err)
-                    setError("System error occurred")
+                    setError(`System error: ${err.message || JSON.stringify(err)}`)
                 })
         }
     }, [finalTotal])
