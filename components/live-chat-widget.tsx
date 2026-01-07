@@ -89,7 +89,7 @@ export function LiveChatWidget() {
         <div className="fixed bottom-6 right-6 z-[100] font-sans">
             {isOpen && (
                 <div
-                    className="absolute bottom-20 right-0 w-[380px] h-[550px] bg-white/10 backdrop-blur-2xl border border-white/20 rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300"
+                    className="absolute bottom-20 right-0 w-[380px] h-[550px] bg-white border border-gray-200 rounded-[32px] shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300"
                 >
                     {/* Header */}
                     <div className="p-6 bg-gradient-to-r from-[#0168A0] to-[#015580] text-white flex items-center justify-between">
@@ -116,12 +116,12 @@ export function LiveChatWidget() {
                     {/* Messages */}
                     <div
                         ref={scrollRef}
-                        className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth"
+                        className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth bg-[#f8fafc]"
                     >
                         {messages.length === 0 ? (
-                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
-                                <MessageCircle className="w-12 h-12 text-white" />
-                                <p className="text-white text-sm font-bold">How can we help you today?</p>
+                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-20">
+                                <MessageCircle className="w-12 h-12 text-[#0168A0]" />
+                                <p className="text-[#0168A0] text-sm font-bold">How can we help you today?</p>
                             </div>
                         ) : (
                             messages.map((msg) => (
@@ -129,12 +129,12 @@ export function LiveChatWidget() {
                                     key={msg.id}
                                     className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
-                                    <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium ${msg.sender === 'user'
+                                    <div className={`max-w-[85%] p-4 rounded-2xl text-sm font-bold shadow-sm ${msg.sender === 'user'
                                             ? 'bg-[#0168A0] text-white rounded-tr-none'
-                                            : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                                            : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
                                         }`}>
                                         {msg.text}
-                                        <div className={`text-[10px] mt-1 opacity-50 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                                        <div className={`text-[10px] mt-1 opacity-50 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-400'}`}>
                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
@@ -144,19 +144,19 @@ export function LiveChatWidget() {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSend} className="p-6 bg-black/20 border-t border-white/10">
+                    <form onSubmit={handleSend} className="p-6 bg-white border-t border-gray-100">
                         <div className="relative flex items-center gap-2">
                             <input
                                 type="text"
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                                 placeholder="Type your message..."
-                                className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:border-[#0168A0] outline-none transition-all placeholder:text-white/30"
+                                className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-900 text-sm focus:border-[#0168A0] focus:ring-1 focus:ring-[#0168A0] outline-none transition-all placeholder:text-gray-400"
                             />
                             <button
                                 type="submit"
                                 disabled={!inputText.trim() || isSending}
-                                className="p-4 bg-[#0168A0] hover:bg-[#015580] text-white rounded-2xl transition-all disabled:opacity-50 disabled:scale-95 active:scale-90"
+                                className="p-4 bg-[#0168A0] hover:bg-[#015580] text-white rounded-2xl transition-all disabled:opacity-50 shadow-lg shadow-[#0168A0]/20 active:scale-95"
                             >
                                 {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                             </button>
