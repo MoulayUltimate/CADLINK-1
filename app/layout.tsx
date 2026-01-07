@@ -36,6 +36,8 @@ import { CartProvider } from "@/contexts/cart-context"
 import { CartDrawer } from "@/components/cart-drawer"
 import { LiveChatWidget } from "@/components/live-chat-widget"
 
+import { AnalyticsProvider } from "@/components/analytics-provider"
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -44,11 +46,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
-        <CartProvider>
-          {children}
-          <CartDrawer />
-          <LiveChatWidget />
-        </CartProvider>
+        <AnalyticsProvider>
+          <CartProvider>
+            {children}
+            <CartDrawer />
+            <LiveChatWidget />
+          </CartProvider>
+        </AnalyticsProvider>
         <Analytics />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VRHZJ0QQNL"
