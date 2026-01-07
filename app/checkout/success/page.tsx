@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import Link from "next/link"
 import { CheckCircle2, ArrowRight, Download } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useSearchParams } from "next/navigation"
 
-export default function SuccessPage() {
+function SuccessContent() {
     const { clearCart } = useCart()
     const searchParams = useSearchParams()
     const paymentIntent = searchParams.get("payment_intent")
@@ -45,5 +45,13 @@ export default function SuccessPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function SuccessPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#0f172a]" />}>
+            <SuccessContent />
+        </Suspense>
     )
 }
