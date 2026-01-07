@@ -12,7 +12,7 @@ import {
     X
 } from "lucide-react"
 import Image from "next/image"
-import { SettingsView } from "@/components/admin/settings-view"
+
 import { AnalyticsView } from "@/components/admin/analytics-view"
 import { LiveTraceView } from "@/components/admin/live-trace-view"
 import { DashboardView } from "@/components/admin/dashboard-view"
@@ -59,7 +59,7 @@ function AdminDashboardContent() {
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
         { id: "integrations", icon: Code2, label: "Integrations" },
-        { id: "settings", icon: Settings, label: "Settings" },
+
     ]
 
     const handleLogout = () => {
@@ -83,8 +83,6 @@ function AdminDashboardContent() {
                 return <PaymentsView />
             case "integrations":
                 return <IntegrationsView />
-            case "settings":
-                return <SettingsView />
             default:
                 return <DashboardView />
         }
