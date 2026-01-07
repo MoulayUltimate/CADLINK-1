@@ -39,7 +39,13 @@ export default function CheckoutPage() {
                         setClientSecret(data.clientSecret)
                     } else {
                         console.error("Payment intent error:", data.error)
-                        setError(data.error || "Failed to initialize payment")
+                        let errorMessage = data.error
+                        if (data.debug?.isPlaceholder) {
+                            errorMessage += " (Using placeholder key - Env var missing)"
+                        } else if (!data.debug?.keyPresent) {
+                            errorMessage += " (Stripe Key Missing on Server)"
+                        }
+                        setError(errorMessage || "Failed to initialize payment")
                     }
                 })
                 .catch((err) => {

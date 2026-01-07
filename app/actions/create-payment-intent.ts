@@ -28,6 +28,12 @@ export async function createPaymentIntent(amount: number, currency: string = "us
         console.error("Error creating payment intent:", error)
         console.log("Stripe Key Present:", !!process.env.STRIPE_SECRET_KEY)
         console.log("Stripe Key Prefix:", process.env.STRIPE_SECRET_KEY?.substring(0, 7))
-        return { error: error.message || "Failed to create payment intent" }
+        return {
+            error: error.message || "Failed to create payment intent",
+            debug: {
+                keyPresent: !!process.env.STRIPE_SECRET_KEY,
+                isPlaceholder: process.env.STRIPE_SECRET_KEY === "sk_test_placeholder" || !process.env.STRIPE_SECRET_KEY
+            }
+        }
     }
 }
