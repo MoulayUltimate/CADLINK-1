@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "sonner"
-import { Check, Star } from "lucide-react"
+import { Check, Star, ShoppingCart } from "lucide-react"
 import Image from "next/image"
 
 export function ProductCardSection() {
@@ -121,8 +121,9 @@ export function ProductCardSection() {
                     <button
                       onClick={handleAddToCart}
                       // Mobile optimized button size - Massive, Premium & High-Impact
-                      className="flex-1 w-full h-[88px] sm:h-[64px] bg-gradient-to-r from-[#0168A0] to-[#015580] hover:from-[#015580] hover:to-[#014460] text-2xl sm:text-xl font-black text-white rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.6)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
+                      className="flex-1 w-full h-[96px] sm:h-[64px] bg-gradient-to-r from-[#0168A0] to-[#015580] hover:from-[#015580] hover:to-[#014460] text-xl sm:text-lg font-black text-white rounded-full shadow-[0_20px_40px_-12px_rgba(1,104,160,0.6)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-4"
                     >
+                      <ShoppingCart className="w-8 h-8" strokeWidth={2.5} />
                       Add to Cart
                     </button>
                   </div>
