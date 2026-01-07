@@ -1,26 +1,37 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "sonner"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
 
 export function ProductCardSection() {
-  // Git connection verified
   const [quantity, setQuantity] = useState(1)
+  const [product, setProduct] = useState<any>(null)
   const { addItem } = useCart()
 
+  useEffect(() => {
+    fetch('/api/product')
+      .then(res => res.json())
+      .then(data => setProduct(data))
+      .catch(err => console.error('Failed to fetch product', err))
+  }, [])
+
   const handleAddToCart = () => {
+    if (!product) return
     addItem({
-      id: "prod_cadlink_v11",
-      name: "CADLINK Digital Factory 11 DTF Edition",
-      price: 75.19,
-      image: "/images/cadlink-product.png",
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
       quantity: quantity,
     })
     toast.success("Added to cart")
   }
+
+  if (!product) return null
+
 
   return (
     <section className="py-20 bg-white" id="product">
@@ -65,11 +76,10 @@ export function ProductCardSection() {
                     </div>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight mb-4">
-                    CADLINK Digital Factory 11 DTF Edition
+                    {product.name}
                   </h2>
                   <p className="text-gray-500 leading-relaxed">
-                    The world's most powerful DTF RIP software. Engineered for precision color management and high-volume
-                    production.
+                    {product.description}
                   </p>
                 </div>
 
@@ -80,7 +90,7 @@ export function ProductCardSection() {
                     <span className="bg-[#4CAF50] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">SAVE 90%</span>
                   </div>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-black text-gray-900">$75.19</span>
+                    <span className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</span>
                     <span className="text-lg text-gray-400 line-through font-medium">$800.00</span>
                   </div>
                 </div>

@@ -28,18 +28,24 @@ export function BuyNowButton({
 
   const handleBuyNow = async () => {
     setIsLoading(true)
-    // Simulate a small delay for effect
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    try {
+      const res = await fetch('/api/product')
+      const product = await res.json()
 
-    addItem({
-      id: productId, // Use the passed productId
-      name: "CADLINK Digital Factory 11 DTF Edition",
-      price: 75.19,
-      image: "/images/cadlink-product.png",
-      quantity: 1,
-    })
-    toast.success("Added to cart")
-    setIsLoading(false)
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+      })
+      toast.success("Added to cart")
+    } catch (err) {
+      console.error('Failed to buy now', err)
+      toast.error("Failed to add to cart")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

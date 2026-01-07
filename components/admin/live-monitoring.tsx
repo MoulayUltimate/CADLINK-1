@@ -34,29 +34,25 @@ export function LiveMonitoring({ onInspectUser }: LiveMonitoringProps) {
                 <MetricCard
                     icon={Users}
                     label="Active Visitors"
-                    value={liveData.totalActive}
-                    trend={Math.random() > 0.5 ? 'up' : 'down'}
+                    value={0}
                     color="blue"
-                    pulse
                 />
                 <MetricCard
                     icon={Eye}
                     label="Page Views/min"
-                    value={Math.floor(liveData.totalActive * 1.5)}
-                    trend="up"
+                    value={0}
                     color="purple"
                 />
                 <MetricCard
                     icon={ShoppingCart}
                     label="Cart Events"
-                    value={liveData.recentEvents.filter(e => e.type === 'cart_add').length}
-                    trend="up"
+                    value={0}
                     color="green"
                 />
                 <MetricCard
                     icon={Activity}
                     label="Active Pages"
-                    value={liveData.topPages.length}
+                    value={0}
                     color="orange"
                 />
             </div>
@@ -68,58 +64,12 @@ export function LiveMonitoring({ onInspectUser }: LiveMonitoringProps) {
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                             <Globe className="w-5 h-5 text-blue-400" />
-                            Active Visitors ({liveData.totalActive})
+                            Active Visitors (0)
                         </h3>
                     </div>
 
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="text-left text-xs text-gray-400 uppercase tracking-wider border-b border-white/5">
-                                    <th className="pb-3">Location</th>
-                                    <th className="pb-3">Device</th>
-                                    <th className="pb-3">Current Page</th>
-                                    <th className="pb-3">Duration</th>
-                                    <th className="pb-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {liveData.visitors.slice(0, 8).map((visitor) => (
-                                    <tr
-                                        key={visitor.id}
-                                        onClick={() => onInspectUser?.('u1')} // Using 'u1' for demo as we have mock data for it
-                                        className="group hover:bg-white/5 transition-colors cursor-pointer"
-                                    >
-                                        <td className="py-4">
-                                            <div>
-                                                <div className="text-sm font-bold text-white">{visitor.city}</div>
-                                                <div className="text-xs text-gray-400">{visitor.country} · {visitor.ip}</div>
-                                            </div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div>
-                                                <div className="text-sm text-gray-300">{visitor.device}</div>
-                                                <div className="text-xs text-gray-500">{visitor.browser}</div>
-                                            </div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="text-sm text-gray-300 truncate max-w-[200px]">/products</div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="text-sm text-gray-300">{formatDistanceToNow(visitor.lastSeen, { addSuffix: true })}</div>
-                                        </td>
-                                        <td className="py-4">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-bold rounded-full ${visitor.status === 'active' ? 'bg-green-500/20 text-green-400' :
-                                                visitor.status === 'idle' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                    'bg-gray-500/20 text-gray-400'
-                                                }`}>
-                                                {visitor.status}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="flex items-center justify-center h-64 border border-dashed border-white/10 rounded-xl">
+                        <p className="text-gray-500 font-bold">No active visitors at the moment</p>
                     </div>
                 </div>
 
@@ -131,46 +81,20 @@ export function LiveMonitoring({ onInspectUser }: LiveMonitoringProps) {
                             <MousePointerClick className="w-5 h-5 text-purple-400" />
                             Top Pages
                         </h3>
-                        <div className="space-y-3">
-                            {liveData.topPages.map((page, i) => (
-                                <div key={i}>
-                                    <div className="flex justify-between text-sm mb-1">
-                                        <span className="text-gray-300 truncate">{page.url}</span>
-                                        <span className="text-gray-400 font-bold">{page.count}</span>
-                                    </div>
-                                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000"
-                                            style={{ width: `${(page.count / liveData.topPages[0]?.count) * 100}%` }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <p className="text-gray-500 text-sm text-center py-4">No data available</p>
                     </div>
 
                     {/* Countries */}
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
                         <h3 className="text-lg font-bold text-white mb-4">Active Regions</h3>
-                        <div className="space-y-3">
-                            {Object.entries(liveData.countriesMap)
-                                .sort(([, a], [, b]) => b - a)
-                                .slice(0, 5)
-                                .map(([country, count]) => (
-                                    <div key={country} className="flex justify-between items-center">
-                                        <span className="text-sm text-gray-300">{country}</span>
-                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded-full">
-                                            {count}
-                                        </span>
-                                    </div>
-                                ))}
-                        </div>
+                        <p className="text-gray-500 text-sm text-center py-4">No data available</p>
                     </div>
                 </div>
             </div>
         </div>
     )
 }
+
 
 interface MetricCardProps {
     icon: React.ComponentType<{ className?: string }>

@@ -2,7 +2,18 @@ import { BuyNowButton } from "./buy-now-button"
 import Image from "next/image"
 import { Star, ShieldCheck, Zap } from "lucide-react"
 
+import { useState, useEffect } from "react"
+
 export function HeroSection() {
+  const [price, setPrice] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/product')
+      .then(res => res.json())
+      .then(data => setPrice(data.price))
+      .catch(err => console.error('Failed to fetch price', err))
+  }, [])
+
   return (
     <section className="relative pt-12 pb-20 md:pt-20 md:pb-32 overflow-hidden bg-white">
       {/* Background Decorative Elements */}
@@ -37,7 +48,7 @@ export function HeroSection() {
                   Buy Now
                 </BuyNowButton>
                 <div className="flex flex-col items-start">
-                  <span className="text-4xl font-black text-gray-900">$75.19</span>
+                  <span className="text-4xl font-black text-gray-900">${price ? price.toFixed(2) : '75.19'}</span>
                   <span className="text-sm font-bold text-gray-400 line-through">$800.00</span>
                 </div>
               </div>

@@ -22,24 +22,9 @@ interface Script {
 }
 
 export function IntegrationsView() {
-    const [scripts, setScripts] = useState<Script[]>([
-        {
-            id: 'ga4',
-            name: 'Google Analytics 4',
-            code: '<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\'js\', new Date());\n  gtag(\'config\', \'G-XXXXXX\');\n</script>',
-            location: 'head',
-            enabled: true
-        },
-        {
-            id: 'fb-pixel',
-            name: 'Facebook Pixel',
-            code: '<!-- Meta Pixel Code -->\n<script>\n!function(f,b,e,v,n,t,s)\n{if(f.fbq)return;n=f.fbq=function(){n.callMethod?\nn.callMethod.apply(n,arguments):n.queue.push(arguments)};\nif(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version=\'2.0\';\n...</script>',
-            location: 'head',
-            enabled: false
-        }
-    ])
+    const [scripts, setScripts] = useState<Script[]>([])
 
-    const [activeScriptId, setActiveScriptId] = useState<string | null>(scripts[0].id)
+    const [activeScriptId, setActiveScriptId] = useState<string | null>(null)
     const activeScript = scripts.find(s => s.id === activeScriptId)
 
     const handleSave = () => {
@@ -69,13 +54,13 @@ export function IntegrationsView() {
             <div className="grid lg:grid-cols-3 gap-6">
                 {/* Script List */}
                 <div className="space-y-4">
-                    {scripts.map((script) => (
+                    {scripts.length > 0 ? scripts.map((script) => (
                         <div
                             key={script.id}
                             onClick={() => setActiveScriptId(script.id)}
                             className={`p-4 rounded-xl border cursor-pointer transition-all ${activeScriptId === script.id
-                                    ? 'bg-[#0168A0]/10 border-[#0168A0] ring-1 ring-[#0168A0]'
-                                    : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                ? 'bg-[#0168A0]/10 border-[#0168A0] ring-1 ring-[#0168A0]'
+                                : 'bg-white/5 border-white/10 hover:bg-white/10'
                                 }`}
                         >
                             <div className="flex items-center justify-between mb-2">
@@ -93,7 +78,11 @@ export function IntegrationsView() {
                                 <span>Last edited 2d ago</span>
                             </div>
                         </div>
-                    ))}
+                    )) : (
+                        <div className="p-8 bg-white/5 border border-dashed border-white/10 rounded-2xl text-center">
+                            <p className="text-gray-500 text-sm font-bold">No scripts integrated yet</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Editor */}
@@ -112,8 +101,8 @@ export function IntegrationsView() {
                                     <button
                                         onClick={() => handleToggle(activeScript.id)}
                                         className={`p-2 rounded-lg transition-colors ${activeScript.enabled
-                                                ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                                                : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                                            ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                                            : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
                                             }`}
                                     >
                                         {activeScript.enabled ? 'Disable' : 'Enable'}
@@ -175,3 +164,4 @@ export function IntegrationsView() {
         </div>
     )
 }
+

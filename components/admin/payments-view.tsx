@@ -18,12 +18,7 @@ export function PaymentsView() {
     const [stripeKey, setStripeKey] = useState('pk_test_51O...')
     const [webhookSecret, setWebhookSecret] = useState('whsec_...')
 
-    const transactions = [
-        { id: 'tx_1234', customer: 'alice@example.com', amount: 1995.00, status: 'succeeded', date: '2 mins ago' },
-        { id: 'tx_1235', customer: 'bob@example.com', amount: 495.00, status: 'succeeded', date: '15 mins ago' },
-        { id: 'tx_1236', customer: 'charlie@example.com', amount: 1995.00, status: 'failed', date: '1 hour ago' },
-        { id: 'tx_1237', customer: 'david@example.com', amount: 699.00, status: 'refunded', date: '2 hours ago' },
-    ]
+    const transactions: any[] = []
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
@@ -95,9 +90,9 @@ export function PaymentsView() {
                             </div>
 
                             <div className="pt-4 flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-sm text-green-400 bg-green-400/10 px-3 py-1.5 rounded-full font-bold">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Webhooks Active
+                                <div className="flex items-center gap-2 text-gray-400 bg-white/5 px-3 py-1.5 rounded-full font-bold">
+                                    <AlertCircle className="w-4 h-4" />
+                                    Webhooks Not Configured
                                 </div>
                                 <button className="text-sm font-bold text-[#635BFF] hover:text-[#534be0] transition-colors">
                                     Test Connection
@@ -109,29 +104,8 @@ export function PaymentsView() {
                     {/* Recent Transactions */}
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
                         <h3 className="text-lg font-bold text-white mb-6">Recent Transactions</h3>
-                        <div className="space-y-4">
-                            {transactions.map((tx) => (
-                                <div key={tx.id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors group">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`p-2 rounded-lg ${tx.status === 'succeeded' ? 'bg-green-500/20 text-green-400' :
-                                                tx.status === 'failed' ? 'bg-red-500/20 text-red-400' :
-                                                    'bg-orange-500/20 text-orange-400'
-                                            }`}>
-                                            {tx.status === 'succeeded' ? <CheckCircle2 className="w-5 h-5" /> :
-                                                tx.status === 'failed' ? <AlertCircle className="w-5 h-5" /> :
-                                                    <RefreshCw className="w-5 h-5" />}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-white text-sm">{tx.customer}</p>
-                                            <p className="text-xs text-gray-500 font-mono">{tx.id}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-black text-white">${tx.amount.toFixed(2)}</p>
-                                        <p className="text-xs text-gray-500">{tx.date}</p>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="flex flex-col items-center justify-center py-12 border border-dashed border-white/10 rounded-xl">
+                            <p className="text-gray-500 font-bold">No transactions found</p>
                         </div>
                     </div>
                 </div>
@@ -145,11 +119,11 @@ export function PaymentsView() {
                             </div>
                             <span className="flex items-center gap-1 text-xs font-bold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
                                 <ArrowUpRight className="w-3 h-3" />
-                                +12.5%
+                                0%
                             </span>
                         </div>
                         <p className="text-sm font-medium opacity-80 mb-1">Total Revenue (This Month)</p>
-                        <h3 className="text-4xl font-black">$42,500.00</h3>
+                        <h3 className="text-4xl font-black">$0.00</h3>
                     </div>
 
                     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
@@ -174,3 +148,4 @@ export function PaymentsView() {
         </div>
     )
 }
+

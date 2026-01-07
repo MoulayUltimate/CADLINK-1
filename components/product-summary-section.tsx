@@ -1,7 +1,18 @@
 import { Check, Star, Download, ShieldCheck, Clock, Zap } from "lucide-react"
 import { BuyNowButton } from "./buy-now-button"
 
+import { useState, useEffect } from "react"
+
 export function ProductSummarySection() {
+  const [price, setPrice] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/product')
+      .then(res => res.json())
+      .then(data => setPrice(data.price))
+      .catch(err => console.error('Failed to fetch price', err))
+  }, [])
+
   const features = [
     {
       icon: <Clock className="w-5 h-5 text-[#0168A0]" />,
@@ -64,7 +75,7 @@ export function ProductSummarySection() {
               productId="prod_cadlink_v11"
               className="w-full md:w-auto bg-[#0168A0] hover:bg-[#015580] text-white font-black px-12 py-6 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.5)] transition-all hover:-translate-y-1 active:scale-95"
             >
-              Get It Now - $75.19
+              Get It Now - ${price ? price.toFixed(2) : '75.19'}
             </BuyNowButton>
             <p className="mt-4 text-xs text-gray-400 font-medium">
               Instant Delivery via Email • Lifetime License • 24/7 Support
