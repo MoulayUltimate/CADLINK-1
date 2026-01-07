@@ -29,13 +29,22 @@ export default function CheckoutPage() {
 
     const finalTotal = Math.max(0, total - discount)
 
+    const [error, setError] = useState("")
+
     useEffect(() => {
         if (finalTotal > 0) {
             createPaymentIntent(finalTotal)
                 .then((data) => {
                     if (data.clientSecret) {
                         setClientSecret(data.clientSecret)
+                    } else {
+                        console.error("Payment intent error:", data.error)
+                        setError(data.error || "Failed to initialize payment")
                     }
+                })
+                .catch((err) => {
+                    console.error("System error:", err)
+                    setError("System error occurred")
                 })
         }
     }, [finalTotal])
@@ -187,10 +196,21 @@ export default function CheckoutPage() {
                                 </Elements>
                             ) : (
                                 <div className="h-[400px] flex items-center justify-center bg-white border border-gray-100 rounded-2xl shadow-sm">
-                                    <div className="text-center">
-                                        <Loader2 className="w-8 h-8 text-[#0168A0] animate-spin mx-auto mb-4" />
-                                        <p className="text-gray-500 font-bold">Initializing Checkout...</p>
-                                    </div>
+                                    {error ? (
+                                        <div className="text-center p-6 max-w-md">
+                                            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <ShieldCheck className="w-6 h-6 text-red-500" />
+                                            </div>
+                                            <h3 className="text-lg font-bold text-gray-900 mb-2">Payment System Error</h3>
+                                            <p className="text-sm text-gray-500 mb-4">{error}</p>
+                                            <p className="text-xs text-gray-400">Please try refreshing the page or contact support.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center">
+                                            <Loader2 className="w-8 h-8 text-[#0168A0] animate-spin mx-auto mb-4" />
+                                            <p className="text-gray-500 font-bold">Initializing Checkout...</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
