@@ -8,7 +8,7 @@ import Stripe from "stripe"
 export async function createPaymentIntent(amount: number, currency: string = "usd") {
     try {
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", {
-            // apiVersion: "2024-12-18.acacia",
+            httpClient: Stripe.createFetchHttpClient(),
         })
 
         // In a real app, you might fetch the API key from settings if stored there
