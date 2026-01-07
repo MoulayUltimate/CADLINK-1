@@ -17,6 +17,7 @@ import {
 interface Order {
     id: string
     email: string
+    name: string
     amount: number
     currency: string
     status: string
@@ -157,7 +158,10 @@ export function OrdersView() {
                                                 <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
                                                     <Mail className="w-4 h-4 text-gray-400" />
                                                 </div>
-                                                <span className="text-sm font-medium text-white">{order.email}</span>
+                                                <div>
+                                                    <div className="text-sm font-bold text-white">{order.name || 'Valued Customer'}</div>
+                                                    <div className="text-xs text-gray-400">{order.email}</div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">

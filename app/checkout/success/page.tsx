@@ -15,6 +15,7 @@ function SuccessContent() {
         if (paymentIntent) {
             // Record order
             const email = localStorage.getItem('checkout_email') || 'unknown@example.com'
+            const name = localStorage.getItem('checkout_name') || 'Valued Customer'
             const amount = 75.19 // Default price, should ideally come from session
 
             fetch('/api/orders', {
@@ -22,6 +23,7 @@ function SuccessContent() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
+                    name,
                     amount,
                     paymentIntent,
                     currency: 'USD'

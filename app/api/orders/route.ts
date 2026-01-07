@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 
 export const runtime = 'edge'
 
 interface Order {
     id: string
     email: string
+    name: string
     amount: number
     currency: string
     status: string
@@ -19,6 +21,8 @@ interface KVNamespace {
     list(options?: { prefix?: string; limit?: number; cursor?: string }): Promise<{ keys: { name: string }[] }>
 }
 
+const KV_PREFIX = 'cadlink:order:'
+
 export async function GET(req: NextRequest) {
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
@@ -26,13 +30,14 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const { keys } = await KV.list({ prefix: 'order:' })
+        const { keys } = await KV.list({ prefix: KV_PREFIX })
         const orders = await Promise.all(
             keys.map(async (key: { name: string }) => {
                 return await KV.get(key.name, 'json') as Order
             })
         )
-        return NextResponse.json(orders.sort((a, b) => b.timestamp - a.timestamp))
+        // Filter out any nulls and sort
+        return NextResponse.json(orders.filter(o => o).sort((a, b) => b.timestamp - a.timestamp))
     } catch (err) {
         return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
     }
@@ -40,10 +45,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     const body = await req.json()
-    const { email, amount, currency, paymentIntent } = body
+    const { email: clientEmail, name: clientName, amount: clientAmount, currency, paymentIntent } = body
 
-    if (!email || !amount || !paymentIntent) {
-        return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    if (!paymentIntent) {
+        return NextResponse.json({ error: 'Missing paymentIntent' }, { status: 400 })
     }
 
     const KV = (process.env as any).KV as KVNamespace
@@ -51,10 +56,48 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })
     }
 
+    // 1. Check if order already exists for this paymentIntent
+    const { keys: existingKeys } = await KV.list({ prefix: KV_PREFIX })
+    for (const key of existingKeys) {
+        const existingOrder = await KV.get(key.name, 'json') as Order
+        if (existingOrder && existingOrder.paymentIntent === paymentIntent) {
+            return NextResponse.json(existingOrder) // Return existing order instead of creating duplicate
+        }
+    }
+
+    // 2. Try to fetch details from Stripe for verification
+    let email = clientEmail || 'unknown@example.com'
+    let name = clientName || 'Valued Customer'
+    let amount = clientAmount || 75.19
+
+    try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+            httpClient: Stripe.createFetchHttpClient(),
+        })
+        const pi = await stripe.paymentIntents.retrieve(paymentIntent)
+        if (pi) {
+            // Use Stripe data if available as it's the source of truth
+            email = pi.receipt_email || pi.shipping?.name || email
+            // Billing details are often in the latest_charge or charges
+            const charge = typeof pi.latest_charge === 'string'
+                ? await stripe.charges.retrieve(pi.latest_charge)
+                : (pi as any).charges?.data?.[0]
+
+            if (charge) {
+                email = charge.billing_details?.email || email
+                name = charge.billing_details?.name || name
+            }
+            amount = pi.amount / 100
+        }
+    } catch (err) {
+        console.error('Stripe verification failed, using client data', err)
+    }
+
     const orderId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
     const order: Order = {
         id: orderId,
         email,
+        name,
         amount,
         currency: currency || 'USD',
         status: 'completed',
@@ -63,7 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        await KV.put(`order:${orderId}`, JSON.stringify(order))
+        await KV.put(`${KV_PREFIX}${orderId}`, JSON.stringify(order))
         return NextResponse.json(order)
     } catch (err) {
         return NextResponse.json({ error: 'Failed to save order' }, { status: 500 })

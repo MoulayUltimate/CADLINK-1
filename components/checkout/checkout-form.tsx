@@ -70,6 +70,10 @@ export function CheckoutForm({
 
         setIsLoading(true)
 
+        // Save details for success page
+        localStorage.setItem('checkout_name', `${customerDetails.firstName} ${customerDetails.lastName}`)
+        localStorage.setItem('checkout_email', customerDetails.email)
+
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
