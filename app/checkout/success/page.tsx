@@ -13,6 +13,21 @@ function SuccessContent() {
 
     useEffect(() => {
         if (paymentIntent) {
+            // Record order
+            const email = localStorage.getItem('checkout_email') || 'unknown@example.com'
+            const amount = 75.19 // Default price, should ideally come from session
+
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email,
+                    amount,
+                    paymentIntent,
+                    currency: 'USD'
+                })
+            }).catch(err => console.error('Failed to record order', err))
+
             clearCart()
         }
     }, [paymentIntent, clearCart])

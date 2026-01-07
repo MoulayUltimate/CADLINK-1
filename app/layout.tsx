@@ -34,6 +34,7 @@ export const metadata: Metadata = {
 
 import { CartProvider } from "@/contexts/cart-context"
 import { CartDrawer } from "@/components/cart-drawer"
+import { LiveChatWidget } from "@/components/live-chat-widget"
 
 export default function RootLayout({
   children,
@@ -46,6 +47,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <CartDrawer />
+          <LiveChatWidget />
         </CartProvider>
         <Analytics />
         <Script

@@ -9,6 +9,7 @@ import {
     Menu,
     BarChart2,
     Activity,
+    MessageCircle,
     X
 } from "lucide-react"
 import Image from "next/image"
@@ -21,7 +22,9 @@ import { UserInspector } from "@/components/admin/user-inspector"
 import { PaymentsView } from "@/components/admin/payments-view"
 import { IntegrationsView } from "@/components/admin/integrations-view"
 import { AbandonedCheckoutsView } from "@/components/admin/abandoned-checkouts-view"
-import { Package, CreditCard, Code2, AlertCircle } from "lucide-react"
+import { LiveChatView } from "@/components/admin/live-chat-view"
+import { OrdersView } from "@/components/admin/orders-view"
+import { Package, CreditCard, Code2, AlertCircle, ShoppingBag } from "lucide-react"
 
 function AdminDashboardContent() {
     const router = useRouter()
@@ -53,12 +56,14 @@ function AdminDashboardContent() {
 
     const menuItems = [
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+        { id: "orders", icon: ShoppingBag, label: "Orders" },
         { id: "analytics", icon: BarChart2, label: "Analytics" },
         { id: "live-trace", icon: Activity, label: "User Trace" },
         { id: "abandoned", icon: AlertCircle, label: "Abandoned Checkouts" },
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
         { id: "integrations", icon: Code2, label: "Integrations" },
+        { id: "chat", icon: MessageCircle, label: "Live Chat" },
 
     ]
 
@@ -71,6 +76,8 @@ function AdminDashboardContent() {
         switch (activeTab) {
             case "dashboard":
                 return <DashboardView />
+            case "orders":
+                return <OrdersView />
             case "analytics":
                 return <AnalyticsView />
             case "live-trace":
@@ -83,6 +90,8 @@ function AdminDashboardContent() {
                 return <PaymentsView />
             case "integrations":
                 return <IntegrationsView />
+            case "chat":
+                return <LiveChatView />
             default:
                 return <DashboardView />
         }
