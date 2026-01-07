@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
-import { createPaymentIntent } from "@/app/actions/create-payment-intent"
+
 import { useCart } from "@/contexts/cart-context"
 import { Loader2, ShoppingCart, ArrowLeft, ShieldCheck } from "lucide-react"
 import Link from "next/link"
@@ -33,7 +33,12 @@ export default function CheckoutPage() {
 
     useEffect(() => {
         if (finalTotal > 0) {
-            createPaymentIntent(finalTotal)
+            fetch('/api/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: finalTotal })
+            })
+                .then(res => res.json())
                 .then((data) => {
                     if (data.clientSecret) {
                         setClientSecret(data.clientSecret)
