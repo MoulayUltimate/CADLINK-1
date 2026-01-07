@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, Filter, MoreHorizontal, Mail, Clock, ShoppingCart, AlertCircle, ArrowRight } from "lucide-react"
 import Image from "next/image"
 
@@ -70,8 +70,28 @@ const MOCK_ABANDONED_CHECKOUTS = [
 
 export function AbandonedCheckoutsView() {
     const [searchTerm, setSearchTerm] = useState("")
+    const [checkouts, setCheckouts] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
 
-    const filteredCheckouts = MOCK_ABANDONED_CHECKOUTS.filter(
+    useEffect(() => {
+        const fetchCheckouts = async () => {
+            try {
+                const response = await fetch('/api/abandoned-checkouts')
+                if (response.ok) {
+                    const data = await response.json()
+                    setCheckouts(data.checkouts || [])
+                }
+            } catch (error) {
+                console.error("Failed to fetch checkouts", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchCheckouts()
+    }, [])
+
+    const filteredCheckouts = checkouts.filter(
         (checkout) =>
             checkout.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
             checkout.id.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -187,10 +207,10 @@ export function AbandonedCheckoutsView() {
                                     <td className="px-6 py-4">
                                         <span
                                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${checkout.status === "Recovered"
-                                                    ? "bg-green-500/10 text-green-500"
-                                                    : checkout.status === "Email Sent"
-                                                        ? "bg-blue-500/10 text-blue-500"
-                                                        : "bg-gray-500/10 text-gray-500"
+                                                ? "bg-green-500/10 text-green-500"
+                                                : checkout.status === "Email Sent"
+                                                    ? "bg-blue-500/10 text-blue-500"
+                                                    : "bg-gray-500/10 text-gray-500"
                                                 }`}
                                         >
                                             {checkout.status}

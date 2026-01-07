@@ -53,6 +53,25 @@ export default function CheckoutPage() {
         }
     }
 
+    const handleEmailBlur = async () => {
+        if (email && email.includes('@')) {
+            try {
+                await fetch('/api/abandoned-checkouts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        cartValue: finalTotal,
+                        items: cart,
+                        stage: 'Payment'
+                    })
+                })
+            } catch (error) {
+                console.error('Failed to track abandoned checkout', error)
+            }
+        }
+    }
+
     const appearance = {
         theme: 'stripe' as const,
         variables: {
@@ -149,6 +168,7 @@ export default function CheckoutPage() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    onBlur={handleEmailBlur}
                                     required
                                     className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:border-[#0168A0] focus:ring-1 focus:ring-[#0168A0] outline-none transition-all"
                                     placeholder="john@example.com"
