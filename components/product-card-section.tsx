@@ -120,8 +120,8 @@ export function ProductCardSection() {
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      // Mobile optimized button size
-                      className="flex-1 w-full h-[72px] sm:h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white text-xl sm:text-base font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5 active:scale-95"
+                      // Mobile optimized button size - Massive, Premium & High-Impact
+                      className="flex-1 w-full h-[88px] sm:h-[64px] bg-gradient-to-r from-[#0168A0] to-[#015580] hover:from-[#015580] hover:to-[#014460] text-2xl sm:text-xl font-black text-white rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.6)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
                     >
                       Add to Cart
                     </button>

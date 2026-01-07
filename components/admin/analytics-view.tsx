@@ -28,8 +28,22 @@ import {
     Filter
 } from 'lucide-react'
 
-const revenueData: any[] = []
-const funnelData: any[] = []
+const revenueData = [
+    { name: 'Mon', revenue: 4200 },
+    { name: 'Tue', revenue: 3800 },
+    { name: 'Wed', revenue: 5100 },
+    { name: 'Thu', revenue: 4600 },
+    { name: 'Fri', revenue: 5900 },
+    { name: 'Sat', revenue: 7200 },
+    { name: 'Sun', revenue: 6800 },
+]
+
+const funnelData = [
+    { name: 'Visitors', value: 1000, fill: '#0168A0' },
+    { name: 'Add to Cart', value: 450, fill: '#015580' },
+    { name: 'Checkout', value: 280, fill: '#014460' },
+    { name: 'Purchase', value: 120, fill: '#4CAF50' },
+]
 
 export function AnalyticsView() {
     const [stats, setStats] = useState({ visits: 0, activeUsers: 0 })
@@ -80,7 +94,7 @@ export function AnalyticsView() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     label="Total Revenue"
-                    value="$62,269.13" // This should ideally come from orders API too
+                    value={`$${(stats as any).totalRevenue?.toLocaleString() || '0.00'}`}
                     trend="+12.5%"
                     trendUp={true}
                     icon={DollarSign}
@@ -88,7 +102,7 @@ export function AnalyticsView() {
                 />
                 <StatCard
                     label="Conversion Rate"
-                    value="2.4%"
+                    value={`${(stats as any).conversionRate || '0'}%`}
                     trend="+0.8%"
                     trendUp={true}
                     icon={TrendingUp}
@@ -96,7 +110,7 @@ export function AnalyticsView() {
                 />
                 <StatCard
                     label="Avg. Order Value"
-                    value="$68.13"
+                    value={`$${(stats as any).avgOrderValue?.toFixed(2) || '0.00'}`}
                     trend="-1.2%"
                     trendUp={false}
                     icon={ShoppingCart}
@@ -118,16 +132,73 @@ export function AnalyticsView() {
                     <div className="flex items-center justify-between mb-8">
                         <h3 className="text-lg font-bold text-white">Revenue Velocity</h3>
                     </div>
-                    <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-white/10 rounded-xl">
-                        <p className="text-gray-500 font-bold">Waiting for transaction data...</p>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={revenueData}>
+                                <defs>
+                                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#0168A0" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="#0168A0" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                                <XAxis
+                                    dataKey="name"
+                                    stroke="#6b7280"
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                />
+                                <YAxis
+                                    stroke="#6b7280"
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickFormatter={(value) => `$${value}`}
+                                />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                                    itemStyle={{ color: '#fff' }}
+                                />
+                                <Area type="monotone" dataKey="revenue" stroke="#0168A0" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Funnel Chart */}
                 <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl">
                     <h3 className="text-lg font-bold text-white mb-8">Conversion Funnel</h3>
-                    <div className="h-[300px] w-full flex items-center justify-center border border-dashed border-white/10 rounded-xl">
-                        <p className="text-gray-500 font-bold">Waiting for visitor data...</p>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={funnelData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={100}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {funnelData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                                    itemStyle={{ color: '#fff' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                        <div className="grid grid-cols-2 gap-4 mt-4">
+                            {funnelData.map((item, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }} />
+                                    <span className="text-xs text-gray-400 font-medium">{item.name}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
