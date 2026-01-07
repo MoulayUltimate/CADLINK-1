@@ -1,7 +1,6 @@
 "use server"
 
 import Stripe from "stripe"
-import { getSettings } from "./settings"
 
 // Stripe initialized inside function to ensure env vars are ready
 

@@ -1,5 +1,7 @@
 "use client"
 
+import { useState, useEffect } from "react"
+
 import {
     BarChart,
     Bar,
@@ -47,6 +49,28 @@ const funnelData = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 export function AnalyticsView() {
+    const [activeUsers, setActiveUsers] = useState<number | null>(null)
+    const [isConfigured, setIsConfigured] = useState(true)
+
+    useEffect(() => {
+        const fetchAnalytics = async () => {
+            try {
+                const res = await fetch('/api/analytics')
+                const data = await res.json()
+                if (data.isConfigured === false) {
+                    setIsConfigured(false)
+                } else {
+                    setActiveUsers(data.activeUsers)
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        fetchAnalytics()
+        const interval = setInterval(fetchAnalytics, 60000)
+        return () => clearInterval(interval)
+    }, [])
+
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -55,24 +79,35 @@ export function AnalyticsView() {
                     <p className="text-gray-400">Deep dive into your store's performance metrics.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm font-bold text-white hover:bg-white/10 transition-all flex items-center gap-2">
-                        <Filter className="w-4 h-4" />
-                        Last 7 Days
-                    </button>
-                    <button className="px-4 py-2 bg-[#0168A0] text-white rounded-xl text-sm font-bold hover:bg-[#015580] transition-all shadow-lg shadow-[#0168A0]/20">
-                        Export Report
-                    </button>
+                    <a
+                        href="https://analytics.google.com/analytics/web/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#0168A0] text-white rounded-xl text-sm font-bold hover:bg-[#015580] transition-all shadow-lg shadow-[#0168A0]/20 flex items-center gap-2"
+                    >
+                        <ArrowUpRight className="w-4 h-4" />
+                        Open Google Analytics
+                    </a>
                 </div>
             </div>
+
+            {!isConfigured && (
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 mb-6">
+                    <p className="text-orange-400 text-sm font-medium flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        <strong>Setup Required:</strong> To see real data here, you need to add your Google Service Account credentials to Cloudflare.
+                    </p>
+                </div>
+            )}
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    label="Total Revenue"
-                    value="$42,500.00"
-                    trend="+12.5%"
+                    label="Active Users Now"
+                    value={activeUsers !== null ? activeUsers.toString() : "..."}
+                    trend="Live"
                     trendUp={true}
-                    icon={DollarSign}
+                    icon={Users}
                     color="green"
                 />
                 <StatCard
