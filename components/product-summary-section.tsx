@@ -1,3 +1,5 @@
+"use client"
+
 import { Check, Star, Download, ShieldCheck, Clock, Zap } from "lucide-react"
 import { BuyNowButton } from "./buy-now-button"
 

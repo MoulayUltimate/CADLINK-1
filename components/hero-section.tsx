@@ -1,3 +1,5 @@
+"use client"
+
 import { BuyNowButton } from "./buy-now-button"
 import Image from "next/image"
 import { Star, ShieldCheck, Zap } from "lucide-react"
