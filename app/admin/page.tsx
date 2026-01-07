@@ -20,7 +20,8 @@ import { ProductManagement } from "@/components/admin/product-management"
 import { UserInspector } from "@/components/admin/user-inspector"
 import { PaymentsView } from "@/components/admin/payments-view"
 import { IntegrationsView } from "@/components/admin/integrations-view"
-import { Package, CreditCard, Code2 } from "lucide-react"
+import { AbandonedCheckoutsView } from "@/components/admin/abandoned-checkouts-view"
+import { Package, CreditCard, Code2, AlertCircle } from "lucide-react"
 
 function AdminDashboardContent() {
     const router = useRouter()
@@ -54,6 +55,7 @@ function AdminDashboardContent() {
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { id: "analytics", icon: BarChart2, label: "Analytics" },
         { id: "live-trace", icon: Activity, label: "User Trace" },
+        { id: "abandoned", icon: AlertCircle, label: "Abandoned Checkouts" },
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
         { id: "integrations", icon: Code2, label: "Integrations" },
@@ -73,6 +75,8 @@ function AdminDashboardContent() {
                 return <AnalyticsView />
             case "live-trace":
                 return <LiveTraceView onInspectUser={(id: string) => setSelectedUserId(id)} />
+            case "abandoned":
+                return <AbandonedCheckoutsView />
             case "products":
                 return <ProductManagement />
             case "payments":

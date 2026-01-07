@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///Users/mac/Documents/antigravity/CADLINK/app/admin/settings/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\"\n\nexport default function SettingsRedirect() {\n    redirect(\"/admin?view=settings\")\n}\n"],"names":[],"mappings":";;;;AAAA;AAAA;;AAEe,SAAS;IACpB,IAAA,gUAAQ,EAAC;AACb"}}]
+}

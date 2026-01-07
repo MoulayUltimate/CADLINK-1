@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/blog/[slug]/page": "app/blog/[slug]/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/page": "app/page.js",
+  "/privacy-policy/page": "app/privacy-policy/page.js",
+  "/refund-returns/page": "app/refund-returns/page.js",
+  "/shipping-policy/page": "app/shipping-policy/page.js",
+  "/terms-conditions/page": "app/terms-conditions/page.js"
+}

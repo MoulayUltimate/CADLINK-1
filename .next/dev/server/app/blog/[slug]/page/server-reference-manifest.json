@@ -1,0 +1,20 @@
+{
+  "node": {
+    "40861ce0a31465834cffb7553ce8f0fa561bbbf3b1": {
+      "workers": {
+        "app/blog/[slug]/page": {
+          "moduleId": "[project]/.next-internal/server/app/blog/[slug]/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/create-checkout.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createCheckoutSession",
+          "filename": "app/actions/create-checkout.ts"
+        }
+      },
+      "layer": {
+        "app/blog/[slug]/page": "action-browser"
+      },
+      "exportedName": "createCheckoutSession",
+      "filename": "app/actions/create-checkout.ts"
+    }
+  },
+  "edge": {}
+}

@@ -7,6 +7,7 @@ import { Check, Star } from "lucide-react"
 import Image from "next/image"
 
 export function ProductCardSection() {
+  // Git connection verified
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
 

@@ -1,0 +1,20 @@
+{
+  "node": {
+    "606d891a2a85baa543e8b08c28f75773c6bbf820e0": {
+      "workers": {
+        "app/checkout/page": {
+          "moduleId": "[project]/.next-internal/server/app/checkout/page/actions.js { ACTIONS_MODULE0 => \"[project]/app/actions/create-payment-intent.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "createPaymentIntent",
+          "filename": "app/actions/create-payment-intent.ts"
+        }
+      },
+      "layer": {
+        "app/checkout/page": "action-browser"
+      },
+      "exportedName": "createPaymentIntent",
+      "filename": "app/actions/create-payment-intent.ts"
+    }
+  },
+  "edge": {}
+}
