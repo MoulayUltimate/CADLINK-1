@@ -3,7 +3,7 @@
 import Stripe from "stripe"
 
 // Stripe initialized inside function to ensure env vars are ready
-export const runtime = 'edge'
+
 
 export async function createPaymentIntent(amount: number, currency: string = "usd") {
     try {
