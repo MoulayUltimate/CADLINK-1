@@ -49,28 +49,6 @@ const funnelData = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 export function AnalyticsView() {
-    const [activeUsers, setActiveUsers] = useState<number | null>(null)
-    const [isConfigured, setIsConfigured] = useState(true)
-
-    useEffect(() => {
-        const fetchAnalytics = async () => {
-            try {
-                const res = await fetch('/api/analytics')
-                const data = await res.json()
-                if (data.isConfigured === false) {
-                    setIsConfigured(false)
-                } else {
-                    setActiveUsers(data.activeUsers)
-                }
-            } catch (e) {
-                console.error(e)
-            }
-        }
-        fetchAnalytics()
-        const interval = setInterval(fetchAnalytics, 60000)
-        return () => clearInterval(interval)
-    }, [])
-
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -91,23 +69,21 @@ export function AnalyticsView() {
                 </div>
             </div>
 
-            {!isConfigured && (
-                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 mb-6">
-                    <p className="text-orange-400 text-sm font-medium flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
-                        <strong>Setup Required:</strong> To see real data here, you need to add your Google Service Account credentials to Cloudflare.
-                    </p>
-                </div>
-            )}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+                <p className="text-blue-400 text-sm font-medium flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    <strong>Note:</strong> The charts below currently show demo data. To view your real-time traffic and conversions, click the button above to open your Google Analytics dashboard.
+                </p>
+            </div>
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    label="Active Users Now"
-                    value={activeUsers !== null ? activeUsers.toString() : "..."}
-                    trend="Live"
+                    label="Total Revenue"
+                    value="$42,500.00"
+                    trend="+12.5%"
                     trendUp={true}
-                    icon={Users}
+                    icon={DollarSign}
                     color="green"
                 />
                 <StatCard
