@@ -5,7 +5,8 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { createCheckoutSession } from "@/app/actions/create-checkout"
+import { useCart } from "@/contexts/cart-context"
+import { toast } from "sonner"
 
 interface BuyNowButtonProps {
   productId: string
@@ -23,22 +24,22 @@ export function BuyNowButton({
   children,
 }: BuyNowButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const { addItem } = useCart()
 
   const handleBuyNow = async () => {
     setIsLoading(true)
-    try {
-      const result = await createCheckoutSession(productId)
-      if (result.success && result.checkoutUrl) {
-        window.location.href = result.checkoutUrl
-      } else {
-        alert("Failed to initiate checkout. Please try again.")
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("An error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
-    }
+    // Simulate a small delay for effect
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    addItem({
+      id: productId, // Use the passed productId
+      name: "CADLINK Digital Factory 11 DTF Edition",
+      price: 75.19,
+      image: "/images/cadlink-product.png",
+      quantity: 1,
+    })
+    toast.success("Added to cart")
+    setIsLoading(false)
   }
 
   return (
