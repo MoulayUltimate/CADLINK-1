@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Check } from "lucide-react"
+import { BuyNowButton } from "./buy-now-button"
 
 export function PricingSection() {
   const plans = [
@@ -58,9 +59,8 @@ export function PricingSection() {
           {plans.map((plan, index) => (
             <Card
               key={index}
-              className={`relative border-border/50 shadow-sm ${
-                plan.popular ? "border-2 border-primary shadow-lg" : ""
-              }`}
+              className={`relative border-border/50 shadow-sm ${plan.popular ? "border-2 border-primary shadow-lg" : ""
+                }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
@@ -82,9 +82,14 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full font-semibold" variant={plan.popular ? "default" : "outline"} size="lg">
-                  Contact Sales
-                </Button>
+                <BuyNowButton
+                  productId="prod_cadlink_v11"
+                  className="w-full font-semibold"
+                  variant={plan.popular ? "default" : "outline"}
+                  size="lg"
+                >
+                  Get Started
+                </BuyNowButton>
               </CardContent>
             </Card>
           ))}

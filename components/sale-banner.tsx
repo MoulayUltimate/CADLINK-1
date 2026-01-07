@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import Link from "next/link"
+import { BuyNowButton } from "./buy-now-button"
 
 export function SaleBanner() {
   const [isVisible, setIsVisible] = useState(true)
@@ -48,12 +49,12 @@ export function SaleBanner() {
           <span>{timeLeft.seconds} Seconds</span>
         </div>
         <span className="text-sm font-bold ml-4">USE CAD10 FOR 10% OFF NOW</span>
-        <Link
-          href="https://t.co/BfWNfWCCo5"
+        <BuyNowButton
+          productId="prod_cadlink_v11"
           className="ml-4 bg-white text-[#4a7c9b] px-4 py-1.5 rounded text-sm font-semibold hover:bg-gray-100 transition-colors"
         >
           Download now
-        </Link>
+        </BuyNowButton>
       </div>
       <button
         onClick={() => setIsVisible(false)}

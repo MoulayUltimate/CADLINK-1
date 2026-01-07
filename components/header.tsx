@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu, ShoppingCart, Download } from "lucide-react"
 import { useState } from "react"
+import { BuyNowButton } from "./buy-now-button"
 
 import { useCart } from "@/contexts/cart-context"
 
@@ -58,13 +59,13 @@ export function Header() {
               )}
             </button>
 
-            <Link
-              href="https://t.co/BfWNfWCCo5"
+            <BuyNowButton
+              productId="prod_cadlink_v11"
               className="hidden md:flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all hover:shadow-lg active:scale-95"
             >
               <Download className="w-4 h-4" />
               Download
-            </Link>
+            </BuyNowButton>
 
             <button className="lg:hidden text-gray-900" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <Menu className="h-6 w-6" />
@@ -86,13 +87,13 @@ export function Header() {
             <Link href="/contact" className="text-lg font-bold text-gray-900">
               Contact Us
             </Link>
-            <Link
-              href="https://t.co/BfWNfWCCo5"
+            <BuyNowButton
+              productId="prod_cadlink_v11"
               className="flex items-center justify-center gap-2 bg-[#0168A0] text-white py-4 rounded-xl font-bold"
             >
               <Download className="w-5 h-5" />
               Download Software
-            </Link>
+            </BuyNowButton>
           </div>
         </div>
       )}

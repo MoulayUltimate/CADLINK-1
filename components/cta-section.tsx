@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Download } from "lucide-react"
+import { BuyNowButton } from "./buy-now-button"
 
 export function CTASection() {
   return (
@@ -15,10 +16,10 @@ export function CTASection() {
               trial today.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" className="text-base">
+              <BuyNowButton productId="prod_cadlink_v11" size="lg" className="text-base">
                 <Download className="mr-2 h-4 w-4" />
                 Download Free Trial
-              </Button>
+              </BuyNowButton>
               <Button size="lg" variant="outline" className="text-base bg-transparent">
                 View Pricing
                 <ArrowRight className="ml-2 h-4 w-4" />

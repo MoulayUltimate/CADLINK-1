@@ -23,11 +23,16 @@ export function FinalCTASection() {
               size="lg"
               className="text-base font-semibold shadow-lg shadow-primary/20"
             />
-            <Button size="lg" variant="outline" className="text-base font-semibold border-2 bg-transparent">
+            <BuyNowButton
+              productId="prod_cadlink_v11"
+              size="lg"
+              variant="outline"
+              className="text-base font-semibold border-2 bg-transparent"
+            >
               <Download className="mr-2 h-5 w-5" />
               Download Trial
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            </BuyNowButton>
           </div>
 
           <p className="mt-8 text-sm text-muted-foreground">
