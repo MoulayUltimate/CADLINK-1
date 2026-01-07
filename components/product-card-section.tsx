@@ -29,7 +29,7 @@ export function ProductCardSection() {
             <div className="grid grid-cols-1 lg:grid-cols-2">
               {/* Left Section - Product Image */}
               <div className="bg-[#F8FAFC] p-6 md:p-16 flex items-center justify-center relative">
-                <div className="absolute top-8 left-8">
+                <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
                   <div className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
@@ -109,7 +109,8 @@ export function ProductCardSection() {
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      className="flex-1 w-full h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5"
+                      // Mobile optimized button size
+                      className="flex-1 w-full h-[64px] sm:h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white text-lg sm:text-base font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5"
                     >
                       Add to Cart
                     </button>
