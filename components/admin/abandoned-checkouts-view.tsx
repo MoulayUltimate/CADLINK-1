@@ -111,6 +111,7 @@ export function AbandonedCheckoutsView() {
                 body: JSON.stringify({
                     email: checkout.email,
                     checkoutId: checkout.id,
+                    createdAt: checkout.created_at,
                     items: checkout.items,
                     recoveryUrl: `https://cadlink.store/checkout?recovery=${checkout.id}`
                 })

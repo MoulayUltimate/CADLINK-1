@@ -6,7 +6,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, checkoutId, items, recoveryUrl } = await req.json()
+        const { email, checkoutId, createdAt, items, recoveryUrl } = await req.json()
 
         if (!email || !checkoutId) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -148,6 +148,30 @@ export async function POST(req: NextRequest) {
         }
 
         const data = await res.json()
+
+        // Update status in KV
+        if (createdAt) {
+            try {
+                const kv = (process.env as any).KV
+                if (kv) {
+                    const key = `abandoned:${createdAt}:${checkoutId}`
+                    const existingDataStr = await kv.get(key)
+                    if (existingDataStr) {
+                        const existingData = JSON.parse(existingDataStr)
+                        const updatedData = {
+                            ...existingData,
+                            status: 'Email Sent',
+                            emailSentAt: Date.now()
+                        }
+                        await kv.put(key, JSON.stringify(updatedData))
+                    }
+                }
+            } catch (kvError) {
+                console.error('Failed to update KV status:', kvError)
+                // Don't fail the request if just the status update fails, as the email was sent
+            }
+        }
+
         return NextResponse.json({ success: true, id: data.id })
 
     } catch (error: any) {
