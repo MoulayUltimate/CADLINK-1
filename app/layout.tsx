@@ -38,6 +38,8 @@ import { LiveChatWidget } from "@/components/live-chat-widget"
 
 import { AnalyticsProvider } from "@/components/analytics-provider"
 
+import { AnalyticsHeartbeat } from "@/components/analytics-heartbeat"
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -51,6 +53,7 @@ export default function RootLayout({
             {children}
             <CartDrawer />
             <LiveChatWidget />
+            <AnalyticsHeartbeat />
           </CartProvider>
         </AnalyticsProvider>
         <Analytics />

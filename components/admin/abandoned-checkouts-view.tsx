@@ -108,7 +108,11 @@ export function AbandonedCheckoutsView() {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-400">Abandoned Rate</p>
-                            <h3 className="text-2xl font-black text-white">24.8%</h3>
+                            <h3 className="text-2xl font-black text-white">
+                                {checkouts.length > 0
+                                    ? ((checkouts.filter(c => c.status === 'Not Recovered').length / checkouts.length) * 100).toFixed(1)
+                                    : 0}%
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -119,7 +123,9 @@ export function AbandonedCheckoutsView() {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-400">Emails Sent</p>
-                            <h3 className="text-2xl font-black text-white">128</h3>
+                            <h3 className="text-2xl font-black text-white">
+                                {checkouts.filter(c => c.status === 'Email Sent').length}
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -130,7 +136,12 @@ export function AbandonedCheckoutsView() {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-400">Recovered Revenue</p>
-                            <h3 className="text-2xl font-black text-white">$1,245.00</h3>
+                            <h3 className="text-2xl font-black text-white">
+                                ${checkouts
+                                    .filter(c => c.status === 'Recovered')
+                                    .reduce((acc, curr) => acc + (curr.value || 0), 0)
+                                    .toFixed(2)}
+                            </h3>
                         </div>
                     </div>
                 </div>
