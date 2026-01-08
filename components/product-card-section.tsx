@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react"
 import { useCart } from "@/contexts/cart-context"
 import { toast } from "sonner"
-import { Check, Star } from "lucide-react"
+import { Check, Star, ShoppingCart } from "lucide-react"
 import Image from "next/image"
 
 export function ProductCardSection() {
-  const [quantity, setQuantity] = useState(1)
   const [product, setProduct] = useState<any>(null)
   const { addItem } = useCart()
 
@@ -25,7 +24,7 @@ export function ProductCardSection() {
       name: product.name,
       price: product.price,
       image: product.image,
-      quantity: quantity,
+      quantity: 1,
     })
     toast.success("Added to cart")
   }
@@ -98,31 +97,11 @@ export function ProductCardSection() {
                 {/* Quantity & Action */}
                 <div className="space-y-6">
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex items-center justify-between bg-white border-2 border-gray-100 rounded-xl overflow-hidden h-[56px]">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-14 h-full flex items-center justify-center text-xl font-bold text-gray-400 hover:text-[#0168A0] hover:bg-gray-50 transition-colors"
-                      >
-                        −
-                      </button>
-                      <input
-                        type="number"
-                        value={quantity}
-                        readOnly
-                        className="w-12 h-full text-center font-bold text-gray-900 bg-transparent focus:outline-none"
-                      />
-                      <button
-                        onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                        className="w-14 h-full flex items-center justify-center text-xl font-bold text-gray-400 hover:text-[#0168A0] hover:bg-gray-50 transition-colors"
-                      >
-                        +
-                      </button>
-                    </div>
                     <button
                       onClick={handleAddToCart}
-                      // Mobile optimized button size - Massive, Premium & High-Impact
-                      className="flex-1 w-full h-[88px] sm:h-[64px] bg-gradient-to-r from-[#0168A0] to-[#015580] hover:from-[#015580] hover:to-[#014460] text-2xl sm:text-xl font-black text-white rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.6)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
+                      className="flex-1 w-full h-[56px] bg-[#0168A0] hover:bg-[#015580] text-white text-lg font-bold rounded-xl shadow-[0_12px_24px_-8px_rgba(1,104,160,0.4)] transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
                     >
+                      <ShoppingCart className="w-5 h-5" />
                       Add to Cart
                     </button>
                   </div>
