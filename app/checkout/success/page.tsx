@@ -4,9 +4,10 @@ import { useEffect, Suspense } from "react"
 import Link from "next/link"
 import { CheckCircle2, ArrowRight, Download } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 function SuccessContent() {
+    const router = useRouter()
     const { clearCart } = useCart()
     const searchParams = useSearchParams()
     const paymentIntent = searchParams.get("payment_intent")
@@ -149,13 +150,13 @@ function SuccessContent() {
                         Download Invoice
                     </button>
 
-                    <Link
-                        href="/"
-                        className="block w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-20"
+                    <button
+                        onClick={() => router.push("/")}
+                        className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-20"
                     >
                         Return to Store
                         <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    </button>
                 </div>
             </div>
         </div>
