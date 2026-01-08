@@ -29,8 +29,8 @@ export function PaymentsView() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white">Monetization Command</h2>
-                    <p className="text-gray-400">Manage payments, webhooks, and revenue streams.</p>
+                    <h2 className="text-3xl font-black text-foreground">Monetization Command</h2>
+                    <p className="text-muted-foreground">Manage payments, webhooks, and revenue streams.</p>
                 </div>
                 <button className="bg-[#635BFF] hover:bg-[#534be0] text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-[#635BFF]/20">
                     <ExternalLink className="w-5 h-5" />
@@ -41,30 +41,30 @@ export function PaymentsView() {
             <div className="grid lg:grid-cols-3 gap-6">
                 {/* Stripe Configuration */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
+                    <div className="bg-card backdrop-blur-md border border-border rounded-2xl p-6">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-3 bg-[#635BFF]/20 rounded-xl">
                                 <CreditCard className="w-6 h-6 text-[#635BFF]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-white">Stripe Integration</h3>
-                                <p className="text-sm text-gray-400">Configure your payment gateway settings.</p>
+                                <h3 className="text-lg font-bold text-foreground">Stripe Integration</h3>
+                                <p className="text-sm text-muted-foreground">Configure your payment gateway settings.</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Publishable Key</label>
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Publishable Key</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
                                         value={stripeKey}
                                         onChange={(e) => setStripeKey(e.target.value)}
-                                        className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition-all"
+                                        className="flex-1 bg-muted border border-border rounded-xl px-4 py-3 text-foreground font-mono text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition-all"
                                     />
                                     <button
                                         onClick={() => copyToClipboard(stripeKey)}
-                                        className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors"
+                                        className="p-3 bg-muted hover:bg-muted/80 rounded-xl text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         <Copy className="w-5 h-5" />
                                     </button>
@@ -72,17 +72,17 @@ export function PaymentsView() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Webhook Secret</label>
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Webhook Secret</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="password"
                                         value={webhookSecret}
                                         onChange={(e) => setWebhookSecret(e.target.value)}
-                                        className="flex-1 bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition-all"
+                                        className="flex-1 bg-muted border border-border rounded-xl px-4 py-3 text-foreground font-mono text-sm focus:border-[#635BFF] focus:ring-1 focus:ring-[#635BFF] outline-none transition-all"
                                     />
                                     <button
                                         onClick={() => copyToClipboard(webhookSecret)}
-                                        className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-colors"
+                                        className="p-3 bg-muted hover:bg-muted/80 rounded-xl text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         <Copy className="w-5 h-5" />
                                     </button>
@@ -90,7 +90,7 @@ export function PaymentsView() {
                             </div>
 
                             <div className="pt-4 flex items-center justify-between">
-                                <div className="flex items-center gap-2 text-gray-400 bg-white/5 px-3 py-1.5 rounded-full font-bold">
+                                <div className="flex items-center gap-2 text-muted-foreground bg-muted px-3 py-1.5 rounded-full font-bold">
                                     <AlertCircle className="w-4 h-4" />
                                     Webhooks Not Configured
                                 </div>
@@ -102,10 +102,10 @@ export function PaymentsView() {
                     </div>
 
                     {/* Recent Transactions */}
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-white mb-6">Recent Transactions</h3>
-                        <div className="flex flex-col items-center justify-center py-12 border border-dashed border-white/10 rounded-xl">
-                            <p className="text-gray-500 font-bold">No transactions found</p>
+                    <div className="bg-card backdrop-blur-md border border-border rounded-2xl p-6">
+                        <h3 className="text-lg font-bold text-foreground mb-6">Recent Transactions</h3>
+                        <div className="flex flex-col items-center justify-center py-12 border border-dashed border-border rounded-xl">
+                            <p className="text-muted-foreground font-bold">No transactions found</p>
                         </div>
                     </div>
                 </div>
@@ -126,20 +126,20 @@ export function PaymentsView() {
                         <h3 className="text-4xl font-black">$0.00</h3>
                     </div>
 
-                    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6">
-                        <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
+                    <div className="bg-card backdrop-blur-md border border-border rounded-2xl p-6">
+                        <h3 className="text-lg font-bold text-foreground mb-4">Quick Actions</h3>
                         <div className="space-y-3">
-                            <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group text-left">
-                                <span className="font-bold text-gray-300 group-hover:text-white">Process Refund</span>
-                                <RefreshCw className="w-4 h-4 text-gray-500 group-hover:text-white" />
+                            <button className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 rounded-xl transition-colors group text-left">
+                                <span className="font-bold text-muted-foreground group-hover:text-foreground">Process Refund</span>
+                                <RefreshCw className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
                             </button>
-                            <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group text-left">
-                                <span className="font-bold text-gray-300 group-hover:text-white">Download Invoice</span>
-                                <Download className="w-4 h-4 text-gray-500 group-hover:text-white" />
+                            <button className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 rounded-xl transition-colors group text-left">
+                                <span className="font-bold text-muted-foreground group-hover:text-foreground">Download Invoice</span>
+                                <Download className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
                             </button>
-                            <button className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors group text-left">
-                                <span className="font-bold text-gray-300 group-hover:text-white">View Failed Payments</span>
-                                <AlertCircle className="w-4 h-4 text-gray-500 group-hover:text-white" />
+                            <button className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 rounded-xl transition-colors group text-left">
+                                <span className="font-bold text-muted-foreground group-hover:text-foreground">View Failed Payments</span>
+                                <AlertCircle className="w-4 h-4 text-muted-foreground group-hover:text-foreground" />
                             </button>
                         </div>
                     </div>
