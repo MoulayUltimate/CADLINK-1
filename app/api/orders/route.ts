@@ -17,16 +17,17 @@ interface Order {
 // Cloudflare KV type definition
 interface KVNamespace {
     get(key: string, type: 'json'): Promise<any>
-    put(key: string, value: string | ArrayBuffer | ReadableStream): Promise<void>
-    list(options?: { prefix?: string; limit?: number; cursor?: string }): Promise<{ keys: { name: string }[] }>
+    get(key: string, type: 'text'): Promise<string | null>
+    put(key: string, value: string): Promise<void>
+    list(options?: { prefix?: string; limit?: number }): Promise<{ keys: { name: string }[] }>
 }
 
 const KV_PREFIX = 'cadlink:order:'
+const PI_PREFIX = 'cadlink:pi:'  // For paymentIntent deduplication
 
 export async function GET(req: NextRequest) {
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
-        // Return empty array when KV is not available
         return NextResponse.json([])
     }
 
@@ -42,7 +43,6 @@ export async function GET(req: NextRequest) {
                 }
             })
         )
-        // Filter out any nulls and sort
         const validOrders = orders.filter((o): o is Order => o !== null && typeof o === 'object')
         return NextResponse.json(validOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)))
     } catch (err) {
@@ -64,13 +64,18 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })
     }
 
-    // 1. Check if order already exists for this paymentIntent
-    const { keys: existingKeys } = await KV.list({ prefix: KV_PREFIX })
-    for (const key of existingKeys) {
-        const existingOrder = await KV.get(key.name, 'json') as Order
-        if (existingOrder && existingOrder.paymentIntent === paymentIntent) {
-            return NextResponse.json(existingOrder) // Return existing order instead of creating duplicate
+    // 1. Fast duplicate check using PI_PREFIX key
+    try {
+        const existingOrderId = await KV.get(`${PI_PREFIX}${paymentIntent}`, 'text')
+        if (existingOrderId) {
+            // Already have an order for this payment intent
+            const existingOrder = await KV.get(`${KV_PREFIX}${existingOrderId}`, 'json')
+            if (existingOrder) {
+                return NextResponse.json({ ...existingOrder, duplicate: true })
+            }
         }
+    } catch (err) {
+        console.error('Duplicate check failed:', err)
     }
 
     // 2. Try to fetch details from Stripe for verification
@@ -79,15 +84,13 @@ export async function POST(req: NextRequest) {
     let amount = clientAmount || 75.19
 
     try {
-        if (!paymentIntent.startsWith('test_')) {
-            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+        if (!paymentIntent.startsWith('test_') && process.env.STRIPE_SECRET_KEY) {
+            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
                 httpClient: Stripe.createFetchHttpClient(),
             })
             const pi = await stripe.paymentIntents.retrieve(paymentIntent)
             if (pi) {
-                // Use Stripe data if available as it's the source of truth
-                email = pi.receipt_email || pi.shipping?.name || email
-                // Billing details are often in the latest_charge or charges
+                email = pi.receipt_email || email
                 const charge = typeof pi.latest_charge === 'string'
                     ? await stripe.charges.retrieve(pi.latest_charge)
                     : (pi as any).charges?.data?.[0]
@@ -116,7 +119,10 @@ export async function POST(req: NextRequest) {
     }
 
     try {
+        // Save order
         await KV.put(`${KV_PREFIX}${orderId}`, JSON.stringify(order))
+        // Save paymentIntent lookup key for fast deduplication
+        await KV.put(`${PI_PREFIX}${paymentIntent}`, orderId)
         return NextResponse.json(order)
     } catch (err) {
         return NextResponse.json({ error: 'Failed to save order' }, { status: 500 })
