@@ -57,6 +57,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
             return [...prev, newItem]
         })
         setIsOpen(true)
+
+        // Track cart event for analytics
+        fetch('/api/analytics/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'add', productId: newItem.id })
+        }).catch(() => { }) // Ignore errors
     }
 
     const removeItem = (id: string) => {
