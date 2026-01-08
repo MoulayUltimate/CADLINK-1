@@ -19,6 +19,7 @@ interface KVNamespace {
     get(key: string, type: 'json'): Promise<any>
     get(key: string, type: 'text'): Promise<string | null>
     put(key: string, value: string): Promise<void>
+    delete(key: string): Promise<void>
     list(options?: { prefix?: string; limit?: number }): Promise<{ keys: { name: string }[] }>
 }
 
@@ -126,5 +127,37 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(order)
     } catch (err) {
         return NextResponse.json({ error: 'Failed to save order' }, { status: 500 })
+    }
+}
+
+export async function DELETE(req: NextRequest) {
+    const { searchParams } = new URL(req.url)
+    const orderId = searchParams.get('orderId')
+
+    if (!orderId) {
+        return NextResponse.json({ error: 'Missing orderId' }, { status: 400 })
+    }
+
+    const KV = (process.env as any).KV as KVNamespace
+    if (!KV) {
+        return NextResponse.json({ error: 'KV not available' }, { status: 500 })
+    }
+
+    try {
+        // Get the order first to find the paymentIntent
+        const order = await KV.get(`${KV_PREFIX}${orderId}`, 'json') as Order | null
+
+        // Delete the order
+        await KV.delete(`${KV_PREFIX}${orderId}`)
+
+        // Also delete the paymentIntent lookup key if exists
+        if (order?.paymentIntent) {
+            await KV.delete(`${PI_PREFIX}${order.paymentIntent}`)
+        }
+
+        return NextResponse.json({ success: true, deleted: orderId })
+    } catch (err) {
+        console.error('Failed to delete order:', err)
+        return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 })
     }
 }

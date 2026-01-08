@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
     Package,
     Search,
@@ -12,7 +12,8 @@ import {
     Calendar,
     DollarSign,
     Loader2,
-    Trash2
+    Trash2,
+    X
 } from 'lucide-react'
 
 interface Order {
@@ -30,6 +31,10 @@ export function OrdersView() {
     const [orders, setOrders] = useState<Order[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+    const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
+    const [isDeletingOne, setIsDeletingOne] = useState(false)
+    const menuRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -55,6 +60,33 @@ export function OrdersView() {
 
         fetchOrders()
     }, [])
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+                setOpenMenuId(null)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleDeleteOrder = async (orderId: string) => {
+        setIsDeletingOne(true)
+        try {
+            const res = await fetch(`/api/orders?orderId=${orderId}`, { method: 'DELETE' })
+            if (res.ok) {
+                setOrders(orders.filter(o => o.id !== orderId))
+            }
+        } catch (err) {
+            console.error('Failed to delete order', err)
+        } finally {
+            setIsDeletingOne(false)
+            setDeleteConfirmId(null)
+            setOpenMenuId(null)
+        }
+    }
 
     const filteredOrders = orders.filter(order =>
         order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -260,13 +292,62 @@ export function OrdersView() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
+                                            <div className="flex items-center justify-end gap-2 relative" ref={openMenuId === order.id ? menuRef : null}>
                                                 <button className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-all">
                                                     <ExternalLink className="w-4 h-4" />
                                                 </button>
-                                                <button className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-all">
+                                                <button
+                                                    onClick={() => setOpenMenuId(openMenuId === order.id ? null : order.id)}
+                                                    className="p-2 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg transition-all"
+                                                >
                                                     <MoreVertical className="w-4 h-4" />
                                                 </button>
+
+                                                {/* Dropdown Menu */}
+                                                {openMenuId === order.id && (
+                                                    <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden min-w-[160px]">
+                                                        <button
+                                                            onClick={() => setDeleteConfirmId(order.id)}
+                                                            className="w-full px-4 py-3 text-left text-sm font-bold text-red-500 hover:bg-red-500/10 flex items-center gap-2 transition-colors"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                            Delete Order
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* Delete Confirmation Popup */}
+                                                {deleteConfirmId === order.id && (
+                                                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]" onClick={() => setDeleteConfirmId(null)}>
+                                                        <div className="bg-card border border-border rounded-2xl p-6 max-w-sm mx-4 shadow-2xl" onClick={e => e.stopPropagation()}>
+                                                            <div className="flex items-center justify-between mb-4">
+                                                                <h3 className="text-lg font-black text-foreground">Delete Order?</h3>
+                                                                <button onClick={() => setDeleteConfirmId(null)} className="p-1 hover:bg-muted rounded-lg">
+                                                                    <X className="w-5 h-5 text-muted-foreground" />
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-sm text-muted-foreground mb-6">
+                                                                Are you sure you want to delete order <span className="font-bold text-foreground">{order.id}</span>? This action cannot be undone.
+                                                            </p>
+                                                            <div className="flex gap-3">
+                                                                <button
+                                                                    onClick={() => setDeleteConfirmId(null)}
+                                                                    className="flex-1 px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-bold rounded-xl transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDeleteOrder(order.id)}
+                                                                    disabled={isDeletingOne}
+                                                                    className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                                                >
+                                                                    {isDeletingOne ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
