@@ -199,46 +199,62 @@ export function AnalyticsView() {
 
                 {/* Funnel Chart */}
                 <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl">
-                    <h3 className="text-lg font-bold text-foreground mb-8">Conversion Funnel</h3>
-                    <div className="h-[300px] w-full">
+                    <h3 className="text-lg font-bold text-foreground mb-6">Conversion Funnel</h3>
+                    <div className="space-y-4">
                         {stats.funnelData.length > 0 ? (
-                            <>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={stats.funnelData}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={100}
-                                            paddingAngle={5}
-                                            dataKey="value"
-                                        >
-                                            {stats.funnelData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.fill} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--foreground)' }}
-                                            itemStyle={{ color: 'var(--foreground)' }}
-                                        />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                                <div className="grid grid-cols-2 gap-4 mt-4">
-                                    {stats.funnelData.map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }} />
-                                            <span className="text-xs text-muted-foreground font-medium">{item.name}: {item.value}</span>
+                            stats.funnelData.map((item, index) => {
+                                const maxValue = Math.max(...stats.funnelData.map(d => d.value), 1)
+                                const percentage = ((item.value / maxValue) * 100).toFixed(0)
+                                const prevValue = index > 0 ? stats.funnelData[index - 1].value : item.value
+                                const dropRate = prevValue > 0 ? ((1 - item.value / prevValue) * 100).toFixed(1) : 0
+
+                                return (
+                                    <div key={index} className="relative">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: item.fill }}>
+                                                    {index + 1}
+                                                </div>
+                                                <span className="font-bold text-foreground">{item.name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-2xl font-black text-foreground">{item.value.toLocaleString()}</span>
+                                                {index > 0 && Number(dropRate) > 0 && (
+                                                    <span className="text-xs font-bold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">
+                                                        -{dropRate}%
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </>
+                                        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                                            <div
+                                                className="h-full rounded-full transition-all duration-500"
+                                                style={{
+                                                    width: `${percentage}%`,
+                                                    backgroundColor: item.fill
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            })
                         ) : (
-                            <div className="flex items-center justify-center h-full text-muted-foreground">
+                            <div className="flex items-center justify-center h-32 text-muted-foreground">
                                 <p>No funnel data yet</p>
                             </div>
                         )}
                     </div>
+
+                    {stats.funnelData.length > 0 && stats.funnelData[0].value > 0 && (
+                        <div className="mt-6 pt-6 border-t border-border">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-muted-foreground">Overall Conversion Rate</span>
+                                <span className="text-xl font-black text-green-500">
+                                    {((stats.funnelData[stats.funnelData.length - 1]?.value || 0) / stats.funnelData[0].value * 100).toFixed(2)}%
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
