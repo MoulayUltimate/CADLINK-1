@@ -62,6 +62,8 @@ export function AnalyticsView() {
         funnelData: []
     })
 
+    const [isLive, setIsLive] = useState(false)
+
     useEffect(() => {
         const fetchStats = async () => {
             try {
@@ -78,13 +80,15 @@ export function AnalyticsView() {
                         dailyRevenue: data.dailyRevenue || [],
                         funnelData: data.funnelData || []
                     })
+                    setIsLive(true)
                 }
             } catch (err) {
                 console.error('Failed to fetch analytics', err)
+                setIsLive(false)
             }
         }
         fetchStats()
-        const interval = setInterval(fetchStats, 5000)
+        const interval = setInterval(fetchStats, 5000) // Refresh every 5 seconds
         return () => clearInterval(interval)
     }, [])
 
@@ -92,7 +96,15 @@ export function AnalyticsView() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-foreground">Analytics Command</h2>
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-3xl font-black text-foreground">Analytics Command</h2>
+                        {isLive && (
+                            <span className="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 text-green-500 text-xs font-bold rounded-full">
+                                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                LIVE
+                            </span>
+                        )}
+                    </div>
                     <p className="text-muted-foreground">Deep dive into your store's performance metrics.</p>
                 </div>
                 <div className="flex items-center gap-2">
