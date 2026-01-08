@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
     Code2,
     Save,
@@ -9,7 +9,8 @@ import {
     CheckCircle2,
     Trash2,
     Plus,
-    History
+    History,
+    Loader2
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -23,19 +24,93 @@ interface Script {
 
 export function IntegrationsView() {
     const [scripts, setScripts] = useState<Script[]>([])
-
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
     const [activeScriptId, setActiveScriptId] = useState<string | null>(null)
+
+    useEffect(() => {
+        const fetchScripts = async () => {
+            try {
+                const res = await fetch('/api/admin/scripts')
+                if (res.ok) {
+                    const data = await res.json()
+                    setScripts(data)
+                    if (data.length > 0) {
+                        setActiveScriptId(data[0].id)
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch scripts', err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchScripts()
+    }, [])
+
     const activeScript = scripts.find(s => s.id === activeScriptId)
 
-    const handleSave = () => {
-        toast.success('Script configuration saved successfully')
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            const res = await fetch('/api/admin/scripts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(scripts)
+            })
+            if (res.ok) {
+                toast.success('Script configuration saved successfully')
+            } else {
+                toast.error('Failed to save scripts')
+            }
+        } catch (err) {
+            toast.error('Failed to save scripts')
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleAddScript = () => {
+        const newScript: Script = {
+            id: `script-${Date.now()}`,
+            name: 'New Tracking Script',
+            code: '<!-- Add your script here -->',
+            location: 'head',
+            enabled: false
+        }
+        setScripts([...scripts, newScript])
+        setActiveScriptId(newScript.id)
+        toast.success('New script added')
+    }
+
+    const handleDeleteScript = (id: string) => {
+        if (!confirm('Are you sure you want to delete this script?')) return
+        const newScripts = scripts.filter(s => s.id !== id)
+        setScripts(newScripts)
+        if (activeScriptId === id) {
+            setActiveScriptId(newScripts.length > 0 ? newScripts[0].id : null)
+        }
+        toast.success('Script deleted')
     }
 
     const handleToggle = (id: string) => {
         setScripts(scripts.map(s =>
             s.id === id ? { ...s, enabled: !s.enabled } : s
         ))
-        toast.success('Script status updated')
+    }
+
+    const updateActiveScript = (updates: Partial<Script>) => {
+        setScripts(scripts.map(s =>
+            s.id === activeScriptId ? { ...s, ...updates } : s
+        ))
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-[#0168A0]" />
+            </div>
+        )
     }
 
     return (
@@ -45,7 +120,10 @@ export function IntegrationsView() {
                     <h2 className="text-3xl font-black text-foreground">Integration Command</h2>
                     <p className="text-muted-foreground">Manage tracking codes and third-party scripts.</p>
                 </div>
-                <button className="bg-[#0168A0] hover:bg-[#015580] text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-[#0168A0]/20">
+                <button
+                    onClick={handleAddScript}
+                    className="bg-[#0168A0] hover:bg-[#015580] text-white font-bold px-6 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-[#0168A0]/20"
+                >
                     <Plus className="w-5 h-5" />
                     Add New Script
                 </button>
@@ -75,7 +153,7 @@ export function IntegrationsView() {
                             <div className="flex items-center gap-2 text-xs text-muted-foreground ml-11">
                                 <span className="uppercase font-bold tracking-wider">{script.location}</span>
                                 <span>•</span>
-                                <span>Last edited 2d ago</span>
+                                <span>{script.enabled ? 'Active' : 'Disabled'}</span>
                             </div>
                         </div>
                     )) : (
@@ -90,8 +168,13 @@ export function IntegrationsView() {
                     {activeScript ? (
                         <>
                             <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-4">
-                                    <h3 className="text-lg font-bold text-foreground">{activeScript.name}</h3>
+                                <div className="flex items-center gap-4 flex-1">
+                                    <input
+                                        type="text"
+                                        value={activeScript.name}
+                                        onChange={(e) => updateActiveScript({ name: e.target.value })}
+                                        className="text-lg font-bold text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-[#0168A0] outline-none transition-all px-1 py-0.5"
+                                    />
                                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${activeScript.enabled ? 'bg-green-500/10 text-green-400' : 'bg-muted text-muted-foreground'
                                         }`}>
                                         {activeScript.enabled ? 'Active' : 'Disabled'}
@@ -100,17 +183,25 @@ export function IntegrationsView() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => handleToggle(activeScript.id)}
-                                        className={`p-2 rounded-lg transition-colors ${activeScript.enabled
+                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${activeScript.enabled
                                             ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20'
                                             : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
                                             }`}
                                     >
                                         {activeScript.enabled ? 'Disable' : 'Enable'}
                                     </button>
-                                    <button className="p-2 bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground rounded-lg transition-colors">
-                                        <History className="w-5 h-5" />
-                                    </button>
-                                    <button className="p-2 bg-muted hover:bg-red-500/10 text-muted-foreground hover:text-red-400 rounded-lg transition-colors">
+                                    <select
+                                        value={activeScript.location}
+                                        onChange={(e) => updateActiveScript({ location: e.target.value as 'head' | 'body' })}
+                                        className="bg-muted text-foreground text-sm font-bold px-3 py-2 rounded-lg outline-none border border-border"
+                                    >
+                                        <option value="head">Head</option>
+                                        <option value="body">Body</option>
+                                    </select>
+                                    <button
+                                        onClick={() => handleDeleteScript(activeScript.id)}
+                                        className="p-2 bg-muted hover:bg-red-500/10 text-muted-foreground hover:text-red-400 rounded-lg transition-colors"
+                                    >
                                         <Trash2 className="w-5 h-5" />
                                     </button>
                                 </div>
@@ -119,12 +210,7 @@ export function IntegrationsView() {
                             <div className="flex-1 bg-muted border border-border rounded-xl p-4 font-mono text-sm text-foreground overflow-auto mb-6 relative group">
                                 <textarea
                                     value={activeScript.code}
-                                    onChange={(e) => {
-                                        const newScripts = scripts.map(s =>
-                                            s.id === activeScript.id ? { ...s, code: e.target.value } : s
-                                        )
-                                        setScripts(newScripts)
-                                    }}
+                                    onChange={(e) => updateActiveScript({ code: e.target.value })}
                                     className="w-full h-full bg-transparent outline-none resize-none"
                                     spellCheck={false}
                                 />
@@ -139,15 +225,12 @@ export function IntegrationsView() {
                                     Changes affect live site immediately
                                 </div>
                                 <div className="flex gap-3">
-                                    <button className="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground font-bold rounded-xl transition-colors flex items-center gap-2">
-                                        <Play className="w-4 h-4" />
-                                        Test Script
-                                    </button>
                                     <button
                                         onClick={handleSave}
-                                        className="px-6 py-2 bg-[#0168A0] hover:bg-[#015580] text-white font-bold rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-[#0168A0]/20"
+                                        disabled={isSaving}
+                                        className="px-6 py-2 bg-[#0168A0] hover:bg-[#015580] text-white font-bold rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-[#0168A0]/20 disabled:opacity-50"
                                     >
-                                        <Save className="w-4 h-4" />
+                                        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                         Save Changes
                                     </button>
                                 </div>
@@ -156,7 +239,7 @@ export function IntegrationsView() {
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
                             <Code2 className="w-12 h-12 mb-4 opacity-20" />
-                            <p className="font-bold">Select a script to edit</p>
+                            <p className="font-bold">Select a script to edit or add a new one</p>
                         </div>
                     )}
                 </div>
@@ -164,4 +247,3 @@ export function IntegrationsView() {
         </div>
     )
 }
-

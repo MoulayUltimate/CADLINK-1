@@ -39,6 +39,7 @@ import { LiveChatWidget } from "@/components/live-chat-widget"
 import { AnalyticsProvider } from "@/components/analytics-provider"
 
 import { AnalyticsHeartbeat } from "@/components/analytics-heartbeat"
+import { ScriptInjector } from "@/app/admin/components/script-injector"
 
 export default function RootLayout({
   children,
@@ -48,6 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
+        <ScriptInjector />
         <AnalyticsProvider>
           <CartProvider>
             {children}
@@ -57,24 +59,6 @@ export default function RootLayout({
           </CartProvider>
         </AnalyticsProvider>
         <Analytics />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-VRHZJ0QQNL"
-          strategy="afterInteractive"
-        />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-TF9G87JX90"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-VRHZJ0QQNL');
-            gtag('config', 'G-TF9G87JX90');
-          `}
-        </Script>
       </body>
     </html>
   )
