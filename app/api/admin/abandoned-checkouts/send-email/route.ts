@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'edge'
 
-const RESEND_API_KEY = 're_GpWrx4bB_ALExHa6DWcU3BJ4omkDU4sVf'
+const RESEND_API_KEY = process.env.RESEND_API_KEY
 
 export async function POST(req: NextRequest) {
     try {
