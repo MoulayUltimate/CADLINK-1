@@ -59,11 +59,38 @@ export function LiveChatView() {
         setNotificationsEnabled(granted)
     }
 
-    // Play beep sound for new messages
+    // Play notification chime for new messages
     const playNotificationSound = () => {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBhxbquzh0XYnAA4tgo3Gx55gGQBSmO7m0pJTCwA=')
-        audio.volume = 0.5
-        audio.play().catch(() => { })
+        try {
+            const ctx = new AudioContext()
+            const oscillator = ctx.createOscillator()
+            const gain = ctx.createGain()
+            oscillator.connect(gain)
+            gain.connect(ctx.destination)
+            // Pleasant two-tone chime
+            oscillator.frequency.value = 880 // A5 note
+            oscillator.type = 'sine'
+            gain.gain.setValueAtTime(0.4, ctx.currentTime)
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15)
+            oscillator.start(ctx.currentTime)
+            oscillator.stop(ctx.currentTime + 0.15)
+
+            // Second tone
+            setTimeout(() => {
+                const osc2 = ctx.createOscillator()
+                const gain2 = ctx.createGain()
+                osc2.connect(gain2)
+                gain2.connect(ctx.destination)
+                osc2.frequency.value = 1318.5 // E6 note
+                osc2.type = 'sine'
+                gain2.gain.setValueAtTime(0.4, ctx.currentTime)
+                gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2)
+                osc2.start(ctx.currentTime)
+                osc2.stop(ctx.currentTime + 0.2)
+            }, 150)
+        } catch (e) {
+            console.log('Audio not available')
+        }
     }
 
     // Fetch all sessions
