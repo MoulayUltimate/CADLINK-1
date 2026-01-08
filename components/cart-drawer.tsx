@@ -1,13 +1,13 @@
 "use client"
 
 import { useCart } from "@/contexts/cart-context"
-import { X, Minus, Plus, ShoppingBag, Trash2, Lock } from "lucide-react"
+import { X, ShoppingBag, Trash2, Lock } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { createCheckoutSession } from "@/app/actions/create-checkout"
 
 export function CartDrawer() {
-    const { items, removeItem, updateQuantity, isOpen, setIsOpen, subtotal } = useCart()
+    const { items, removeItem, isOpen, setIsOpen, subtotal } = useCart()
     const [isLoading, setIsLoading] = useState(false)
 
     // Prevent body scroll when cart is open
@@ -92,22 +92,7 @@ export function CartDrawer() {
                                             <p className="text-[#0168A0] font-bold mt-1">${item.price.toFixed(2)}</p>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
-                                            <div className="flex items-center border border-gray-200 rounded-lg h-8">
-                                                <button
-                                                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                    className="w-8 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500"
-                                                    disabled={item.quantity <= 1}
-                                                >
-                                                    <Minus className="w-3 h-3" />
-                                                </button>
-                                                <span className="w-8 text-center text-xs font-bold text-gray-900">{item.quantity}</span>
-                                                <button
-                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                    className="w-8 h-full flex items-center justify-center hover:bg-gray-50 text-gray-500"
-                                                >
-                                                    <Plus className="w-3 h-3" />
-                                                </button>
-                                            </div>
+                                            <span className="text-xs text-gray-500">Qty: 1</span>
                                             <button
                                                 onClick={() => removeItem(item.id)}
                                                 className="text-gray-400 hover:text-red-500 transition-colors"

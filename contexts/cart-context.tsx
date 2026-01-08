@@ -50,11 +50,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => {
             const existing = prev.find((item) => item.id === newItem.id)
             if (existing) {
-                return prev.map((item) =>
-                    item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item,
-                )
+                // Item already in cart - don't add more (limit: 1 per customer)
+                return prev
             }
-            return [...prev, newItem]
+            // Always set quantity to 1 (single item only)
+            return [...prev, { ...newItem, quantity: 1 }]
         })
         setIsOpen(true)
 
