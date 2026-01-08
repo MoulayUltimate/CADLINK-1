@@ -7,13 +7,11 @@ import {
     Settings,
     LogOut,
     Menu,
-    BarChart2,
     MessageCircle,
     X
 } from "lucide-react"
 import Image from "next/image"
 
-import { AnalyticsView } from "@/components/admin/analytics-view"
 
 import { DashboardView } from "@/components/admin/dashboard-view"
 import { ProductManagement } from "@/components/admin/product-management"
@@ -76,7 +74,6 @@ function AdminDashboardContent() {
         { id: "chat", icon: MessageCircle, label: "Live Chat" },
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { id: "orders", icon: ShoppingBag, label: "Orders" },
-        { id: "analytics", icon: BarChart2, label: "Analytics" },
         { id: "abandoned", icon: AlertCircle, label: "Abandoned Checkouts" },
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
@@ -100,8 +97,6 @@ function AdminDashboardContent() {
                 return <DashboardView />
             case "orders":
                 return <OrdersView />
-            case "analytics":
-                return <AnalyticsView />
             case "abandoned":
                 return <AbandonedCheckoutsView />
             case "products":
