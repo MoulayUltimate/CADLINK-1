@@ -128,7 +128,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             visits: gaVisits || visits, // Prefer GA, fallback to KV
-            activeUsers: gaActiveUsers || Math.floor(Math.random() * 5) + 1,
+            activeUsers: gaActiveUsers, // Real data from Google Analytics
             activeRegions, // Real-time users by country
             totalRevenue,
             totalOrders,

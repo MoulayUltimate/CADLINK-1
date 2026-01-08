@@ -6,27 +6,58 @@ import { Users, ShoppingCart, Activity, Globe, MapPin, MessageCircle, DollarSign
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { requestNotificationPermission, sendNotification, getNotificationPermission } from '@/lib/notification-utils'
 
-// Country flag mapping
-function getCountryFlag(country: string): string {
-    const flags: { [key: string]: string } = {
-        'United States': '🇺🇸',
-        'United Kingdom': '🇬🇧',
-        'Canada': '🇨🇦',
-        'Germany': '🇩🇪',
-        'France': '🇫🇷',
-        'Australia': '🇦🇺',
-        'Netherlands': '🇳🇱',
-        'Spain': '🇪🇸',
-        'Italy': '🇮🇹',
-        'Brazil': '🇧🇷',
-        'India': '🇮🇳',
-        'Japan': '🇯🇵',
-        'Morocco': '🇲🇦',
-        'UAE': '🇦🇪',
-        'Saudi Arabia': '🇸🇦',
-        'Unknown': '🌍'
-    }
-    return flags[country] || '🌍'
+// Country code to flag and name mapping
+const countryData: { [key: string]: { flag: string; name: string } } = {
+    'US': { flag: '🇺🇸', name: 'United States' },
+    'GB': { flag: '🇬🇧', name: 'United Kingdom' },
+    'CA': { flag: '🇨🇦', name: 'Canada' },
+    'DE': { flag: '🇩🇪', name: 'Germany' },
+    'FR': { flag: '🇫🇷', name: 'France' },
+    'AU': { flag: '🇦🇺', name: 'Australia' },
+    'NL': { flag: '🇳🇱', name: 'Netherlands' },
+    'ES': { flag: '🇪🇸', name: 'Spain' },
+    'IT': { flag: '🇮🇹', name: 'Italy' },
+    'BR': { flag: '🇧🇷', name: 'Brazil' },
+    'IN': { flag: '🇮🇳', name: 'India' },
+    'JP': { flag: '🇯🇵', name: 'Japan' },
+    'CN': { flag: '🇨🇳', name: 'China' },
+    'MX': { flag: '🇲🇽', name: 'Mexico' },
+    'KR': { flag: '🇰🇷', name: 'South Korea' },
+    'RU': { flag: '🇷🇺', name: 'Russia' },
+    'PL': { flag: '🇵🇱', name: 'Poland' },
+    'SE': { flag: '🇸🇪', name: 'Sweden' },
+    'NO': { flag: '🇳🇴', name: 'Norway' },
+    'DK': { flag: '🇩🇰', name: 'Denmark' },
+    'BE': { flag: '🇧🇪', name: 'Belgium' },
+    'CH': { flag: '🇨🇭', name: 'Switzerland' },
+    'AT': { flag: '🇦🇹', name: 'Austria' },
+    'IE': { flag: '🇮🇪', name: 'Ireland' },
+    'NZ': { flag: '🇳🇿', name: 'New Zealand' },
+    'SG': { flag: '🇸🇬', name: 'Singapore' },
+    'PT': { flag: '🇵🇹', name: 'Portugal' },
+    'AR': { flag: '🇦🇷', name: 'Argentina' },
+    'ZA': { flag: '🇿🇦', name: 'South Africa' },
+    'AE': { flag: '🇦🇪', name: 'UAE' },
+    'SA': { flag: '🇸🇦', name: 'Saudi Arabia' },
+    'IL': { flag: '🇮🇱', name: 'Israel' },
+    'TR': { flag: '🇹🇷', name: 'Turkey' },
+    'EG': { flag: '🇪🇬', name: 'Egypt' },
+    'NG': { flag: '🇳🇬', name: 'Nigeria' },
+    'KE': { flag: '🇰🇪', name: 'Kenya' },
+    'MA': { flag: '🇲🇦', name: 'Morocco' },
+    'PH': { flag: '🇵🇭', name: 'Philippines' },
+    'ID': { flag: '🇮🇩', name: 'Indonesia' },
+    'TH': { flag: '🇹🇭', name: 'Thailand' },
+    'VN': { flag: '🇻🇳', name: 'Vietnam' },
+    'PK': { flag: '🇵🇰', name: 'Pakistan' },
+    'BD': { flag: '🇧🇩', name: 'Bangladesh' },
+    'CO': { flag: '🇨🇴', name: 'Colombia' },
+    'CL': { flag: '🇨🇱', name: 'Chile' },
+    'PE': { flag: '🇵🇪', name: 'Peru' },
+}
+
+function getCountryInfo(code: string): { flag: string; name: string } {
+    return countryData[code] || { flag: '🌍', name: code }
 }
 
 interface ChatSession {
@@ -312,19 +343,22 @@ export function Dashboard() {
                 </div>
                 {activeRegions.length > 0 ? (
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {activeRegions.slice(0, 8).map((region, index) => (
-                            <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
-                                <span className="text-2xl">{getCountryFlag(region.country)}</span>
-                                <div className="flex-1">
-                                    <p className="font-bold text-foreground text-sm">{region.country}</p>
-                                    <p className="text-xs text-muted-foreground">{region.count} user{region.count !== 1 ? 's' : ''}</p>
+                        {activeRegions.slice(0, 8).map((region, index) => {
+                            const info = getCountryInfo(region.country)
+                            return (
+                                <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-xl">
+                                    <span className="text-2xl">{info.flag}</span>
+                                    <div className="flex-1">
+                                        <p className="font-bold text-foreground text-sm">{info.name}</p>
+                                        <p className="text-xs text-muted-foreground">{region.count} user{region.count !== 1 ? 's' : ''}</p>
+                                    </div>
+                                    <span className="flex h-2 w-2 relative">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                    </span>
                                 </div>
-                                <span className="flex h-2 w-2 relative">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-8">
@@ -333,6 +367,52 @@ export function Dashboard() {
                         <p className="text-xs text-muted-foreground/70 mt-1">Regions appear as users browse</p>
                     </div>
                 )}
+            </div>
+
+            {/* User Activity Trace */}
+            <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <Activity className="w-5 h-5 text-purple-500" />
+                        Live User Activity
+                    </h3>
+                    <span className="text-xs font-bold text-muted-foreground">Last 5 minutes</span>
+                </div>
+                <div className="space-y-3">
+                    {stats.funnelData.length > 0 ? (
+                        <div className="grid md:grid-cols-4 gap-4">
+                            {stats.funnelData.map((item, index) => (
+                                <div key={index} className="p-4 bg-muted/30 rounded-xl border border-border">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }}></div>
+                                        <span className="text-sm font-bold text-muted-foreground">{item.name}</span>
+                                    </div>
+                                    <p className="text-2xl font-black text-foreground">{item.value}</p>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center text-muted-foreground py-4">No user activity yet</p>
+                    )}
+
+                    {/* Recent Events Timeline */}
+                    <div className="mt-6 pt-4 border-t border-border">
+                        <p className="text-sm font-bold text-muted-foreground mb-3">Recent Events</p>
+                        <div className="space-y-2">
+                            {cartEvents.length > 0 ? (
+                                cartEvents.slice(0, 5).map((_, index) => (
+                                    <div key={index} className="flex items-center gap-3 text-sm">
+                                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                        <span className="text-muted-foreground">Cart event from visitor</span>
+                                        <span className="text-xs text-muted-foreground/50 ml-auto">Just now</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-muted-foreground/70">No recent events</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )
