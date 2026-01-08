@@ -31,16 +31,23 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-        const { keys } = await KV.list({ prefix: KV_PREFIX })
+        const listResult = await KV.list({ prefix: KV_PREFIX })
+        const keys = listResult?.keys || []
         const orders = await Promise.all(
             keys.map(async (key: { name: string }) => {
-                return await KV.get(key.name, 'json') as Order
+                try {
+                    return await KV.get(key.name, 'json') as Order
+                } catch {
+                    return null
+                }
             })
         )
         // Filter out any nulls and sort
-        return NextResponse.json(orders.filter(o => o).sort((a, b) => b.timestamp - a.timestamp))
+        const validOrders = orders.filter((o): o is Order => o !== null && typeof o === 'object')
+        return NextResponse.json(validOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)))
     } catch (err) {
-        return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
+        console.error('Failed to fetch orders:', err)
+        return NextResponse.json([])
     }
 }
 

@@ -50,16 +50,33 @@ export async function GET(req: NextRequest) {
         const checkoutStarts = parseInt(checkoutStartsStr || '0')
 
         // 4. Fetch Orders to calculate revenue and AOV
-        const { keys: orderKeys } = await KV.list({ prefix: 'cadlink:order:' })
-        const orders = await Promise.all(
-            orderKeys.map(async (key) => {
-                return await KV.get(key.name, 'json') as Order
-            })
-        )
+        let validOrders: Order[] = []
+        let totalRevenue = 0
+        let totalOrders = 0
 
-        const validOrders = orders.filter(o => o)
-        const totalRevenue = validOrders.reduce((sum, o) => sum + (o.amount || 0), 0)
-        const totalOrders = validOrders.length
+        try {
+            const listResult = await KV.list({ prefix: 'cadlink:order:' })
+            const orderKeys = listResult?.keys || []
+
+            const orders = await Promise.all(
+                orderKeys.map(async (key) => {
+                    try {
+                        const order = await KV.get(key.name, 'json') as Order
+                        return order
+                    } catch {
+                        return null
+                    }
+                })
+            )
+
+            validOrders = orders.filter((o): o is Order => o !== null && typeof o === 'object')
+            totalRevenue = validOrders.reduce((sum, o) => sum + (Number(o.amount) || 0), 0)
+            totalOrders = validOrders.length
+        } catch (orderErr) {
+            console.error('Error fetching orders:', orderErr)
+            // Continue with zero orders rather than failing
+        }
+
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
         const conversionRate = visits > 0 ? (totalOrders / visits) * 100 : 0
 
@@ -75,7 +92,7 @@ export async function GET(req: NextRequest) {
             const dayName = days[new Date(dayStart).getDay()]
             const dayTotal = validOrders
                 .filter(o => o.timestamp >= dayStart && o.timestamp < dayEnd)
-                .reduce((sum, o) => sum + (o.amount || 0), 0)
+                .reduce((sum, o) => sum + (Number(o.amount) || 0), 0)
             dailyRevenue.push({ name: dayName, revenue: dayTotal })
         }
 
@@ -99,7 +116,22 @@ export async function GET(req: NextRequest) {
         })
     } catch (err) {
         console.error('Analytics fetch failed', err)
-        return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 })
+        // Return safe defaults instead of error
+        return NextResponse.json({
+            visits: 0,
+            activeUsers: 0,
+            totalRevenue: 0,
+            totalOrders: 0,
+            avgOrderValue: 0,
+            conversionRate: 0,
+            dailyRevenue: [],
+            funnelData: [
+                { name: 'Visitors', value: 0, fill: '#0168A0' },
+                { name: 'Add to Cart', value: 0, fill: '#015580' },
+                { name: 'Checkout', value: 0, fill: '#014460' },
+                { name: 'Purchase', value: 0, fill: '#4CAF50' },
+            ]
+        })
     }
 }
 
