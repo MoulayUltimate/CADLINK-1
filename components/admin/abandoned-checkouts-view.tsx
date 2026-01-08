@@ -97,6 +97,44 @@ export function AbandonedCheckoutsView() {
             checkout.id.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
+    const handleSendEmail = async (checkout: any) => {
+        try {
+            // Show loading state (optimistic)
+            const originalStatus = checkout.status
+            setCheckouts(prev => prev.map(c =>
+                c.id === checkout.id ? { ...c, status: 'Sending...' } : c
+            ))
+
+            const res = await fetch('/api/admin/abandoned-checkouts/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: checkout.email,
+                    checkoutId: checkout.id,
+                    items: checkout.items,
+                    recoveryUrl: `https://cadlink.store/checkout?recovery=${checkout.id}`
+                })
+            })
+
+            if (!res.ok) throw new Error('Failed to send email')
+
+            // Update status to Sent
+            setCheckouts(prev => prev.map(c =>
+                c.id === checkout.id ? { ...c, status: 'Email Sent' } : c
+            ))
+
+            // Ideally update backend status here too
+
+        } catch (error) {
+            console.error('Failed to send email', error)
+            // Revert status
+            setCheckouts(prev => prev.map(c =>
+                c.id === checkout.id ? { ...c, status: 'Not Recovered' } : c
+            ))
+            alert('Failed to send email. Please check the console.')
+        }
+    }
+
     return (
         <div className="space-y-6">
             {/* Header Stats */}
@@ -221,7 +259,9 @@ export function AbandonedCheckoutsView() {
                                                 ? "bg-green-500/10 text-green-500"
                                                 : checkout.status === "Email Sent"
                                                     ? "bg-blue-500/10 text-blue-500"
-                                                    : "bg-gray-500/10 text-gray-500"
+                                                    : checkout.status === "Sending..."
+                                                        ? "bg-yellow-500/10 text-yellow-500"
+                                                        : "bg-gray-500/10 text-gray-500"
                                                 }`}
                                         >
                                             {checkout.status}
@@ -229,7 +269,12 @@ export function AbandonedCheckoutsView() {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 hover:bg-muted rounded-lg text-blue-400 transition-colors" title="Send Recovery Email">
+                                            <button
+                                                onClick={() => handleSendEmail(checkout)}
+                                                disabled={checkout.status === 'Sending...' || checkout.status === 'Email Sent' || checkout.status === 'Recovered'}
+                                                className="p-2 hover:bg-muted rounded-lg text-blue-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                title="Send Recovery Email"
+                                            >
                                                 <Mail className="w-4 h-4" />
                                             </button>
                                             <button className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors">
