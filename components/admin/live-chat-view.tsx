@@ -43,10 +43,17 @@ export function LiveChatView() {
         const fetchSessions = async () => {
             try {
                 const res = await fetch('/api/chat?admin=true')
+                if (!res.ok) throw new Error('Failed to fetch sessions')
                 const data = await res.json()
-                setSessions(data)
+                if (Array.isArray(data)) {
+                    setSessions(data)
+                } else {
+                    console.error('Sessions data is not an array:', data)
+                    setSessions([])
+                }
             } catch (err) {
                 console.error('Failed to fetch sessions', err)
+                setSessions([])
             } finally {
                 setIsLoadingSessions(false)
             }
@@ -148,8 +155,8 @@ export function LiveChatView() {
                                 key={session.id}
                                 onClick={() => setSelectedSessionId(session.id)}
                                 className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all ${selectedSessionId === session.id
-                                        ? 'bg-[#0168A0] text-white shadow-lg shadow-[#0168A0]/20'
-                                        : 'hover:bg-white/5 text-gray-400 hover:text-white'
+                                    ? 'bg-[#0168A0] text-white shadow-lg shadow-[#0168A0]/20'
+                                    : 'hover:bg-white/5 text-gray-400 hover:text-white'
                                     }`}
                             >
                                 <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -217,8 +224,8 @@ export function LiveChatView() {
                                         className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
                                     >
                                         <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-medium ${msg.sender === 'admin'
-                                                ? 'bg-[#0168A0] text-white rounded-tr-none'
-                                                : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                                            ? 'bg-[#0168A0] text-white rounded-tr-none'
+                                            : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
                                             }`}>
                                             {msg.text}
                                             <div className="flex items-center gap-1 mt-1 opacity-50 text-[10px]">

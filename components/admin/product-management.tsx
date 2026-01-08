@@ -23,13 +23,22 @@ export function ProductManagement() {
     const [editData, setEditData] = useState<any>(null)
 
     useEffect(() => {
-        fetch('/api/product')
-            .then(res => res.json())
-            .then(data => {
-                setProduct(data)
-                setEditData(data)
-            })
-            .catch(err => console.error('Failed to fetch product', err))
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch('/api/product')
+                if (!res.ok) throw new Error('Failed to fetch product')
+                const data = await res.json()
+                if (data && !data.error) {
+                    setProduct(data)
+                    setEditData(data)
+                } else {
+                    console.error('Invalid product data:', data)
+                }
+            } catch (err) {
+                console.error('Failed to fetch product', err)
+            }
+        }
+        fetchProduct()
     }, [])
 
     const handleSave = async () => {

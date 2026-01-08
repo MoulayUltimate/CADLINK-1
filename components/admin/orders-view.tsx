@@ -35,10 +35,19 @@ export function OrdersView() {
         const fetchOrders = async () => {
             try {
                 const res = await fetch('/api/orders')
+                if (!res.ok) {
+                    throw new Error('Failed to fetch orders')
+                }
                 const data = await res.json()
-                setOrders(data)
+                if (Array.isArray(data)) {
+                    setOrders(data)
+                } else {
+                    console.error('Orders data is not an array:', data)
+                    setOrders([])
+                }
             } catch (err) {
                 console.error('Failed to fetch orders', err)
+                setOrders([])
             } finally {
                 setIsLoading(false)
             }
