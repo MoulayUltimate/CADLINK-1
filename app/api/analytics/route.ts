@@ -16,7 +16,7 @@ interface KVNamespace {
 }
 
 import { verifyAdmin } from '@/lib/auth'
-import { getGA4Data } from '@/lib/ga4'
+import { getCloudflareAnalytics, getRealtimeVisitors } from '@/lib/cloudflare-analytics'
 
 export async function GET(req: NextRequest) {
     const authError = await verifyAdmin(req)
@@ -109,23 +109,27 @@ export async function GET(req: NextRequest) {
             { name: 'Purchase', value: totalOrders, fill: '#4CAF50' },
         ]
 
-        // 7. Try to fetch GA4 Data
-        let ga4ActiveUsers = 0
+        // 7. Try to fetch Cloudflare Analytics Data
+        let cfActiveUsers = 0
+        let cfVisits = 0
         try {
-            const ga4Stats = await getGA4Data()
-            if (ga4Stats) {
-                // Use GA4 for visits and active users if available
-                // But keep KV visits if GA4 is 0 (fallback)
-                if (ga4Stats.visits > 0) visits = ga4Stats.visits
-                ga4ActiveUsers = ga4Stats.activeUsers
+            const [cfStats, realtimeUsers] = await Promise.all([
+                getCloudflareAnalytics(7),
+                getRealtimeVisitors()
+            ])
+
+            if (cfStats) {
+                // Use Cloudflare for visits if available
+                if (cfStats.uniqueVisitors > 0) cfVisits = cfStats.uniqueVisitors
             }
+            cfActiveUsers = realtimeUsers
         } catch (e) {
-            console.error('GA4 Integration Error:', e)
+            console.error('Cloudflare Analytics Error:', e)
         }
 
         return NextResponse.json({
-            visits,
-            activeUsers: ga4ActiveUsers || Math.floor(Math.random() * 5) + 1, // Fallback to simulated if 0
+            visits: cfVisits || visits, // Prefer Cloudflare, fallback to KV
+            activeUsers: cfActiveUsers || Math.floor(Math.random() * 5) + 1,
             totalRevenue,
             totalOrders,
             avgOrderValue,
