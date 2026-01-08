@@ -16,6 +16,7 @@ interface KVNamespace {
 }
 
 import { verifyAdmin } from '@/lib/auth'
+import { getGA4Data } from '@/lib/ga4'
 
 export async function GET(req: NextRequest) {
     const authError = await verifyAdmin(req)
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest) {
     try {
         // 1. Fetch Visits
         const visitsStr = await KV.get('analytics:visits', 'text')
-        const visits = parseInt(visitsStr || '0')
+        let visits = parseInt(visitsStr || '0')
 
         // 2. Fetch cart events count
         const cartEventsStr = await KV.get('analytics:cart_events', 'text')
@@ -79,7 +80,6 @@ export async function GET(req: NextRequest) {
             totalOrders = validOrders.length
         } catch (orderErr) {
             console.error('Error fetching orders:', orderErr)
-            // Continue with zero orders rather than failing
         }
 
         const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
@@ -109,9 +109,23 @@ export async function GET(req: NextRequest) {
             { name: 'Purchase', value: totalOrders, fill: '#4CAF50' },
         ]
 
+        // 7. Try to fetch GA4 Data
+        let ga4ActiveUsers = 0
+        try {
+            const ga4Stats = await getGA4Data()
+            if (ga4Stats) {
+                // Use GA4 for visits and active users if available
+                // But keep KV visits if GA4 is 0 (fallback)
+                if (ga4Stats.visits > 0) visits = ga4Stats.visits
+                ga4ActiveUsers = ga4Stats.activeUsers
+            }
+        } catch (e) {
+            console.error('GA4 Integration Error:', e)
+        }
+
         return NextResponse.json({
             visits,
-            activeUsers: Math.floor(Math.random() * 5) + 1,
+            activeUsers: ga4ActiveUsers || Math.floor(Math.random() * 5) + 1, // Fallback to simulated if 0
             totalRevenue,
             totalOrders,
             avgOrderValue,
