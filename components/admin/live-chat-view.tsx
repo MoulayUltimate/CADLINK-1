@@ -59,6 +59,13 @@ export function LiveChatView() {
         setNotificationsEnabled(granted)
     }
 
+    // Play beep sound for new messages
+    const playNotificationSound = () => {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBhxbquzh0XYnAA4tgo3Gx55gGQBSmO7m0pJTCwA=')
+        audio.volume = 0.5
+        audio.play().catch(() => { })
+    }
+
     // Fetch all sessions
     useEffect(() => {
         const fetchSessions = async () => {
@@ -69,14 +76,29 @@ export function LiveChatView() {
                 if (Array.isArray(data)) {
                     // Check for new messages and send notification
                     const totalUnread = data.reduce((sum: number, s: ChatSession) => sum + (s.unreadCount || 0), 0)
-                    if (totalUnread > previousUnreadCount && notificationsEnabled) {
+                    if (totalUnread > previousUnreadCount) {
                         const newSession = data.find((s: ChatSession) => s.unreadCount > 0)
-                        if (newSession) {
-                            sendNotification('New Chat Message', {
-                                body: newSession.lastMessage,
-                                tag: 'chat-notification',
-                                onClick: () => setSelectedSessionId(newSession.id)
-                            })
+
+                        // Play sound for any new message
+                        playNotificationSound()
+
+                        // Send browser notification if enabled
+                        if (notificationsEnabled && newSession) {
+                            try {
+                                const notification = new Notification('💬 New Chat Message', {
+                                    body: newSession.lastMessage || 'New message received',
+                                    icon: '/icon-light-32x32.png',
+                                    tag: 'chat-' + Date.now(),
+                                    requireInteraction: true
+                                })
+                                notification.onclick = () => {
+                                    window.focus()
+                                    setSelectedSessionId(newSession.id)
+                                    notification.close()
+                                }
+                            } catch (err) {
+                                console.error('Notification failed:', err)
+                            }
                         }
                     }
                     setPreviousUnreadCount(totalUnread)
