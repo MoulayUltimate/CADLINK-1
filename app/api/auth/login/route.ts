@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
             name: 'admin_session',
             value: token,
             httpOnly: true,
-            secure: true, // Always secure in production (Cloudflare Pages is HTTPS)
-            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
             path: '/',
             maxAge: SESSION_TTL
         })

@@ -57,11 +57,14 @@ function AdminDashboardContent() {
     }, [searchParams])
 
     useEffect(() => {
-        // Check for auth token
-        const token = document.cookie.split("; ").find((row) => row.startsWith("admin_token="))
-        if (!token) {
-            router.push("/admin/login")
-        }
+        // Check for auth session via API (since cookie is HttpOnly)
+        fetch('/api/auth/check')
+            .then(res => {
+                if (!res.ok) {
+                    router.push("/admin/login")
+                }
+            })
+            .catch(() => router.push("/admin/login"))
     }, [router])
 
     const handleTabChange = (id: string) => {
@@ -82,9 +85,15 @@ function AdminDashboardContent() {
         { id: "integrations", icon: Code2, label: "Integrations" },
     ]
 
-    const handleLogout = () => {
-        document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"
-        router.push("/admin/login")
+    const handleLogout = async () => {
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' })
+            router.push("/admin/login")
+            router.refresh()
+        } catch (error) {
+            console.error('Logout failed', error)
+            router.push("/admin/login")
+        }
     }
 
     const renderContent = () => {

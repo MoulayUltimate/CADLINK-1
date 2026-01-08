@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
         name: 'admin_session',
         value: '',
         httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
         path: '/',
         maxAge: 0
     })
