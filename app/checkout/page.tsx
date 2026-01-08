@@ -239,7 +239,7 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Right Column: Order Summary */}
-                    <div className="space-y-6 sticky top-8 h-fit">
+                    <div className="space-y-6 lg:sticky lg:top-8 h-fit">
                         {/* Order Summary Card */}
                         <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
                             <h2 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2">
