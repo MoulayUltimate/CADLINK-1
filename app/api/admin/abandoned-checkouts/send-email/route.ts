@@ -86,6 +86,12 @@ export async function POST(req: NextRequest) {
         `
 
         // Send email via Resend
+        // NOTE: Using onboarding@resend.dev for testing. 
+        // Once you verify 'cadlink.store' in Resend, change this to 'hello@cadlink.store'
+        const fromEmail = 'onboarding@resend.dev' // 'CADLINK <hello@cadlink.store>'
+
+        console.log('Sending email with key present:', !!RESEND_API_KEY)
+
         const res = await fetch('https://api.resend.com/emails', {
             method: 'POST',
             headers: {
@@ -93,24 +99,23 @@ export async function POST(req: NextRequest) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                from: 'CADLINK <hello@cadlink.store>',
-                to: [email],
+                from: fromEmail,
+                to: [email], // NOTE: On free tier, you can only send to yourself unless domain is verified
                 subject: 'You left something behind 👀 (10% OFF inside)',
                 html: htmlContent
             })
         })
 
         if (!res.ok) {
-            const error = await res.json()
-            console.error('Resend API Error:', error)
-            throw new Error(error.message || 'Failed to send email')
+            const errorData = await res.json()
+            console.error('Resend API Error:', errorData)
+            return NextResponse.json({
+                error: errorData.message || 'Resend API rejected the request',
+                details: errorData
+            }, { status: res.status })
         }
 
         const data = await res.json()
-
-        // Update checkout status in KV if possible (will need to call the main abandoned checkouts API or do it here)
-        // For now, we'll just return success and let the frontend update the UI
-
         return NextResponse.json({ success: true, id: data.id })
 
     } catch (error: any) {

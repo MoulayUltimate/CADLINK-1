@@ -116,7 +116,10 @@ export function AbandonedCheckoutsView() {
                 })
             })
 
-            if (!res.ok) throw new Error('Failed to send email')
+            if (!res.ok) {
+                const errorData = await res.json()
+                throw new Error(errorData.error || 'Failed to send email')
+            }
 
             // Update status to Sent
             setCheckouts(prev => prev.map(c =>
@@ -125,13 +128,13 @@ export function AbandonedCheckoutsView() {
 
             // Ideally update backend status here too
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to send email', error)
             // Revert status
             setCheckouts(prev => prev.map(c =>
                 c.id === checkout.id ? { ...c, status: 'Not Recovered' } : c
             ))
-            alert('Failed to send email. Please check the console.')
+            alert(`Failed to send email: ${error.message}`)
         }
     }
 
