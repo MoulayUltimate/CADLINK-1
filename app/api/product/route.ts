@@ -8,6 +8,7 @@ const DEFAULT_PRODUCT = {
     price: 75.19,
     image: "/images/cadlink-product.png",
     cogs: 0, // Digital product - no cost of goods
+    adCost: 0, // Google Ads cost per purchase
     stock: 999,
     description: "The world's most powerful DTF RIP software. Engineered for precision color management and high-volume production."
 }

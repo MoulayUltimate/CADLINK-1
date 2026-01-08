@@ -64,9 +64,9 @@ export function ProductManagement() {
         }
     }
 
-    const calculateMargin = (price: number, cogs: number) => {
+    const calculateMargin = (price: number, cogs: number, adCost: number = 0) => {
         if (price === 0) return 0
-        return ((price - cogs) / price) * 100
+        return ((price - cogs - adCost) / price) * 100
     }
 
     if (!product) return (
@@ -75,7 +75,7 @@ export function ProductManagement() {
         </div>
     )
 
-    const margin = calculateMargin(editData.price, editData.cogs)
+    const margin = calculateMargin(editData.price, editData.cogs, editData.adCost || 0)
     const isLowMargin = margin < 20
 
     return (
@@ -152,7 +152,7 @@ export function ProductManagement() {
                     </div>
 
                     {/* Pricing & Smart Margins */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="space-y-2">
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Price</p>
                             <div className="flex items-center gap-2">
@@ -163,7 +163,7 @@ export function ProductManagement() {
                                         step="0.01"
                                         value={editData.price}
                                         onChange={(e) => setEditData({ ...editData, price: parseFloat(e.target.value) })}
-                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-32"
+                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-28"
                                     />
                                 ) : (
                                     <span className="text-3xl font-black text-foreground">{product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
@@ -172,7 +172,7 @@ export function ProductManagement() {
                         </div>
 
                         <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">COGS (Cost of Goods Sold)</p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">COGS</p>
                             <div className="flex items-center gap-2">
                                 <span className="text-muted-foreground text-xl font-black">$</span>
                                 {isEditing ? (
@@ -181,12 +181,40 @@ export function ProductManagement() {
                                         step="0.01"
                                         value={editData.cogs}
                                         onChange={(e) => setEditData({ ...editData, cogs: parseFloat(e.target.value) })}
-                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-32"
+                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-28"
                                     />
                                 ) : (
                                     <p className="text-3xl font-black text-muted-foreground">{product.cogs.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                 )}
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Ad Cost / Sale</p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-muted-foreground text-xl font-black">$</span>
+                                {isEditing ? (
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editData.adCost || 0}
+                                        onChange={(e) => setEditData({ ...editData, adCost: parseFloat(e.target.value) || 0 })}
+                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-28"
+                                    />
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-3xl font-black text-orange-400">{(product.adCost || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                        <button
+                                            onClick={() => setIsEditing(true)}
+                                            className="p-1.5 bg-muted hover:bg-muted/80 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                                            title="Edit Ad Cost"
+                                        >
+                                            <Edit2 className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-[9px] text-muted-foreground">Google Ads cost per purchase</p>
                         </div>
 
                         <div className="space-y-2">
@@ -199,11 +227,14 @@ export function ProductManagement() {
                                     <div className="group/tip relative">
                                         <AlertTriangle className="w-5 h-5 text-orange-400 animate-pulse" />
                                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-orange-500 text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none">
-                                            Low margin detected! Consider raising price or reducing COGS.
+                                            Low margin detected! Consider raising price or reducing costs.
                                         </div>
                                     </div>
                                 )}
                             </div>
+                            <p className="text-[9px] text-muted-foreground">
+                                ${(editData.price - editData.cogs - (editData.adCost || 0)).toFixed(2)} profit/sale
+                            </p>
                         </div>
                     </div>
                 </div>
