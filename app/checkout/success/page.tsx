@@ -151,8 +151,8 @@ function SuccessContent() {
                     </button>
 
                     <button
-                        onClick={() => router.push("/")}
-                        className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-20"
+                        onClick={() => window.location.href = "/"}
+                        className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 relative z-50 cursor-pointer"
                     >
                         Return to Store
                         <ArrowRight className="w-4 h-4" />
