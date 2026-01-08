@@ -112,6 +112,7 @@ export async function GET(req: NextRequest) {
         // 7. Try to fetch Google Analytics Data
         let gaActiveUsers = 0
         let gaVisits = 0
+        let activeRegions: { country: string; count: number }[] = []
         try {
             const gaStats = await getGA4Data()
 
@@ -119,6 +120,7 @@ export async function GET(req: NextRequest) {
                 // Use Google Analytics for visits and active users
                 if (gaStats.visits > 0) gaVisits = gaStats.visits
                 gaActiveUsers = gaStats.activeUsers
+                activeRegions = gaStats.activeRegions || []
             }
         } catch (e) {
             console.error('Google Analytics Error:', e)
@@ -127,6 +129,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             visits: gaVisits || visits, // Prefer GA, fallback to KV
             activeUsers: gaActiveUsers || Math.floor(Math.random() * 5) + 1,
+            activeRegions, // Real-time users by country
             totalRevenue,
             totalOrders,
             avgOrderValue,

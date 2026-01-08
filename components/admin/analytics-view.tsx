@@ -28,6 +28,50 @@ import {
     Filter
 } from 'lucide-react'
 
+// Helper to get country flag emoji from country name
+function getCountryFlag(country: string): string {
+    const flags: { [key: string]: string } = {
+        'United States': '🇺🇸',
+        'United Kingdom': '🇬🇧',
+        'Canada': '🇨🇦',
+        'Germany': '🇩🇪',
+        'France': '🇫🇷',
+        'Australia': '🇦🇺',
+        'Netherlands': '🇳🇱',
+        'Spain': '🇪🇸',
+        'Italy': '🇮🇹',
+        'Brazil': '🇧🇷',
+        'India': '🇮🇳',
+        'Japan': '🇯🇵',
+        'China': '🇨🇳',
+        'Mexico': '🇲🇽',
+        'South Korea': '🇰🇷',
+        'Russia': '🇷🇺',
+        'Poland': '🇵🇱',
+        'Sweden': '🇸🇪',
+        'Norway': '🇳🇴',
+        'Denmark': '🇩🇰',
+        'Belgium': '🇧🇪',
+        'Switzerland': '🇨🇭',
+        'Austria': '🇦🇹',
+        'Ireland': '🇮🇪',
+        'New Zealand': '🇳🇿',
+        'Singapore': '🇸🇬',
+        'Portugal': '🇵🇹',
+        'Argentina': '🇦🇷',
+        'South Africa': '🇿🇦',
+        'United Arab Emirates': '🇦🇪',
+        'Saudi Arabia': '🇸🇦',
+        'Israel': '🇮🇱',
+        'Turkey': '🇹🇷',
+        'Egypt': '🇪🇬',
+        'Nigeria': '🇳🇬',
+        'Kenya': '🇰🇪',
+        'Morocco': '🇲🇦',
+    }
+    return flags[country] || '🌍'
+}
+
 interface DailyRevenue {
     name: string
     revenue: number
@@ -39,6 +83,11 @@ interface FunnelItem {
     fill: string
 }
 
+interface ActiveRegion {
+    country: string
+    count: number
+}
+
 interface AnalyticsStats {
     visits: number
     activeUsers: number
@@ -48,6 +97,7 @@ interface AnalyticsStats {
     conversionRate: number
     dailyRevenue: DailyRevenue[]
     funnelData: FunnelItem[]
+    activeRegions: ActiveRegion[]
 }
 
 export function AnalyticsView() {
@@ -59,7 +109,8 @@ export function AnalyticsView() {
         avgOrderValue: 0,
         conversionRate: 0,
         dailyRevenue: [],
-        funnelData: []
+        funnelData: [],
+        activeRegions: []
     })
 
     const [isLive, setIsLive] = useState(false)
@@ -78,7 +129,8 @@ export function AnalyticsView() {
                         avgOrderValue: data.avgOrderValue || 0,
                         conversionRate: data.conversionRate || 0,
                         dailyRevenue: data.dailyRevenue || [],
-                        funnelData: data.funnelData || []
+                        funnelData: data.funnelData || [],
+                        activeRegions: data.activeRegions || []
                     })
                     setIsLive(true)
                 }
@@ -268,6 +320,46 @@ export function AnalyticsView() {
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* Real-time Active Users by Region */}
+            <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-foreground">Active Users by Region</h3>
+                    <span className="flex items-center gap-1.5 px-2 py-1 bg-green-500/10 text-green-500 text-xs font-bold rounded-full">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        {stats.activeUsers} online now
+                    </span>
+                </div>
+                {stats.activeRegions.length > 0 ? (
+                    <div className="space-y-3">
+                        {stats.activeRegions.slice(0, 8).map((region, index) => {
+                            const maxCount = Math.max(...stats.activeRegions.map(r => r.count), 1)
+                            const percentage = (region.count / maxCount) * 100
+                            return (
+                                <div key={index} className="flex items-center gap-4">
+                                    <div className="w-8 text-xl">{getCountryFlag(region.country)}</div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="font-bold text-foreground text-sm">{region.country}</span>
+                                            <span className="text-sm font-bold text-muted-foreground">{region.count} users</span>
+                                        </div>
+                                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-[#0168A0] to-[#4CAF50] transition-all duration-500"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center h-32 text-muted-foreground">
+                        <p>No active users right now</p>
+                    </div>
+                )}
             </div>
         </div>
     )

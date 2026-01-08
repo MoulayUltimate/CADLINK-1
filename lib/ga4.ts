@@ -75,7 +75,7 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
 
         const reportData = await reportResponse.json()
 
-        // Fetch Realtime Active Users
+        // Fetch Realtime Active Users with Countries
         const realtimeResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runRealtimeReport`, {
             method: 'POST',
             headers: {
@@ -83,19 +83,36 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+                dimensions: [{ name: 'country' }],
                 metrics: [{ name: 'activeUsers' }]
             })
         })
 
         const realtimeData = await realtimeResponse.json()
 
+        // Parse realtime users by country
+        let totalActiveUsers = 0
+        const activeRegions: { country: string; count: number }[] = []
+
+        if (realtimeData.rows) {
+            for (const row of realtimeData.rows) {
+                const country = row.dimensionValues?.[0]?.value || 'Unknown'
+                const count = parseInt(row.metricValues?.[0]?.value || '0')
+                totalActiveUsers += count
+                activeRegions.push({ country, count })
+            }
+            // Sort by count descending
+            activeRegions.sort((a, b) => b.count - a.count)
+        }
+
         // Parse Data
         const stats = {
-            activeUsers: parseInt(realtimeData.rows?.[0]?.metricValues?.[0]?.value || '0'),
+            activeUsers: totalActiveUsers,
             visits: parseInt(reportData.rows?.[0]?.metricValues?.[1]?.value || '0'),
             totalRevenue: parseFloat(reportData.rows?.[0]?.metricValues?.[2]?.value || '0'),
             totalOrders: parseInt(reportData.rows?.[0]?.metricValues?.[3]?.value || '0'),
-            avgOrderValue: parseFloat(reportData.rows?.[0]?.metricValues?.[4]?.value || '0')
+            avgOrderValue: parseFloat(reportData.rows?.[0]?.metricValues?.[4]?.value || '0'),
+            activeRegions
         }
 
         return stats
