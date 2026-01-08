@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                     <div className="w-20" /> {/* Spacer */}
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-12">
+                <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-12">
                     {/* Left Column: Customer Details & Payment Form */}
                     <div className="space-y-6">
                         {/* Customer Details Inputs */}
