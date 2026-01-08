@@ -8,14 +8,13 @@ import {
     LogOut,
     Menu,
     BarChart2,
-    Activity,
     MessageCircle,
     X
 } from "lucide-react"
 import Image from "next/image"
 
 import { AnalyticsView } from "@/components/admin/analytics-view"
-import { LiveTraceView } from "@/components/admin/live-trace-view"
+
 import { DashboardView } from "@/components/admin/dashboard-view"
 import { ProductManagement } from "@/components/admin/product-management"
 import { UserInspector } from "@/components/admin/user-inspector"
@@ -78,7 +77,6 @@ function AdminDashboardContent() {
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { id: "orders", icon: ShoppingBag, label: "Orders" },
         { id: "analytics", icon: BarChart2, label: "Analytics" },
-        { id: "live-trace", icon: Activity, label: "User Trace" },
         { id: "abandoned", icon: AlertCircle, label: "Abandoned Checkouts" },
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
@@ -104,8 +102,6 @@ function AdminDashboardContent() {
                 return <OrdersView />
             case "analytics":
                 return <AnalyticsView />
-            case "live-trace":
-                return <LiveTraceView onInspectUser={(id: string) => setSelectedUserId(id)} />
             case "abandoned":
                 return <AbandonedCheckoutsView />
             case "products":
