@@ -16,7 +16,7 @@ interface KVNamespace {
 }
 
 import { verifyAdmin } from '@/lib/auth'
-import { getCloudflareAnalytics, getRealtimeVisitors } from '@/lib/cloudflare-analytics'
+import { getGA4Data } from '@/lib/ga4'
 
 export async function GET(req: NextRequest) {
     const authError = await verifyAdmin(req)
@@ -109,27 +109,24 @@ export async function GET(req: NextRequest) {
             { name: 'Purchase', value: totalOrders, fill: '#4CAF50' },
         ]
 
-        // 7. Try to fetch Cloudflare Analytics Data
-        let cfActiveUsers = 0
-        let cfVisits = 0
+        // 7. Try to fetch Google Analytics Data
+        let gaActiveUsers = 0
+        let gaVisits = 0
         try {
-            const [cfStats, realtimeUsers] = await Promise.all([
-                getCloudflareAnalytics(7),
-                getRealtimeVisitors()
-            ])
+            const gaStats = await getGA4Data()
 
-            if (cfStats) {
-                // Use Cloudflare for visits if available
-                if (cfStats.uniqueVisitors > 0) cfVisits = cfStats.uniqueVisitors
+            if (gaStats) {
+                // Use Google Analytics for visits and active users
+                if (gaStats.visits > 0) gaVisits = gaStats.visits
+                gaActiveUsers = gaStats.activeUsers
             }
-            cfActiveUsers = realtimeUsers
         } catch (e) {
-            console.error('Cloudflare Analytics Error:', e)
+            console.error('Google Analytics Error:', e)
         }
 
         return NextResponse.json({
-            visits: cfVisits || visits, // Prefer Cloudflare, fallback to KV
-            activeUsers: cfActiveUsers || Math.floor(Math.random() * 5) + 1,
+            visits: gaVisits || visits, // Prefer GA, fallback to KV
+            activeUsers: gaActiveUsers || Math.floor(Math.random() * 5) + 1,
             totalRevenue,
             totalOrders,
             avgOrderValue,
