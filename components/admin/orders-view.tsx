@@ -63,18 +63,57 @@ export function OrdersView() {
 
     const totalRevenue = orders.reduce((sum, order) => sum + order.amount, 0)
 
-    const handleClearData = async () => {
-        if (!confirm('Are you sure you want to delete ALL orders and analytics data? This cannot be undone.')) return
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [deleteProgress, setDeleteProgress] = useState('')
 
-        setIsLoading(true)
+    const handleClearData = async () => {
+        if (!confirm('Are you sure you want to delete ALL orders? This will delete them in batches and may take a minute.')) return
+
+        setIsDeleting(true)
+        setDeleteProgress('Starting cleanup...')
+
+        let totalDeleted = 0
+        let hasMore = true
+        let attempts = 0
+        const maxAttempts = 100 // Safety limit
+
         try {
-            await fetch('/api/admin/reset', { method: 'DELETE' })
+            while (hasMore && attempts < maxAttempts) {
+                attempts++
+                const res = await fetch('/api/admin/batch-delete', { method: 'DELETE' })
+                const data = await res.json()
+
+                if (data.error) {
+                    // Rate limited, wait a bit
+                    setDeleteProgress(`Rate limited, waiting... (${totalDeleted} deleted so far)`)
+                    await new Promise(resolve => setTimeout(resolve, 2000))
+                    continue
+                }
+
+                totalDeleted += data.deleted || 0
+                hasMore = data.hasMore
+                setDeleteProgress(`Deleted ${totalDeleted} orders...`)
+
+                if (!hasMore) break
+
+                // Small delay between batches
+                await new Promise(resolve => setTimeout(resolve, 500))
+            }
+
+            setDeleteProgress(`Done! Deleted ${totalDeleted} orders.`)
             setOrders([])
-            // toast.success('Data cleared successfully')
+
+            // Refresh after a moment
+            setTimeout(() => {
+                setIsDeleting(false)
+                setDeleteProgress('')
+                window.location.reload()
+            }, 2000)
+
         } catch (err) {
             console.error('Failed to clear data', err)
-        } finally {
-            setIsLoading(false)
+            setDeleteProgress('Error occurred. Please try again.')
+            setIsDeleting(false)
         }
     }
 
@@ -86,13 +125,21 @@ export function OrdersView() {
                     <p className="text-muted-foreground">Manage and track your store's sales performance.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={handleClearData}
-                        className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-sm font-bold transition-all border border-red-500/20 flex items-center gap-2"
-                    >
-                        <Trash2 className="w-4 h-4" />
-                        Clear All Data
-                    </button>
+                    {isDeleting ? (
+                        <div className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold border border-red-500/20 flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            {deleteProgress}
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleClearData}
+                            disabled={isLoading}
+                            className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-sm font-bold transition-all border border-red-500/20 flex items-center gap-2 disabled:opacity-50"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                            Clear All Orders
+                        </button>
+                    )}
                     <button className="px-4 py-2 bg-card hover:bg-muted text-foreground rounded-xl text-sm font-bold transition-all border border-border flex items-center gap-2">
                         <Download className="w-4 h-4" />
                         Export CSV
