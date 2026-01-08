@@ -50,8 +50,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => {
             const existing = prev.find((item) => item.id === newItem.id)
             if (existing) {
-                // Don't increase quantity, just return existing items
-                return prev
+                return prev.map((item) =>
+                    item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item,
+                )
             }
             return [...prev, newItem]
         })
