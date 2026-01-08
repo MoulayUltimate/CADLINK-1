@@ -7,8 +7,8 @@ const DEFAULT_PRODUCT = {
     name: "CADLINK Digital Factory 11 DTF Edition",
     price: 75.19,
     image: "/images/cadlink-product.png",
-    cogs: 400,
-    stock: 150,
+    cogs: 0, // Digital product - no cost of goods
+    stock: 999,
     description: "The world's most powerful DTF RIP software. Engineered for precision color management and high-volume production."
 }
 
