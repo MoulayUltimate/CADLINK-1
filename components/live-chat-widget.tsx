@@ -10,8 +10,13 @@ interface Message {
     timestamp: number
 }
 
+import { usePathname } from 'next/navigation'
+
 export function LiveChatWidget() {
+    const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
+
+    if (pathname?.startsWith('/admin')) return null
     const [messages, setMessages] = useState<Message[]>([])
     const [inputText, setInputText] = useState('')
     const [isSending, setIsSending] = useState(false)
@@ -130,8 +135,8 @@ export function LiveChatWidget() {
                                     className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`max-w-[85%] p-4 rounded-2xl text-sm font-bold shadow-sm ${msg.sender === 'user'
-                                            ? 'bg-[#0168A0] text-white rounded-tr-none'
-                                            : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
+                                        ? 'bg-[#0168A0] text-white rounded-tr-none'
+                                        : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
                                         }`}>
                                         {msg.text}
                                         <div className={`text-[10px] mt-1 opacity-50 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-400'}`}>

@@ -67,8 +67,8 @@ export function AnalyticsView() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white">Analytics Command</h2>
-                    <p className="text-gray-400">Deep dive into your store's performance metrics.</p>
+                    <h2 className="text-3xl font-black text-foreground">Analytics Command</h2>
+                    <p className="text-muted-foreground">Deep dive into your store's performance metrics.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <a
@@ -128,9 +128,9 @@ export function AnalyticsView() {
 
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Revenue Chart */}
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl">
+                <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl">
                     <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-lg font-bold text-white">Revenue Velocity</h3>
+                        <h3 className="text-lg font-bold text-foreground">Revenue Velocity</h3>
                     </div>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -157,8 +157,8 @@ export function AnalyticsView() {
                                     tickFormatter={(value) => `$${value}`}
                                 />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--foreground)' }}
+                                    itemStyle={{ color: 'var(--foreground)' }}
                                 />
                                 <Area type="monotone" dataKey="revenue" stroke="#0168A0" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                             </AreaChart>
@@ -167,8 +167,8 @@ export function AnalyticsView() {
                 </div>
 
                 {/* Funnel Chart */}
-                <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl">
-                    <h3 className="text-lg font-bold text-white mb-8">Conversion Funnel</h3>
+                <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl">
+                    <h3 className="text-lg font-bold text-foreground mb-8">Conversion Funnel</h3>
                     <div className="h-[300px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -186,8 +186,8 @@ export function AnalyticsView() {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', color: 'var(--foreground)' }}
+                                    itemStyle={{ color: 'var(--foreground)' }}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
@@ -195,7 +195,7 @@ export function AnalyticsView() {
                             {funnelData.map((item, i) => (
                                 <div key={i} className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.fill }} />
-                                    <span className="text-xs text-gray-400 font-medium">{item.name}</span>
+                                    <span className="text-xs text-muted-foreground font-medium">{item.name}</span>
                                 </div>
                             ))}
                         </div>
@@ -216,7 +216,7 @@ function StatCard({ label, value, trend, trendUp, icon: Icon, color }: any) {
     }
 
     return (
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl group hover:border-white/20 transition-all">
+        <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl group hover:border-primary/20 transition-all">
             <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-xl ${colors[color]}`}>
                     <Icon className="w-5 h-5" />
@@ -226,8 +226,8 @@ function StatCard({ label, value, trend, trendUp, icon: Icon, color }: any) {
                     {trend}
                 </div>
             </div>
-            <h3 className="text-2xl font-black text-white">{value}</h3>
-            <p className="text-sm font-bold text-gray-500 mt-1">{label}</p>
+            <h3 className="text-2xl font-black text-foreground">{value}</h3>
+            <p className="text-sm font-bold text-muted-foreground mt-1">{label}</p>
         </div>
     )
 }

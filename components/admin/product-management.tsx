@@ -82,8 +82,8 @@ export function ProductManagement() {
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-black text-white">Product Command</h2>
-                    <p className="text-gray-400">Manage your single product store.</p>
+                    <h2 className="text-3xl font-black text-foreground">Product Command</h2>
+                    <p className="text-muted-foreground">Manage your single product store.</p>
                 </div>
                 {isEditing ? (
                     <div className="flex gap-3">
@@ -92,7 +92,7 @@ export function ProductManagement() {
                                 setIsEditing(false)
                                 setEditData(product)
                             }}
-                            className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-bold hover:bg-white/10 transition-all"
+                            className="px-6 py-3 bg-muted/50 border border-border rounded-xl text-foreground font-bold hover:bg-muted transition-all"
                         >
                             Cancel
                         </button>
@@ -116,11 +116,11 @@ export function ProductManagement() {
             </div>
 
             {/* Product Card */}
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 group hover:border-white/20 transition-all">
+            <div className="bg-card backdrop-blur-md border border-border rounded-2xl p-8 group hover:border-primary/20 transition-all">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-12">
                     {/* Product Info */}
                     <div className="flex items-center gap-6 min-w-[350px]">
-                        <div className="w-24 h-24 bg-[#0f172a] rounded-2xl flex items-center justify-center border border-white/5 overflow-hidden">
+                        <div className="w-24 h-24 bg-muted rounded-2xl flex items-center justify-center border border-border overflow-hidden">
                             <img src={product.image} alt={product.name} className="w-full h-full object-contain p-2" />
                         </div>
                         <div>
@@ -129,21 +129,21 @@ export function ProductManagement() {
                                     type="text"
                                     value={editData.name}
                                     onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                                    className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-black w-full mb-2"
+                                    className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-full mb-2"
                                 />
                             ) : (
-                                <h3 className="text-2xl font-black text-white">{product.name}</h3>
+                                <h3 className="text-2xl font-black text-foreground">{product.name}</h3>
                             )}
-                            <p className="text-xs text-gray-500">SKU: {product.id.toUpperCase()}-2024</p>
+                            <p className="text-xs text-muted-foreground">SKU: {product.id.toUpperCase()}-2024</p>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className="w-2 h-2 rounded-full bg-green-500" />
-                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                     In Stock: {isEditing ? (
                                         <input
                                             type="number"
                                             value={editData.stock}
                                             onChange={(e) => setEditData({ ...editData, stock: parseInt(e.target.value) })}
-                                            className="bg-white/5 border border-white/10 rounded px-1 w-16 text-white"
+                                            className="bg-muted border border-border rounded px-1 w-16 text-foreground"
                                         />
                                     ) : product.stock}
                                 </span>
@@ -154,43 +154,43 @@ export function ProductManagement() {
                     {/* Pricing & Smart Margins */}
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Price</p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Price</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-gray-400 text-xl font-black">$</span>
+                                <span className="text-muted-foreground text-xl font-black">$</span>
                                 {isEditing ? (
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={editData.price}
                                         onChange={(e) => setEditData({ ...editData, price: parseFloat(e.target.value) })}
-                                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-black w-32"
+                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-32"
                                     />
                                 ) : (
-                                    <span className="text-3xl font-black text-white">{product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                    <span className="text-3xl font-black text-foreground">{product.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                 )}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">COGS (Cost of Goods Sold)</p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">COGS (Cost of Goods Sold)</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-gray-600 text-xl font-black">$</span>
+                                <span className="text-muted-foreground text-xl font-black">$</span>
                                 {isEditing ? (
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={editData.cogs}
                                         onChange={(e) => setEditData({ ...editData, cogs: parseFloat(e.target.value) })}
-                                        className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white font-black w-32"
+                                        className="bg-muted border border-border rounded-lg px-3 py-2 text-foreground font-black w-32"
                                     />
                                 ) : (
-                                    <p className="text-3xl font-black text-gray-400">{product.cogs.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                                    <p className="text-3xl font-black text-muted-foreground">{product.cogs.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                 )}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Profit Margin</p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Profit Margin</p>
                             <div className="flex items-center gap-2">
                                 <span className={`text-3xl font-black ${isLowMargin ? 'text-orange-400' : 'text-green-400'}`}>
                                     {margin.toFixed(1)}%
@@ -209,12 +209,12 @@ export function ProductManagement() {
                 </div>
 
                 {isEditing && (
-                    <div className="mt-8 pt-8 border-t border-white/5">
-                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-4">Product Description</p>
+                    <div className="mt-8 pt-8 border-t border-border">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">Product Description</p>
                         <textarea
                             value={editData.description}
                             onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-[#0168A0] outline-none h-32"
+                            className="w-full bg-muted border border-border rounded-xl p-4 text-foreground text-sm focus:border-[#0168A0] outline-none h-32"
                         />
                     </div>
                 )}
