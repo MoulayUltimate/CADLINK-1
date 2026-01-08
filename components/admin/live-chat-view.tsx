@@ -127,15 +127,15 @@ export function LiveChatView() {
     return (
         <div className="h-[calc(100vh-12rem)] flex gap-6 animate-in fade-in duration-500">
             {/* Session List */}
-            <div className={`w-full lg:w-80 flex flex-col bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden ${selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
-                <div className="p-6 border-b border-white/10">
-                    <h3 className="text-xl font-black text-white mb-4">Conversations</h3>
+            <div className={`w-full lg:w-80 flex flex-col bg-card backdrop-blur-md border border-border rounded-3xl overflow-hidden ${selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
+                <div className="p-6 border-b border-border">
+                    <h3 className="text-xl font-black text-foreground mb-4">Conversations</h3>
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Search chats..."
-                            className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:border-[#0168A0] outline-none transition-all"
+                            className="w-full bg-muted border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-foreground focus:border-[#0168A0] outline-none transition-all"
                         />
                     </div>
                 </div>
@@ -156,10 +156,10 @@ export function LiveChatView() {
                                 onClick={() => setSelectedSessionId(session.id)}
                                 className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all ${selectedSessionId === session.id
                                     ? 'bg-[#0168A0] text-white shadow-lg shadow-[#0168A0]/20'
-                                    : 'hover:bg-white/5 text-gray-400 hover:text-white'
+                                    : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                     }`}
                             >
-                                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
                                     <User className="w-6 h-6" />
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
@@ -180,15 +180,15 @@ export function LiveChatView() {
             </div>
 
             {/* Chat Window */}
-            <div className={`flex-1 flex flex-col bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden ${!selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
+            <div className={`flex-1 flex flex-col bg-card backdrop-blur-md border border-border rounded-3xl overflow-hidden ${!selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
                 {selectedSessionId ? (
                     <>
                         {/* Header */}
-                        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                        <div className="p-6 border-b border-border flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <button
                                     onClick={() => setSelectedSessionId(null)}
-                                    className="lg:hidden p-2 hover:bg-white/5 rounded-xl transition-colors"
+                                    className="lg:hidden p-2 hover:bg-muted rounded-xl transition-colors"
                                 >
                                     <ArrowLeft className="w-5 h-5" />
                                 </button>
@@ -196,14 +196,14 @@ export function LiveChatView() {
                                     <User className="w-6 h-6 text-[#0168A0]" />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-white">{selectedSessionId}</h3>
+                                    <h3 className="font-bold text-foreground">{selectedSessionId}</h3>
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-2 h-2 bg-green-400 rounded-full" />
-                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Now</span>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Now</span>
                                     </div>
                                 </div>
                             </div>
-                            <button className="p-2 hover:bg-white/5 rounded-xl transition-colors text-gray-500">
+                            <button className="p-2 hover:bg-muted rounded-xl transition-colors text-muted-foreground">
                                 <MoreVertical className="w-5 h-5" />
                             </button>
                         </div>
@@ -225,7 +225,7 @@ export function LiveChatView() {
                                     >
                                         <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-medium ${msg.sender === 'admin'
                                             ? 'bg-[#0168A0] text-white rounded-tr-none'
-                                            : 'bg-white/10 text-white border border-white/10 rounded-tl-none'
+                                            : 'bg-muted text-foreground border border-border rounded-tl-none'
                                             }`}>
                                             {msg.text}
                                             <div className="flex items-center gap-1 mt-1 opacity-50 text-[10px]">
@@ -239,14 +239,14 @@ export function LiveChatView() {
                         </div>
 
                         {/* Input */}
-                        <form onSubmit={handleSend} className="p-6 bg-black/20 border-t border-white/10">
+                        <form onSubmit={handleSend} className="p-6 bg-muted/50 border-t border-border">
                             <div className="relative flex items-center gap-3">
                                 <input
                                     type="text"
                                     value={inputText}
                                     onChange={(e) => setInputText(e.target.value)}
                                     placeholder="Type your reply..."
-                                    className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:border-[#0168A0] outline-none transition-all"
+                                    className="flex-1 bg-card border border-border rounded-2xl px-5 py-4 text-foreground text-sm focus:border-[#0168A0] outline-none transition-all"
                                 />
                                 <button
                                     type="submit"
@@ -260,10 +260,10 @@ export function LiveChatView() {
                     </>
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-center p-12 opacity-20">
-                        <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-6">
+                        <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
                             <MessageCircle className="w-12 h-12" />
                         </div>
-                        <h3 className="text-2xl font-black text-white mb-2">Select a Conversation</h3>
+                        <h3 className="text-2xl font-black text-foreground mb-2">Select a Conversation</h3>
                         <p className="text-sm font-bold max-w-xs">Choose a chat from the left to start responding to your customers.</p>
                     </div>
                 )}
