@@ -18,7 +18,22 @@ interface KVNamespace {
 export async function GET(req: NextRequest) {
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
-        return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })
+        // Return default values when KV is not available (local development)
+        return NextResponse.json({
+            visits: 0,
+            activeUsers: 0,
+            totalRevenue: 0,
+            totalOrders: 0,
+            avgOrderValue: 0,
+            conversionRate: 0,
+            dailyRevenue: [],
+            funnelData: [
+                { name: 'Visitors', value: 0, fill: '#0168A0' },
+                { name: 'Add to Cart', value: 0, fill: '#015580' },
+                { name: 'Checkout', value: 0, fill: '#014460' },
+                { name: 'Purchase', value: 0, fill: '#4CAF50' },
+            ]
+        })
     }
 
     try {

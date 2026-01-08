@@ -26,7 +26,8 @@ const KV_PREFIX = 'cadlink:order:'
 export async function GET(req: NextRequest) {
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
-        return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })
+        // Return empty array when KV is not available
+        return NextResponse.json([])
     }
 
     try {
