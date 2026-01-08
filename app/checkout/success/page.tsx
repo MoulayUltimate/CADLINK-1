@@ -14,6 +14,13 @@ function SuccessContent() {
 
     useEffect(() => {
         if (paymentIntent) {
+            // Check if we already recorded this order in this session
+            const recordedKey = `order_recorded_${paymentIntent}`
+            if (sessionStorage.getItem(recordedKey)) {
+                // Already recorded, don't record again
+                return
+            }
+
             // Record order
             const email = localStorage.getItem('checkout_email') || 'unknown@example.com'
             const name = localStorage.getItem('checkout_name') || 'Valued Customer'
@@ -29,6 +36,9 @@ function SuccessContent() {
                     paymentIntent,
                     currency: 'USD'
                 })
+            }).then(() => {
+                // Mark as recorded to prevent duplicates on refresh
+                sessionStorage.setItem(recordedKey, 'true')
             }).catch(err => console.error('Failed to record order', err))
 
             clearCart()
