@@ -86,9 +86,7 @@ export async function POST(req: NextRequest) {
         `
 
         // Send email via Resend
-        // NOTE: Using onboarding@resend.dev for testing. 
-        // Once you verify 'cadlink.store' in Resend, change this to 'hello@cadlink.store'
-        const fromEmail = 'onboarding@resend.dev' // 'CADLINK <hello@cadlink.store>'
+        const fromEmail = 'CADLINK <support@cadlink.store>'
 
         console.log('Sending email with key present:', !!RESEND_API_KEY)
 
@@ -100,7 +98,7 @@ export async function POST(req: NextRequest) {
             },
             body: JSON.stringify({
                 from: fromEmail,
-                to: [email], // NOTE: On free tier, you can only send to yourself unless domain is verified
+                to: [email],
                 subject: 'You left something behind 👀 (10% OFF inside)',
                 html: htmlContent
             })
