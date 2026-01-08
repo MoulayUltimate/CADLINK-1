@@ -28,7 +28,12 @@ async function deleteAllWithPrefix(KV: KVNamespace, prefix: string): Promise<num
     return deleted
 }
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function DELETE(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })

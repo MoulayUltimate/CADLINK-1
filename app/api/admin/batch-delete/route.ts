@@ -7,8 +7,13 @@ interface KVNamespace {
     delete(key: string): Promise<void>
 }
 
+import { verifyAdmin } from '@/lib/auth'
+
 // DELETE /api/admin/batch-delete - Deletes 50 orders at a time
 export async function DELETE(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })

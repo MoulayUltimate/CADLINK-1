@@ -5,7 +5,25 @@ export const runtime = 'edge'
 
 export async function POST(req: Request) {
     try {
-        const { amount, currency = "usd" } = await req.json()
+        const { currency = "usd" } = await req.json()
+
+        // Securely fetch price from KV or use default
+        let amount = 75.19 // Default price
+
+        try {
+            const kv = (process.env as any).KV
+            if (kv) {
+                const productData = await kv.get("product:prod_cadlink_v11")
+                if (productData) {
+                    const product = JSON.parse(productData)
+                    if (product.price) {
+                        amount = Number(product.price)
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch price from KV, using default:", e)
+        }
 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_test_placeholder", {
             httpClient: Stripe.createFetchHttpClient(),

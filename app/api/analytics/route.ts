@@ -15,7 +15,12 @@ interface KVNamespace {
     get(key: string, type: 'json'): Promise<any>
 }
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function GET(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
         // Return default values when KV is not available (local development)

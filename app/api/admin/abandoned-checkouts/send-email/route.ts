@@ -4,7 +4,12 @@ export const runtime = 'edge'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function POST(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     try {
         const { email, checkoutId, createdAt, items, recoveryUrl } = await req.json()
 

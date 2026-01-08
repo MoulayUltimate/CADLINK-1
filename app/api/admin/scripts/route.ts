@@ -28,7 +28,12 @@ export async function GET(req: NextRequest) {
     }
 }
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function POST(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV
     if (!KV) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })

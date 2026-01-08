@@ -31,10 +31,17 @@ interface KVNamespace {
 
 const OFFLINE_THRESHOLD = 30000 // 30 seconds
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const sessionId = searchParams.get('sessionId')
     const isAdmin = searchParams.get('admin') === 'true'
+
+    if (isAdmin) {
+        const authError = await verifyAdmin(req)
+        if (authError) return authError
+    }
 
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
@@ -122,6 +129,11 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const body = await req.json()
     const { sessionId, text, sender } = body
+
+    if (sender === 'admin') {
+        const authError = await verifyAdmin(req)
+        if (authError) return authError
+    }
 
     if (!sessionId || !text || !sender) {
         return NextResponse.json({ error: 'Missing fields' }, { status: 400 })

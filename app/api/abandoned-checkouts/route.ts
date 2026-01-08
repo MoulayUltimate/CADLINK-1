@@ -37,7 +37,12 @@ export async function POST(req: NextRequest) {
     }
 }
 
+import { verifyAdmin } from '@/lib/auth';
+
 export async function GET(req: NextRequest) {
+    const authError = await verifyAdmin(req);
+    if (authError) return authError;
+
     try {
         const kv = (process.env as any).KV;
 

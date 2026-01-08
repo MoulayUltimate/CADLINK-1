@@ -8,8 +8,13 @@ interface KVNamespace {
     get(key: string, type: 'json'): Promise<any>
 }
 
+import { verifyAdmin } from '@/lib/auth'
+
 // POST /api/admin/cleanup?keep=ORD-7K0X9R3N
 export async function POST(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
         return NextResponse.json({ error: 'KV binding not found' }, { status: 500 })

@@ -14,13 +14,23 @@ export default function AdminLogin() {
         e.preventDefault()
         setIsLoading(true)
 
-        // Simple hardcoded auth for demo purposes - in production use NextAuth or real backend
-        if (password === "admin123") {
-            document.cookie = "admin_token=valid; path=/"
-            toast.success("Login successful")
-            router.push("/admin")
-        } else {
-            toast.error("Invalid password")
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            })
+
+            if (res.ok) {
+                toast.success("Login successful")
+                router.push("/admin")
+                router.refresh()
+            } else {
+                toast.error("Invalid password")
+            }
+        } catch (error) {
+            toast.error("Login failed")
+        } finally {
             setIsLoading(false)
         }
     }

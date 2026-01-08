@@ -26,7 +26,12 @@ interface KVNamespace {
 const KV_PREFIX = 'cadlink:order:'
 const PI_PREFIX = 'cadlink:pi:'  // For paymentIntent deduplication
 
+import { verifyAdmin } from '@/lib/auth'
+
 export async function GET(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const KV = (process.env as any).KV as KVNamespace
     if (!KV) {
         return NextResponse.json([])
@@ -131,6 +136,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+    const authError = await verifyAdmin(req)
+    if (authError) return authError
+
     const { searchParams } = new URL(req.url)
     const orderId = searchParams.get('orderId')
 
