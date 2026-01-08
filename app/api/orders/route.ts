@@ -71,23 +71,25 @@ export async function POST(req: NextRequest) {
     let amount = clientAmount || 75.19
 
     try {
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-            httpClient: Stripe.createFetchHttpClient(),
-        })
-        const pi = await stripe.paymentIntents.retrieve(paymentIntent)
-        if (pi) {
-            // Use Stripe data if available as it's the source of truth
-            email = pi.receipt_email || pi.shipping?.name || email
-            // Billing details are often in the latest_charge or charges
-            const charge = typeof pi.latest_charge === 'string'
-                ? await stripe.charges.retrieve(pi.latest_charge)
-                : (pi as any).charges?.data?.[0]
+        if (!paymentIntent.startsWith('test_')) {
+            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+                httpClient: Stripe.createFetchHttpClient(),
+            })
+            const pi = await stripe.paymentIntents.retrieve(paymentIntent)
+            if (pi) {
+                // Use Stripe data if available as it's the source of truth
+                email = pi.receipt_email || pi.shipping?.name || email
+                // Billing details are often in the latest_charge or charges
+                const charge = typeof pi.latest_charge === 'string'
+                    ? await stripe.charges.retrieve(pi.latest_charge)
+                    : (pi as any).charges?.data?.[0]
 
-            if (charge) {
-                email = charge.billing_details?.email || email
-                name = charge.billing_details?.name || name
+                if (charge) {
+                    email = charge.billing_details?.email || email
+                    name = charge.billing_details?.name || name
+                }
+                amount = pi.amount / 100
             }
-            amount = pi.amount / 100
         }
     } catch (err) {
         console.error('Stripe verification failed, using client data', err)
