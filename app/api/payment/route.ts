@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(amount * 100), // Stripe expects cents
-            currency,
+            currency: 'usd', // Force USD to prevent currency arbitrage
             automatic_payment_methods: {
                 enabled: true,
             },

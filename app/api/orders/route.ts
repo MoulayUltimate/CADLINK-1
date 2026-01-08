@@ -90,11 +90,16 @@ export async function POST(req: NextRequest) {
     let amount = clientAmount || 75.19
 
     try {
-        if (!paymentIntent.startsWith('test_') && process.env.STRIPE_SECRET_KEY) {
+        if (process.env.STRIPE_SECRET_KEY) {
             const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
                 httpClient: Stripe.createFetchHttpClient(),
             })
             const pi = await stripe.paymentIntents.retrieve(paymentIntent)
+
+            if (pi.status !== 'succeeded') {
+                return NextResponse.json({ error: 'Payment not successful' }, { status: 400 })
+            }
+
             if (pi) {
                 email = pi.receipt_email || email
                 const charge = typeof pi.latest_charge === 'string'
@@ -107,9 +112,12 @@ export async function POST(req: NextRequest) {
                 }
                 amount = pi.amount / 100
             }
+        } else {
+            console.warn('Skipping Stripe verification: STRIPE_SECRET_KEY not set')
         }
     } catch (err) {
-        console.error('Stripe verification failed, using client data', err)
+        console.error('Stripe verification failed:', err)
+        return NextResponse.json({ error: 'Payment verification failed' }, { status: 400 })
     }
 
     const orderId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
