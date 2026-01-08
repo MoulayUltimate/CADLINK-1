@@ -74,16 +74,21 @@ export async function GET(req: NextRequest) {
         }
 
         // If admin is reading, clear unread count and mark messages as read
-        if (isAdmin && data.unreadByAdmin > 0) {
+        if (isAdmin) {
+            let needsUpdate = data.unreadByAdmin > 0
             data.unreadByAdmin = 0
+            data.unreadCount = 0
             // Mark all user messages as read by admin
             data.messages = data.messages.map(msg => {
                 if (msg.sender === 'user' && !msg.readAt) {
+                    needsUpdate = true
                     return { ...msg, readAt: Date.now() }
                 }
                 return msg
             })
-            await KV.put(`chat:session:${sessionId}`, JSON.stringify(data))
+            if (needsUpdate) {
+                await KV.put(`chat:session:${sessionId}`, JSON.stringify(data))
+            }
         }
 
         // If user is reading, mark admin messages as read
