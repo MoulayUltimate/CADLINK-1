@@ -8,6 +8,10 @@ export async function isAuthenticated(req: NextRequest): Promise<boolean> {
     try {
         const kv = (process.env as any).KV
         if (!kv) {
+            if (process.env.NODE_ENV === 'development') {
+                console.warn('KV not found, allowing auth (DEV MODE)')
+                return true
+            }
             console.error('KV not configured for auth check')
             return false
         }

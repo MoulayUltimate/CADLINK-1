@@ -11,6 +11,9 @@ export async function GET(req: NextRequest) {
 
     const kv = (process.env as any).KV
     if (!kv) {
+        if (process.env.NODE_ENV === 'development') {
+            return NextResponse.json({ authenticated: true })
+        }
         return NextResponse.json({ error: 'KV not configured' }, { status: 500 })
     }
 

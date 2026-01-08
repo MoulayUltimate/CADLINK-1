@@ -14,16 +14,19 @@ export async function POST(req: NextRequest) {
         }
 
         const kv = (process.env as any).KV
-        if (!kv) {
-            return NextResponse.json({ error: 'KV not configured' }, { status: 500 })
-        }
 
         // Generate a secure session token
         const token = crypto.randomUUID()
         const sessionKey = `session:${token}`
 
-        // Store session in KV
-        await kv.put(sessionKey, 'valid', { expirationTtl: SESSION_TTL })
+        if (kv) {
+            // Store session in KV
+            await kv.put(sessionKey, 'valid', { expirationTtl: SESSION_TTL })
+        } else if (process.env.NODE_ENV === 'development') {
+            console.warn('KV not found, skipping session storage (DEV MODE)')
+        } else {
+            return NextResponse.json({ error: 'KV not configured' }, { status: 500 })
+        }
 
         // Create response with HttpOnly cookie
         const response = NextResponse.json({ success: true })
