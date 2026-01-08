@@ -6,25 +6,42 @@ export async function GET(req: NextRequest) {
     try {
         const kv = (process.env as any).KV;
         if (!kv) {
-            return NextResponse.json({ activeUsers: 0, cartEvents: [] });
+            return NextResponse.json({ activeUsers: 0, cartEvents: [], activeRegions: [] });
         }
 
-        // In a real app, you might use Durable Objects for better live state.
-        // Here we'll simulate "live" users by counting recent page view events stored in KV
-        // or by using a specific "live_users" key that gets updated by a heartbeat.
-
         // Count active users by listing 'presence:*' keys
-        // Note: KV list is eventually consistent and has limits, but works for small scale.
         const { keys } = await kv.list({ prefix: 'presence:' });
         const activeUsers = keys.length;
 
+        // Get country data from presence entries
+        const activeRegions: { country: string; count: number }[] = [];
+        const countryMap: Record<string, number> = {};
+
+        for (const key of keys) {
+            try {
+                const data = await kv.get(key.name, 'text');
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    const country = parsed.country || 'Unknown';
+                    countryMap[country] = (countryMap[country] || 0) + 1;
+                }
+            } catch {
+                // Skip invalid entries
+            }
+        }
+
+        // Convert to array and sort by count
+        for (const [country, count] of Object.entries(countryMap)) {
+            activeRegions.push({ country, count });
+        }
+        activeRegions.sort((a, b) => b.count - a.count);
+
         // Get recent cart events (last 5 mins)
-        // This is a simplification. In production, you'd query a time-series list.
-        const cartEventsStr = await kv.get('analytics:recent_cart_events');
+        const cartEventsStr = await kv.get('analytics:recent_cart_events', 'text');
         const cartEvents = cartEventsStr ? JSON.parse(cartEventsStr) : [];
 
-        return NextResponse.json({ activeUsers, cartEvents });
+        return NextResponse.json({ activeUsers, cartEvents, activeRegions });
     } catch (error) {
-        return NextResponse.json({ activeUsers: 0, cartEvents: [] });
+        return NextResponse.json({ activeUsers: 0, cartEvents: [], activeRegions: [] });
     }
 }

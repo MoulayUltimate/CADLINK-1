@@ -9,25 +9,24 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false });
         }
 
-        // In a real implementation with high traffic, you would use Durable Objects.
-        // For this simple KV implementation, we'll just increment a counter or update a timestamp.
-        // A better approach for "active users" in KV is to store a key per user with an expiration.
-
         const ip = req.headers.get('CF-Connecting-IP') || 'unknown';
+        const country = req.headers.get('CF-IPCountry') || 'Unknown';
         const timestamp = Date.now();
 
-        // Store user presence with a short expiration (e.g., 60 seconds)
-        await kv.put(`presence:${ip}`, timestamp.toString(), { expirationTtl: 60 });
+        // Store user presence with country info (60 second TTL)
+        await kv.put(`presence:${ip}`, JSON.stringify({ timestamp, country }), { expirationTtl: 60 });
 
-        // To get the count, we would list these keys.
-        // However, listing is expensive. For a small store, it's fine.
-        // For a larger store, we'd use a counter that increments/decrements (hard with stateless).
-        // Let's stick to the "list" approach for accuracy on small scale.
+        // Update country stats for Active Regions
+        try {
+            const countryStatsStr = await kv.get('analytics:countries', 'text');
+            const countryStats: Record<string, number> = countryStatsStr ? JSON.parse(countryStatsStr) : {};
+            countryStats[country] = (countryStats[country] || 0) + 1;
+            await kv.put('analytics:countries', JSON.stringify(countryStats));
+        } catch {
+            // Ignore country tracking errors
+        }
 
-        // Update the cached count periodically or just let the GET route handle counting.
-        // Here we just acknowledge the heartbeat.
-
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, country });
 
     } catch (error) {
         return NextResponse.json({ success: false });

@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react'
 
+interface ActiveRegion {
+    country: string
+    count: number
+}
+
 export function useLiveTraffic() {
     const [activeUsers, setActiveUsers] = useState(0)
     const [cartEvents, setCartEvents] = useState<number[]>([])
+    const [activeRegions, setActiveRegions] = useState<ActiveRegion[]>([])
 
     useEffect(() => {
         const fetchLiveTraffic = async () => {
@@ -12,6 +18,7 @@ export function useLiveTraffic() {
                     const data = await res.json()
                     setActiveUsers(data.activeUsers || 0)
                     setCartEvents(data.cartEvents || [])
+                    setActiveRegions(data.activeRegions || [])
                 }
             } catch (err) {
                 console.error('Failed to fetch live traffic', err)
@@ -24,6 +31,6 @@ export function useLiveTraffic() {
         return () => clearInterval(interval)
     }, [])
 
-    return { activeUsers, cartEvents }
+    return { activeUsers, cartEvents, activeRegions }
 }
 
