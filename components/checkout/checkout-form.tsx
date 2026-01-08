@@ -74,6 +74,20 @@ export function CheckoutForm({
         localStorage.setItem('checkout_name', `${customerDetails.firstName} ${customerDetails.lastName}`)
         localStorage.setItem('checkout_email', customerDetails.email)
 
+        // Fire Google Analytics conversion event
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'begin_checkout', {
+                currency: 'USD',
+                value: amount,
+                items: [{ item_name: 'CADLINK V11', price: amount }]
+            });
+            (window as any).gtag('event', 'conversion', {
+                send_to: 'G-TF9G87JX90',
+                value: amount,
+                currency: 'USD'
+            });
+        }
+
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
