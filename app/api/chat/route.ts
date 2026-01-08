@@ -7,6 +7,7 @@ interface Message {
     sender: 'user' | 'admin'
     text: string
     timestamp: number
+    readAt?: number | null
 }
 
 interface ChatSession {
@@ -15,15 +16,20 @@ interface ChatSession {
     lastTimestamp: number
     unreadCount: number
     messages: Message[]
+    isOnline: boolean
+    lastSeen: number
+    unreadByAdmin: number
 }
 
 // Cloudflare KV type definition
 interface KVNamespace {
     get(key: string, type: 'json'): Promise<any>
     get(key: string, type: 'text'): Promise<string | null>
-    put(key: string, value: string | ArrayBuffer | ReadableStream): Promise<void>
+    put(key: string, value: string): Promise<void>
     list(options?: { prefix?: string; limit?: number; cursor?: string }): Promise<{ keys: { name: string }[] }>
 }
+
+const OFFLINE_THRESHOLD = 30000 // 30 seconds
 
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
@@ -41,15 +47,23 @@ export async function GET(req: NextRequest) {
         const sessions = await Promise.all(
             keys.map(async (key: { name: string }) => {
                 const data = await KV.get(key.name, 'json') as ChatSession
+                if (!data) return null
+
+                // Calculate online status based on lastSeen
+                const isOnline = data.lastSeen && (Date.now() - data.lastSeen) < OFFLINE_THRESHOLD
+
                 return {
                     id: data.id,
                     lastMessage: data.lastMessage,
                     lastTimestamp: data.lastTimestamp,
-                    unreadCount: data.unreadCount
+                    unreadCount: data.unreadByAdmin || data.unreadCount || 0,
+                    isOnline,
+                    lastSeen: data.lastSeen
                 }
             })
         )
-        return NextResponse.json(sessions.sort((a: any, b: any) => b.lastTimestamp - a.lastTimestamp))
+        const validSessions = sessions.filter(s => s !== null)
+        return NextResponse.json(validSessions.sort((a: any, b: any) => b.lastTimestamp - a.lastTimestamp))
     }
 
     if (sessionId) {
@@ -59,13 +73,42 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ messages: [] })
         }
 
-        // If admin is reading, clear unread count (simplified)
-        if (isAdmin && data.unreadCount > 0) {
-            data.unreadCount = 0
+        // If admin is reading, clear unread count and mark messages as read
+        if (isAdmin && data.unreadByAdmin > 0) {
+            data.unreadByAdmin = 0
+            // Mark all user messages as read by admin
+            data.messages = data.messages.map(msg => {
+                if (msg.sender === 'user' && !msg.readAt) {
+                    return { ...msg, readAt: Date.now() }
+                }
+                return msg
+            })
             await KV.put(`chat:session:${sessionId}`, JSON.stringify(data))
         }
 
-        return NextResponse.json(data)
+        // If user is reading, mark admin messages as read
+        if (!isAdmin) {
+            let hasUnread = false
+            data.messages = data.messages.map(msg => {
+                if (msg.sender === 'admin' && !msg.readAt) {
+                    hasUnread = true
+                    return { ...msg, readAt: Date.now() }
+                }
+                return msg
+            })
+            if (hasUnread) {
+                await KV.put(`chat:session:${sessionId}`, JSON.stringify(data))
+            }
+        }
+
+        // Calculate online status
+        const isOnline = data.lastSeen && (Date.now() - data.lastSeen) < OFFLINE_THRESHOLD
+
+        return NextResponse.json({
+            ...data,
+            isOnline,
+            unreadCount: data.unreadByAdmin || 0
+        })
     }
 
     return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 })
@@ -91,7 +134,8 @@ export async function POST(req: NextRequest) {
         id: Math.random().toString(36).substring(7),
         sender,
         text,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        readAt: null
     }
 
     if (!session) {
@@ -100,17 +144,28 @@ export async function POST(req: NextRequest) {
             lastMessage: text,
             lastTimestamp: Date.now(),
             unreadCount: sender === 'user' ? 1 : 0,
-            messages: [newMessage]
+            unreadByAdmin: sender === 'user' ? 1 : 0,
+            messages: [newMessage],
+            isOnline: true,
+            lastSeen: Date.now()
         }
     } else {
         session.messages.push(newMessage)
         session.lastMessage = text
         session.lastTimestamp = Date.now()
+        session.lastSeen = Date.now()
+        session.isOnline = true
+
         if (sender === 'user') {
-            session.unreadCount += 1
+            session.unreadByAdmin = (session.unreadByAdmin || 0) + 1
+            session.unreadCount = session.unreadByAdmin
         }
     }
 
     await KV.put(key, JSON.stringify(session))
-    return NextResponse.json(session)
+
+    return NextResponse.json({
+        ...session,
+        newMessage: sender === 'user' // Flag that there's a new user message for notifications
+    })
 }

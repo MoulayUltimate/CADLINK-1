@@ -71,6 +71,7 @@ function AdminDashboardContent() {
     }
 
     const menuItems = [
+        { id: "chat", icon: MessageCircle, label: "Live Chat" },
         { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
         { id: "orders", icon: ShoppingBag, label: "Orders" },
         { id: "analytics", icon: BarChart2, label: "Analytics" },
@@ -79,8 +80,6 @@ function AdminDashboardContent() {
         { id: "products", icon: Package, label: "Products" },
         { id: "payments", icon: CreditCard, label: "Monetization" },
         { id: "integrations", icon: Code2, label: "Integrations" },
-        { id: "chat", icon: MessageCircle, label: "Live Chat" },
-
     ]
 
     const handleLogout = () => {

@@ -1,27 +1,29 @@
 "use client"
 
 import { useState, useEffect, useRef } from 'react'
-import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react'
+import { MessageCircle, X, Send, Loader2, Bot, Check, CheckCheck } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 interface Message {
     id: string
     sender: 'user' | 'admin'
     text: string
     timestamp: number
+    readAt?: number | null
 }
-
-import { usePathname } from 'next/navigation'
 
 export function LiveChatWidget() {
     const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
-
-    if (pathname?.startsWith('/admin')) return null
     const [messages, setMessages] = useState<Message[]>([])
     const [inputText, setInputText] = useState('')
     const [isSending, setIsSending] = useState(false)
     const [sessionId, setSessionId] = useState<string | null>(null)
+    const [hasUnread, setHasUnread] = useState(false)
     const scrollRef = useRef<HTMLDivElement>(null)
+
+    // Don't render on admin pages
+    if (pathname?.startsWith('/admin')) return null
 
     // Initialize session
     useEffect(() => {
@@ -33,16 +35,59 @@ export function LiveChatWidget() {
         setSessionId(id)
     }, [])
 
+    // Presence heartbeat - send every 10 seconds when chat is open
+    useEffect(() => {
+        if (!sessionId) return
+
+        const sendPresence = async () => {
+            try {
+                await fetch('/api/chat/presence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                })
+            } catch (err) {
+                console.error('Failed to send presence', err)
+            }
+        }
+
+        // Send presence immediately and then every 10 seconds
+        sendPresence()
+        const interval = setInterval(sendPresence, 10000)
+
+        // Also send when user is leaving
+        const handleBeforeUnload = () => {
+            // Can't await in beforeunload, but we try to send
+            navigator.sendBeacon?.('/api/chat/presence', JSON.stringify({ sessionId, leaving: true }))
+        }
+        window.addEventListener('beforeunload', handleBeforeUnload)
+
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('beforeunload', handleBeforeUnload)
+        }
+    }, [sessionId])
+
     // Polling for new messages
     useEffect(() => {
-        if (!sessionId || !isOpen) return
+        if (!sessionId) return
 
         const fetchMessages = async () => {
             try {
                 const res = await fetch(`/api/chat?sessionId=${sessionId}`)
                 const data = await res.json()
                 if (data.messages) {
+                    const prevCount = messages.length
                     setMessages(data.messages)
+
+                    // Check for new admin messages when chat is closed
+                    if (!isOpen && data.messages.length > prevCount) {
+                        const newMessages = data.messages.slice(prevCount)
+                        const hasNewAdminMsg = newMessages.some((m: Message) => m.sender === 'admin')
+                        if (hasNewAdminMsg) {
+                            setHasUnread(true)
+                        }
+                    }
                 }
             } catch (err) {
                 console.error('Failed to fetch messages', err)
@@ -52,7 +97,7 @@ export function LiveChatWidget() {
         fetchMessages()
         const interval = setInterval(fetchMessages, 5000)
         return () => clearInterval(interval)
-    }, [sessionId, isOpen])
+    }, [sessionId, isOpen, messages.length])
 
     // Scroll to bottom
     useEffect(() => {
@@ -60,6 +105,13 @@ export function LiveChatWidget() {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight
         }
     }, [messages])
+
+    // Clear unread when opening chat
+    useEffect(() => {
+        if (isOpen) {
+            setHasUnread(false)
+        }
+    }, [isOpen])
 
     const handleSend = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -139,8 +191,15 @@ export function LiveChatWidget() {
                                         : 'bg-white text-gray-900 border border-gray-100 rounded-tl-none'
                                         }`}>
                                         {msg.text}
-                                        <div className={`text-[10px] mt-1 opacity-50 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-400'}`}>
+                                        <div className={`flex items-center gap-1 text-[10px] mt-1 ${msg.sender === 'user' ? 'text-white/50 justify-end' : 'text-gray-400'}`}>
                                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {msg.sender === 'user' && (
+                                                msg.readAt ? (
+                                                    <CheckCheck className="w-3 h-3 text-blue-300" />
+                                                ) : (
+                                                    <Check className="w-3 h-3" />
+                                                )
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -176,6 +235,11 @@ export function LiveChatWidget() {
                 className="w-16 h-16 bg-[#0168A0] hover:bg-[#015580] text-white rounded-full shadow-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 group relative"
             >
                 <div className="absolute inset-0 bg-[#0168A0] rounded-full animate-ping opacity-20 group-hover:opacity-0 transition-opacity" />
+                {hasUnread && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-black animate-bounce">
+                        !
+                    </span>
+                )}
                 {isOpen ? <X className="w-8 h-8" /> : <MessageCircle className="w-8 h-8" />}
             </button>
         </div>

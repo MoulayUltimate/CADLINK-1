@@ -8,16 +8,21 @@ import {
     User,
     Search,
     MoreVertical,
-    CheckCircle2,
     Clock,
-    ArrowLeft
+    ArrowLeft,
+    Check,
+    CheckCheck,
+    Bell,
+    BellOff
 } from 'lucide-react'
+import { requestNotificationPermission, sendNotification, getNotificationPermission } from '@/lib/notification-utils'
 
 interface Message {
     id: string
     sender: 'user' | 'admin'
     text: string
     timestamp: number
+    readAt?: number | null
 }
 
 interface ChatSession {
@@ -26,6 +31,8 @@ interface ChatSession {
     lastTimestamp: number
     unreadCount: number
     messages?: Message[]
+    isOnline?: boolean
+    lastSeen?: number
 }
 
 export function LiveChatView() {
@@ -36,7 +43,21 @@ export function LiveChatView() {
     const [isSending, setIsSending] = useState(false)
     const [isLoadingSessions, setIsLoadingSessions] = useState(true)
     const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+    const [previousUnreadCount, setPreviousUnreadCount] = useState(0)
     const scrollRef = useRef<HTMLDivElement>(null)
+
+    // Check notification permission on mount
+    useEffect(() => {
+        const permission = getNotificationPermission()
+        setNotificationsEnabled(permission === 'granted')
+    }, [])
+
+    // Request notifications permission
+    const handleEnableNotifications = async () => {
+        const granted = await requestNotificationPermission()
+        setNotificationsEnabled(granted)
+    }
 
     // Fetch all sessions
     useEffect(() => {
@@ -46,6 +67,19 @@ export function LiveChatView() {
                 if (!res.ok) throw new Error('Failed to fetch sessions')
                 const data = await res.json()
                 if (Array.isArray(data)) {
+                    // Check for new messages and send notification
+                    const totalUnread = data.reduce((sum: number, s: ChatSession) => sum + (s.unreadCount || 0), 0)
+                    if (totalUnread > previousUnreadCount && notificationsEnabled) {
+                        const newSession = data.find((s: ChatSession) => s.unreadCount > 0)
+                        if (newSession) {
+                            sendNotification('New Chat Message', {
+                                body: newSession.lastMessage,
+                                tag: 'chat-notification',
+                                onClick: () => setSelectedSessionId(newSession.id)
+                            })
+                        }
+                    }
+                    setPreviousUnreadCount(totalUnread)
                     setSessions(data)
                 } else {
                     console.error('Sessions data is not an array:', data)
@@ -60,9 +94,9 @@ export function LiveChatView() {
         }
 
         fetchSessions()
-        const interval = setInterval(fetchSessions, 10000)
+        const interval = setInterval(fetchSessions, 5000) // Poll more frequently
         return () => clearInterval(interval)
-    }, [])
+    }, [notificationsEnabled, previousUnreadCount])
 
     // Fetch messages for selected session
     useEffect(() => {
@@ -84,7 +118,7 @@ export function LiveChatView() {
 
         setIsLoadingMessages(true)
         fetchMessages()
-        const interval = setInterval(fetchMessages, 5000)
+        const interval = setInterval(fetchMessages, 3000)
         return () => clearInterval(interval)
     }, [selectedSessionId])
 
@@ -124,12 +158,33 @@ export function LiveChatView() {
         }
     }
 
+    const getTimeAgo = (timestamp: number) => {
+        const seconds = Math.floor((Date.now() - timestamp) / 1000)
+        if (seconds < 60) return 'Just now'
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+        return `${Math.floor(seconds / 86400)}d ago`
+    }
+
+    const selectedSession = sessions.find(s => s.id === selectedSessionId)
+
     return (
         <div className="h-[calc(100vh-12rem)] flex gap-6 animate-in fade-in duration-500">
             {/* Session List */}
             <div className={`w-full lg:w-80 flex flex-col bg-card backdrop-blur-md border border-border rounded-3xl overflow-hidden ${selectedSessionId ? 'hidden lg:flex' : 'flex'}`}>
                 <div className="p-6 border-b border-border">
-                    <h3 className="text-xl font-black text-foreground mb-4">Conversations</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-black text-foreground">Conversations</h3>
+                        <button
+                            onClick={handleEnableNotifications}
+                            className={`p-2 rounded-lg transition-colors ${notificationsEnabled
+                                ? 'bg-green-500/10 text-green-500'
+                                : 'bg-muted text-muted-foreground hover:text-foreground'}`}
+                            title={notificationsEnabled ? 'Notifications enabled' : 'Enable notifications'}
+                        >
+                            {notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                        </button>
+                    </div>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input
@@ -159,19 +214,27 @@ export function LiveChatView() {
                                     : 'hover:bg-muted text-muted-foreground hover:text-foreground'
                                     }`}
                             >
-                                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                                    <User className="w-6 h-6" />
+                                <div className="relative">
+                                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                                        <User className="w-6 h-6" />
+                                    </div>
+                                    {/* Online/Offline indicator */}
+                                    <span className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-card ${session.isOnline ? 'bg-green-500' : 'bg-red-500'
+                                        }`} />
                                 </div>
                                 <div className="flex-1 text-left min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <span className="font-bold text-sm truncate">{session.id}</span>
+                                        <span className="font-bold text-sm truncate">{session.id.replace('sess_', 'User ')}</span>
                                         {session.unreadCount > 0 && (
-                                            <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                                            <span className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">
                                                 {session.unreadCount}
                                             </span>
                                         )}
                                     </div>
                                     <p className="text-xs opacity-60 truncate">{session.lastMessage}</p>
+                                    <p className="text-[10px] opacity-40 mt-0.5">
+                                        {session.isOnline ? '🟢 Online' : `🔴 Left ${getTimeAgo(session.lastSeen || session.lastTimestamp)}`}
+                                    </p>
                                 </div>
                             </button>
                         ))
@@ -192,14 +255,20 @@ export function LiveChatView() {
                                 >
                                     <ArrowLeft className="w-5 h-5" />
                                 </button>
-                                <div className="w-10 h-10 bg-[#0168A0]/20 rounded-full flex items-center justify-center">
-                                    <User className="w-6 h-6 text-[#0168A0]" />
+                                <div className="relative">
+                                    <div className="w-10 h-10 bg-[#0168A0]/20 rounded-full flex items-center justify-center">
+                                        <User className="w-6 h-6 text-[#0168A0]" />
+                                    </div>
+                                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-card ${selectedSession?.isOnline ? 'bg-green-500' : 'bg-red-500'
+                                        }`} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-foreground">{selectedSessionId}</h3>
+                                    <h3 className="font-bold text-foreground">{selectedSessionId.replace('sess_', 'User ')}</h3>
                                     <div className="flex items-center gap-1.5">
-                                        <span className="w-2 h-2 bg-green-400 rounded-full" />
-                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Now</span>
+                                        <span className={`w-2 h-2 rounded-full ${selectedSession?.isOnline ? 'bg-green-400' : 'bg-red-400'}`} />
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            {selectedSession?.isOnline ? 'Online Now' : 'Offline'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -228,9 +297,16 @@ export function LiveChatView() {
                                             : 'bg-muted text-foreground border border-border rounded-tl-none'
                                             }`}>
                                             {msg.text}
-                                            <div className="flex items-center gap-1 mt-1 opacity-50 text-[10px]">
+                                            <div className={`flex items-center gap-1 mt-1 text-[10px] ${msg.sender === 'admin' ? 'text-white/50 justify-end' : 'text-muted-foreground'}`}>
                                                 <Clock className="w-3 h-3" />
                                                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {msg.sender === 'admin' && (
+                                                    msg.readAt ? (
+                                                        <CheckCheck className="w-3 h-3 text-blue-300 ml-1" />
+                                                    ) : (
+                                                        <Check className="w-3 h-3 ml-1" />
+                                                    )
+                                                )}
                                             </div>
                                         </div>
                                     </div>
