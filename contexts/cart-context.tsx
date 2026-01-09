@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 
 export type CartItem = {
     id: string
@@ -75,9 +75,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)))
     }
 
-    const clearCart = () => {
+    const clearCart = useCallback(() => {
         setItems([])
-    }
+    }, [])
 
     const subtotal = items.reduce((total, item) => total + item.price * item.quantity, 0)
 

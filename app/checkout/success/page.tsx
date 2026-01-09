@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, Suspense } from "react"
+import { useEffect, Suspense, useRef } from "react"
 import Link from "next/link"
 import { CheckCircle2, ArrowRight, Download } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
@@ -12,14 +12,17 @@ function SuccessContent() {
     const searchParams = useSearchParams()
     const paymentIntent = searchParams.get("payment_intent")
 
+    const isRecording = useRef(false)
+
     useEffect(() => {
         if (paymentIntent) {
             // Check if we already recorded this order in this session
             const recordedKey = `order_recorded_${paymentIntent}`
-            if (sessionStorage.getItem(recordedKey)) {
-                // Already recorded, don't record again
+            if (sessionStorage.getItem(recordedKey) || isRecording.current) {
                 return
             }
+
+            isRecording.current = true
 
             // Record order
             const email = localStorage.getItem('checkout_email') || 'unknown@example.com'
@@ -39,7 +42,10 @@ function SuccessContent() {
             }).then(() => {
                 // Mark as recorded to prevent duplicates on refresh
                 sessionStorage.setItem(recordedKey, 'true')
-            }).catch(err => console.error('Failed to record order', err))
+            }).catch(err => {
+                console.error('Failed to record order', err)
+                isRecording.current = false // Unlock on error to allow retry? Maybe not for now.
+            })
 
             clearCart()
         }
