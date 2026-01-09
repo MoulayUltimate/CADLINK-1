@@ -114,8 +114,15 @@ export async function GET(req: NextRequest) {
         let gaActiveUsers30Min = 0
         let gaVisits = 0
         let activeRegions: { country: string; count: number }[] = []
+        let cityStats: any[] = []
+
         try {
-            const gaStats = await getGA4Data()
+            // Get date range from query params
+            const url = new URL(req.url)
+            const startDate = url.searchParams.get('startDate') || '7daysAgo'
+            const endDate = url.searchParams.get('endDate') || 'today'
+
+            const gaStats = await getGA4Data(startDate, endDate)
 
             if (gaStats) {
                 // Use Google Analytics for visits and active users
@@ -123,6 +130,7 @@ export async function GET(req: NextRequest) {
                 gaActiveUsers = gaStats.activeUsers
                 gaActiveUsers30Min = gaStats.activeUsers30Min
                 activeRegions = gaStats.activeRegions || []
+                cityStats = gaStats.cityStats || []
             }
         } catch (e) {
             console.error('Google Analytics Error:', e)
@@ -133,6 +141,7 @@ export async function GET(req: NextRequest) {
             activeUsers: gaActiveUsers, // Real data from Google Analytics (5 min)
             activeUsers30Min: gaActiveUsers30Min, // Real data from Google Analytics (30 min)
             activeRegions, // Real-time users by country
+            cityStats, // City-level analytics
             totalRevenue,
             totalOrders,
             avgOrderValue,

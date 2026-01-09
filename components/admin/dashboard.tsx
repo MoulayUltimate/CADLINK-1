@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useLiveTraffic } from '@/app/admin/hooks/use-live-traffic'
-import { Users, ShoppingCart, Activity, Globe, MapPin, MessageCircle, DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Users, ShoppingCart, Activity, Globe, MapPin, MessageCircle, DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { requestNotificationPermission, sendNotification, getNotificationPermission } from '@/lib/notification-utils'
 
@@ -82,6 +82,16 @@ interface ActiveRegion {
     count: number
 }
 
+interface CityStat {
+    city: string
+    users: number
+    newUsers: number
+    sessions: number
+    bounceRate: number
+    pagesPerSession: number
+    avgSessionDuration: number
+}
+
 interface AnalyticsData {
     visits: number
     activeUsers: number
@@ -93,6 +103,7 @@ interface AnalyticsData {
     dailyRevenue: DailyRevenue[]
     funnelData: FunnelItem[]
     activeRegions: ActiveRegion[]
+    cityStats: CityStat[]
 }
 
 export function Dashboard() {
@@ -107,16 +118,23 @@ export function Dashboard() {
         conversionRate: 0,
         dailyRevenue: [],
         funnelData: [],
-        activeRegions: []
+        activeRegions: [],
+        cityStats: []
     })
     const [unreadChats, setUnreadChats] = useState(0)
     const [prevUnreadCount, setPrevUnreadCount] = useState(0)
     const [isLive, setIsLive] = useState(false)
+    const [customDate, setCustomDate] = useState('')
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('/api/analytics')
+                let url = '/api/analytics'
+                if (customDate) {
+                    url += `?startDate=${customDate}&endDate=${customDate}`
+                }
+
+                const res = await fetch(url)
                 const data = await res.json()
                 if (!data.error) {
                     setStats({
@@ -129,7 +147,8 @@ export function Dashboard() {
                         conversionRate: data.conversionRate || 0,
                         dailyRevenue: data.dailyRevenue || [],
                         funnelData: data.funnelData || [],
-                        activeRegions: data.activeRegions || []
+                        activeRegions: data.activeRegions || [],
+                        cityStats: data.cityStats || []
                     })
                     setIsLive(true)
                 }
@@ -141,7 +160,7 @@ export function Dashboard() {
         fetchStats()
         const interval = setInterval(fetchStats, 5000)
         return () => clearInterval(interval)
-    }, [])
+    }, [customDate])
 
     // Fetch chat sessions for notifications
     useEffect(() => {
@@ -180,7 +199,7 @@ export function Dashboard() {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <div className="flex items-center gap-3">
                         <h2 className="text-2xl font-black text-foreground">Dashboard</h2>
@@ -192,6 +211,25 @@ export function Dashboard() {
                         )}
                     </div>
                     <p className="text-muted-foreground text-sm">Real-time analytics and visitor tracking</p>
+                </div>
+
+                {/* Date Picker */}
+                <div className="flex items-center gap-2 bg-card border border-border p-2 rounded-xl">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    <input
+                        type="date"
+                        value={customDate}
+                        onChange={(e) => setCustomDate(e.target.value)}
+                        className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 outline-none"
+                    />
+                    {customDate && (
+                        <button
+                            onClick={() => setCustomDate('')}
+                            className="text-xs text-red-500 hover:text-red-600 font-bold px-2"
+                        >
+                            Clear
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -337,6 +375,47 @@ export function Dashboard() {
                             </div>
                         )}
                     </div>
+                </div>
+            </div>
+
+            {/* City Analytics Table */}
+            <div className="bg-card backdrop-blur-md border border-border p-6 rounded-2xl overflow-hidden">
+                <h3 className="text-lg font-bold text-foreground mb-6">City Analytics</h3>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-muted/50 text-muted-foreground font-bold">
+                            <tr>
+                                <th className="p-3 rounded-l-lg">City</th>
+                                <th className="p-3">Users</th>
+                                <th className="p-3">New Users</th>
+                                <th className="p-3">Sessions</th>
+                                <th className="p-3">Bounce Rate</th>
+                                <th className="p-3">Pages/Session</th>
+                                <th className="p-3 rounded-r-lg">Avg. Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                            {stats.cityStats.length > 0 ? (
+                                stats.cityStats.map((city, i) => (
+                                    <tr key={i} className="hover:bg-muted/20 transition-colors">
+                                        <td className="p-3 font-medium">{city.city}</td>
+                                        <td className="p-3">{city.users}</td>
+                                        <td className="p-3">{city.newUsers}</td>
+                                        <td className="p-3">{city.sessions}</td>
+                                        <td className="p-3">{city.bounceRate}%</td>
+                                        <td className="p-3">{city.pagesPerSession.toFixed(2)}</td>
+                                        <td className="p-3">{Math.round(city.avgSessionDuration)}s</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                                        No data available for this period
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

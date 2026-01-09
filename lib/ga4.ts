@@ -135,6 +135,39 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
             activeUsers5Min = parseInt(realtime5mData.rows[0].metricValues?.[0]?.value || '0')
         }
 
+        // Fetch City Report
+        const cityResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runReport`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                dateRanges: [{ startDate, endDate }],
+                dimensions: [{ name: 'city' }],
+                metrics: [
+                    { name: 'activeUsers' },
+                    { name: 'newUsers' },
+                    { name: 'sessions' },
+                    { name: 'bounceRate' },
+                    { name: 'screenPageViewsPerSession' },
+                    { name: 'averageSessionDuration' }
+                ]
+            })
+        })
+        const cityData = await cityResponse.json()
+
+        // Parse City Data
+        const cityStats = cityData.rows?.map((row: any) => ({
+            city: row.dimensionValues[0].value,
+            users: parseInt(row.metricValues[0].value),
+            newUsers: parseInt(row.metricValues[1].value),
+            sessions: parseInt(row.metricValues[2].value),
+            bounceRate: parseFloat(row.metricValues[3].value),
+            pagesPerSession: parseFloat(row.metricValues[4].value),
+            avgSessionDuration: parseFloat(row.metricValues[5].value)
+        })) || []
+
         // Parse Data
         const stats = {
             activeUsers: activeUsers5Min, // "Online Now" (5 min)
@@ -143,7 +176,8 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
             totalRevenue: parseFloat(reportData.rows?.[0]?.metricValues?.[2]?.value || '0'),
             totalOrders: parseInt(reportData.rows?.[0]?.metricValues?.[3]?.value || '0'),
             avgOrderValue: parseFloat(reportData.rows?.[0]?.metricValues?.[4]?.value || '0'),
-            activeRegions
+            activeRegions,
+            cityStats
         }
 
         return stats
