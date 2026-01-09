@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'edge'
+// Trigger deployment for env var update
 
 interface Order {
     id: string
