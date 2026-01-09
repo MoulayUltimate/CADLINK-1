@@ -75,7 +75,7 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
 
         const reportData = await reportResponse.json()
 
-        // Fetch Realtime Active Users with Countries
+        // Fetch Realtime Active Users with Countries and Minutes Ago
         const realtimeResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runRealtimeReport`, {
             method: 'POST',
             headers: {
@@ -83,31 +83,42 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                dimensions: [{ name: 'country' }],
+                dimensions: [{ name: 'country' }, { name: 'minutesAgo' }],
                 metrics: [{ name: 'activeUsers' }]
             })
         })
 
         const realtimeData = await realtimeResponse.json()
 
-        // Parse realtime users by country
-        let totalActiveUsers = 0
-        const activeRegions: { country: string; count: number }[] = []
+        // Parse realtime users
+        let activeUsers30Min = 0
+        let activeUsers5Min = 0
+        const regionMap = new Map<string, number>()
 
         if (realtimeData.rows) {
             for (const row of realtimeData.rows) {
                 const country = row.dimensionValues?.[0]?.value || 'Unknown'
+                const minutesAgo = parseInt(row.dimensionValues?.[1]?.value || '0')
                 const count = parseInt(row.metricValues?.[0]?.value || '0')
-                totalActiveUsers += count
-                activeRegions.push({ country, count })
+
+                activeUsers30Min += count
+                if (minutesAgo < 5) {
+                    activeUsers5Min += count
+                }
+
+                regionMap.set(country, (regionMap.get(country) || 0) + count)
             }
-            // Sort by count descending
-            activeRegions.sort((a, b) => b.count - a.count)
         }
+
+        // Convert map to array for active regions (based on 30 min data)
+        const activeRegions = Array.from(regionMap.entries())
+            .map(([country, count]) => ({ country, count }))
+            .sort((a, b) => b.count - a.count)
 
         // Parse Data
         const stats = {
-            activeUsers: totalActiveUsers,
+            activeUsers: activeUsers5Min, // Keep 'activeUsers' as "Online Now" (5 min)
+            activeUsers30Min: activeUsers30Min, // New metric for 30 min
             visits: parseInt(reportData.rows?.[0]?.metricValues?.[1]?.value || '0'),
             totalRevenue: parseFloat(reportData.rows?.[0]?.metricValues?.[2]?.value || '0'),
             totalOrders: parseInt(reportData.rows?.[0]?.metricValues?.[3]?.value || '0'),
