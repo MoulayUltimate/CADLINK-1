@@ -85,6 +85,7 @@ interface ActiveRegion {
 interface AnalyticsData {
     visits: number
     activeUsers: number
+    activeUsers30Min: number
     totalRevenue: number
     totalOrders: number
     avgOrderValue: number
@@ -99,6 +100,7 @@ export function Dashboard() {
     const [stats, setStats] = useState<AnalyticsData>({
         visits: 0,
         activeUsers: 0,
+        activeUsers30Min: 0,
         totalRevenue: 0,
         totalOrders: 0,
         avgOrderValue: 0,
@@ -120,6 +122,7 @@ export function Dashboard() {
                     setStats({
                         visits: data.visits || 0,
                         activeUsers: data.activeUsers || 0,
+                        activeUsers30Min: data.activeUsers30Min || 0,
                         totalRevenue: data.totalRevenue || 0,
                         totalOrders: data.totalOrders || 0,
                         avgOrderValue: data.avgOrderValue || 0,
@@ -214,7 +217,7 @@ export function Dashboard() {
             )}
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <StatCard
                     label="Total Revenue"
                     value={`$${stats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -224,13 +227,21 @@ export function Dashboard() {
                     color="green"
                 />
                 <StatCard
-                    label="Active Users"
+                    label="Active Users (5m)"
                     value={activeUsers.toString()}
                     trend="Online now"
                     trendUp={true}
                     icon={Users}
                     color="blue"
                     pulse={activeUsers > 0}
+                />
+                <StatCard
+                    label="Active Users (30m)"
+                    value={stats.activeUsers30Min.toString()}
+                    trend="Last 30 mins"
+                    trendUp={true}
+                    icon={Activity}
+                    color="orange"
                 />
                 <StatCard
                     label="Cart Events"
