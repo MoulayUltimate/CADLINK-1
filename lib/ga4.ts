@@ -75,49 +75,69 @@ export async function getGA4Data(startDate: string = '7daysAgo', endDate: string
 
         const reportData = await reportResponse.json()
 
-        // Fetch Realtime Active Users with Countries and Minutes Ago
-        const realtimeResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runRealtimeReport`, {
+        // 1. Fetch Realtime Active Users (Last 30 mins) by Country
+        const realtime30mResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runRealtimeReport`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                dimensions: [{ name: 'country' }, { name: 'minutesAgo' }],
+                dimensions: [{ name: 'country' }],
                 metrics: [{ name: 'activeUsers' }]
             })
         })
 
-        const realtimeData = await realtimeResponse.json()
+        const realtime30mData = await realtime30mResponse.json()
 
-        // Parse realtime users
-        let activeUsers30Min = 0
-        let activeUsers5Min = 0
-        const regionMap = new Map<string, number>()
-
-        if (realtimeData.rows) {
-            for (const row of realtimeData.rows) {
-                const country = row.dimensionValues?.[0]?.value || 'Unknown'
-                const minutesAgo = parseInt(row.dimensionValues?.[1]?.value || '0')
-                const count = parseInt(row.metricValues?.[0]?.value || '0')
-
-                activeUsers30Min += count
-                if (minutesAgo < 5) {
-                    activeUsers5Min += count
+        // 2. Fetch Realtime Active Users (Last 5 mins)
+        // We filter for minutesAgo 00-04 to get the last 5 minutes unique count
+        const realtime5mResponse = await fetch(`${GA4_API_URL}/properties/${config.propertyId}:runRealtimeReport`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                metrics: [{ name: 'activeUsers' }],
+                dimensionFilter: {
+                    filter: {
+                        fieldName: 'minutesAgo',
+                        inListFilter: {
+                            values: ['00', '01', '02', '03', '04'],
+                            caseSensitive: false
+                        }
+                    }
                 }
+            })
+        })
 
-                regionMap.set(country, (regionMap.get(country) || 0) + count)
+        const realtime5mData = await realtime5mResponse.json()
+
+        // Parse 30m Data (Countries)
+        let activeUsers30Min = 0
+        const activeRegions: { country: string; count: number }[] = []
+
+        if (realtime30mData.rows) {
+            for (const row of realtime30mData.rows) {
+                const country = row.dimensionValues?.[0]?.value || 'Unknown'
+                const count = parseInt(row.metricValues?.[0]?.value || '0')
+                activeUsers30Min += count
+                activeRegions.push({ country, count })
             }
+            // Sort by count descending
+            activeRegions.sort((a, b) => b.count - a.count)
         }
 
-        // Convert map to array for active regions (based on 30 min data)
-        const activeRegions = Array.from(regionMap.entries())
-            .map(([country, count]) => ({ country, count }))
-            .sort((a, b) => b.count - a.count)
+        // Parse 5m Data (Total)
+        let activeUsers5Min = 0
+        if (realtime5mData.rows && realtime5mData.rows.length > 0) {
+            activeUsers5Min = parseInt(realtime5mData.rows[0].metricValues?.[0]?.value || '0')
+        }
 
         // Parse Data
         const stats = {
-            activeUsers: activeUsers5Min, // Keep 'activeUsers' as "Online Now" (5 min)
+            activeUsers: activeUsers5Min, // "Online Now" (5 min)
             activeUsers30Min: activeUsers30Min, // New metric for 30 min
             visits: parseInt(reportData.rows?.[0]?.metricValues?.[1]?.value || '0'),
             totalRevenue: parseFloat(reportData.rows?.[0]?.metricValues?.[2]?.value || '0'),
