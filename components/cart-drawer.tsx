@@ -24,7 +24,7 @@ export function CartDrawer() {
 
     const handleCheckout = () => {
         setIsOpen(false)
-        window.location.href = "/checkout"
+        window.open("https://payment-links.mollie.com/payment/Yft24w9Q2pCS6G3m6PsG5", "_blank")
     }
 
     if (!isOpen) return null

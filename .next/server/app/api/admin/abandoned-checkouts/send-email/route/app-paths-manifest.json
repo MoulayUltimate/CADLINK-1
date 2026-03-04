@@ -1,0 +1,3 @@
+{
+  "/api/admin/abandoned-checkouts/send-email/route": "app-edge-has-no-entrypoint"
+}

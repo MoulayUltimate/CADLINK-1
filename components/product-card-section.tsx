@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useCart } from "@/contexts/cart-context"
-import { toast } from "sonner"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
+
+const PAYMENT_LINK = "https://payment-links.mollie.com/payment/Yft24w9Q2pCS6G3m6PsG5"
 
 export function ProductCardSection() {
   const [quantity, setQuantity] = useState(1)
   const [product, setProduct] = useState<any>(null)
-  const { addItem } = useCart()
 
   useEffect(() => {
     fetch('/api/product')
@@ -19,15 +18,7 @@ export function ProductCardSection() {
   }, [])
 
   const handleAddToCart = () => {
-    if (!product) return
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: quantity,
-    })
-    toast.success("Added to cart")
+    window.open(PAYMENT_LINK, "_blank")
   }
 
   if (!product) return null

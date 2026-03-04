@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/admin/cleanup": {},
+    "/api/admin/batch-delete": {},
+    "/api/admin/reset": {},
+    "/api/analytics/heartbeat": {},
+    "/api/abandoned-checkouts": {},
+    "/api/admin/abandoned-checkouts/send-email": {},
+    "/api/admin/scripts": {},
+    "/api/auth/check": {},
+    "/api/auth/logout": {},
+    "/api/auth/login": {},
+    "/api/chat/presence": {},
+    "/api/analytics/cart": {},
+    "/api/analytics": {},
+    "/api/product": {},
+    "/api/orders": {},
+    "/api/payment": {},
+    "/api/analytics/live": {},
+    "/api/chat": {}
+  }
+}
