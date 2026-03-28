@@ -24,7 +24,7 @@ export function CartDrawer() {
 
     const handleCheckout = () => {
         setIsOpen(false)
-        window.open("https://payment-links.mollie.com/payment/Yft24w9Q2pCS6G3m6PsG5", "_blank")
+        window.open("https://buy.stripe.com/5kQeVd2hl83Z0kv9CQ4ko00", "_blank")
     }
 
     if (!isOpen) return null
