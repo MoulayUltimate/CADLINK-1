@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../../../app/admin/settings/page.tsx"],"sourcesContent":["import { redirect } from \"next/navigation\"\n\nexport default function SettingsRedirect() {\n    redirect(\"/admin?view=settings\")\n}\n"],"names":[],"mappings":"qMAAA,EAAA,CAAA,CAAA,OAAA,IAAA,EAAA,EAAA,CAAA,CAAA,MAEe,SAAS,IACpB,CAAA,EAAA,EAAA,QAAA,AAAQ,EAAC,uBACb"}

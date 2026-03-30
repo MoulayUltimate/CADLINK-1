@@ -4,3 +4,6 @@ dist/
 .wrangler/
 .env
 .env.local
+.next/
+out/
+build/
