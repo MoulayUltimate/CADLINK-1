@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 
-const PAYMENT_LINK = "https://buy.stripe.com/5kQeVd2hl83Z0kv9CQ4ko00"
+const PAYMENT_LINK = "https://buy.stripe.com/4gM00l8fp87iffp6nS3F600"
 
 interface BuyNowButtonProps {
   productId: string
