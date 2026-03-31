@@ -40,9 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Google Analytics 4 */}
+        {/* Google Analytics 4 & Google Ads */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-VRHZJ0QQNL"
+          strategy="afterInteractive"
+        />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18035551290"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -51,6 +55,7 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-VRHZJ0QQNL');
+            gtag('config', 'AW-18035551290');
           `}
         </Script>
       </head>
