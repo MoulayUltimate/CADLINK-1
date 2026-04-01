@@ -1,6 +1,6 @@
 {
     "payment": {
-        "stripeLink": "https://buy.stripe.com/5kQeVd2hl83Z0kv9CQ4ko00",
+        "stripeLink": "https://buy.stripe.com/00w4gy0uffWyelu19h5wI00",
         "dodoApiKey": "",
         "returnUrl": "https://cadlink.us/success"
     },

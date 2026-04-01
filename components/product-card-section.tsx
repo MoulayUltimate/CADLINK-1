@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
 
-const PAYMENT_LINK = "https://buy.stripe.com/5kQeVd2hl83Z0kv9CQ4ko00"
+const PAYMENT_LINK = "https://buy.stripe.com/00w4gy0uffWyelu19h5wI00"
 
 export function ProductCardSection() {
   const [quantity, setQuantity] = useState(1)
