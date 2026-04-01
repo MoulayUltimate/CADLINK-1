@@ -24,7 +24,7 @@ export function CartDrawer() {
 
     const handleCheckout = () => {
         setIsOpen(false)
-        window.open("https://buy.stripe.com/6oU3cv5nM1k38YEdaZbV600", "_blank")
+        window.open("https://buy.stripe.com/5kQeVd2hl83Z0kv9CQ4ko00", "_blank")
     }
 
     if (!isOpen) return null
