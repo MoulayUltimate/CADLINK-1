@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { Header } from "@/components/header"
 import { SaleBanner } from "@/components/sale-banner"
 import { HeroSection } from "@/components/hero-section"

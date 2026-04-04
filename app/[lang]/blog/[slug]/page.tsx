@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { blogs } from "@/lib/blog-data"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
