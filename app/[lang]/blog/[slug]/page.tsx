@@ -1,4 +1,4 @@
-export const runtime = 'edge'
+export const dynamic = 'force-static'
 
 import { blogs } from "@/lib/blog-data"
 import { Header } from "@/components/header"
@@ -8,7 +8,18 @@ import Link from "next/link"
 import { Calendar, Clock, ArrowLeft, ArrowRight } from "lucide-react"
 import { notFound } from "next/navigation"
 
-export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateStaticParams() {
+    const paths = []
+    const locales = ['gb', 'fr', 'de', 'pl']
+    for (const lang of locales) {
+        for (const post of blogs) {
+            paths.push({ lang, slug: post.slug })
+        }
+    }
+    return paths
+}
+
+export default async function BlogPost({ params }: { params: Promise<{ lang: string; slug: string }> }) {
     const { slug } = await params
     const post = blogs.find((b) => b.slug === slug)
 

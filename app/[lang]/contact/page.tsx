@@ -1,9 +1,12 @@
-export const runtime = 'edge'
+export const dynamic = "force-static"
+export const runtime = "edge"
 
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
-export default function ContactPage() {
+
+
+export default function ContactPage({ params }: { params: Promise<{ lang: string }> }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
