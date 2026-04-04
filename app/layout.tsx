@@ -50,6 +50,10 @@ export default function RootLayout({
           src="https://www.googletagmanager.com/gtag/js?id=AW-18035551290"
           strategy="afterInteractive"
         />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17964763241"
+          strategy="afterInteractive"
+        />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -57,6 +61,7 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-VRHZJ0QQNL');
             gtag('config', 'AW-18035551290');
+            gtag('config', 'AW-17964763241');
           `}
         </Script>
       </head>

@@ -1,0 +1,21 @@
+{
+  "sale_banner": {
+    "sale_ends_in": "SALE ENDS IN:",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "promo_text": "USE CAD10 FOR 10% OFF NOW",
+    "download_now": "Download now"
+  },
+  "hero": {
+    "badge": "Digital Factory 11",
+    "title_prefix": "CADlink",
+    "title_highlight": "Digital Factory 11",
+    "description": "Complete Your Activation and Get Your License Key Now ! The industry standard for professional DTF printing.",
+    "buy_now": "Buy Now",
+    "excellent": "Excellent",
+    "verified_partner": "Verified Partner",
+    "official_reseller": "Official CADlink Reseller"
+  }
+}
