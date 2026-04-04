@@ -3,11 +3,12 @@
 import { BuyNowButton } from "./buy-now-button"
 import Image from "next/image"
 import { Star, ShieldCheck, Zap } from "lucide-react"
-
 import { useState, useEffect } from "react"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function HeroSection() {
   const [price, setPrice] = useState<number | null>(null)
+  const t = useTranslation()
 
   useEffect(() => {
     fetch('/api/product')
@@ -29,16 +30,16 @@ export function HeroSection() {
           <div className="text-center lg:text-left order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 bg-[#0168A0]/5 border border-[#0168A0]/10 px-4 py-2 rounded-full mb-8">
               <Zap className="w-4 h-4 text-[#0168A0] fill-[#0168A0]" />
-              <span className="text-xs font-black text-[#0168A0] uppercase tracking-widest">Digital Factory 11</span>
+              <span className="text-xs font-black text-[#0168A0] uppercase tracking-widest">{t.hero?.badge}</span>
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-8 leading-[1.05] tracking-tight">
-              CADlink <br />
-              <span className="text-[#0168A0]">Digital Factory 11</span>
+              {t.hero?.title_prefix} <br />
+              <span className="text-[#0168A0]">{t.hero?.title_highlight}</span>
             </h1>
 
             <p className="text-xl text-gray-500 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Complete Your Activation and Get Your License Key Now ! The industry standard for professional DTF printing.
+              {t.hero?.description}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start mb-12">
@@ -47,7 +48,7 @@ export function HeroSection() {
                   productId="prod_cadlink_v11"
                   className="bg-[#0168A0] hover:bg-[#015580] text-white font-black px-12 py-7 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.5)] transition-all hover:-translate-y-1 active:scale-95"
                 >
-                  Buy Now
+                  {t.hero?.buy_now}
                 </BuyNowButton>
                 <div className="flex flex-col items-start">
                   <span className="text-4xl font-black text-gray-900">${price ? price.toFixed(2) : '75.19'}</span>
@@ -64,16 +65,16 @@ export function HeroSection() {
                   ))}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-black text-gray-900 leading-none">Trustpilot</p>
-                  <p className="text-xs font-bold text-gray-400">Excellent 4.9/5</p>
+                  <p className="text-sm font-black text-gray-900 leading-none">{t.hero?.trustpilot}</p>
+                  <p className="text-xs font-bold text-gray-400">{t.hero?.excellent} 4.9/5</p>
                 </div>
               </div>
               <div className="h-8 w-px bg-gray-200 hidden sm:block" />
               <div className="flex items-center gap-3">
                 <ShieldCheck className="w-10 h-10 text-[#0168A0]" strokeWidth={1.5} />
                 <div className="text-left">
-                  <p className="text-sm font-black text-gray-900 leading-none">Verified Partner</p>
-                  <p className="text-xs font-bold text-gray-400">Official CADlink Reseller</p>
+                  <p className="text-sm font-black text-gray-900 leading-none">{t.hero?.verified_partner}</p>
+                  <p className="text-xs font-bold text-gray-400">{t.hero?.official_reseller}</p>
                 </div>
               </div>
             </div>

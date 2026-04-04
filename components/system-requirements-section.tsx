@@ -1,42 +1,47 @@
-import { Cpu, HardDrive, Monitor, Zap, LayoutGrid, AlertCircle } from "lucide-react"
+"use client"
+
+import { Cpu, HardDrive, Monitor, Zap, LayoutGrid } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function SystemRequirementsSection() {
+  const t = useTranslation()
+
   const specs = [
     {
       icon: <LayoutGrid className="w-6 h-6 text-[#0168A0]" />,
-      label: "Operating System",
-      value: "Windows 11 / 10",
-      detail: "64-bit (Version 1809 or higher)",
+      label: t.system_requirements?.os_label,
+      value: t.system_requirements?.os_value,
+      detail: t.system_requirements?.os_detail,
     },
     {
       icon: <Cpu className="w-6 h-6 text-[#0168A0]" />,
-      label: "Processor",
-      value: "3+ GHz Processor",
-      detail: "Recommended (2.5 GHz Minimum)",
+      label: t.system_requirements?.cpu_label,
+      value: t.system_requirements?.cpu_value,
+      detail: t.system_requirements?.cpu_detail,
     },
     {
       icon: <Zap className="w-6 h-6 text-[#0168A0]" />,
-      label: "Memory (RAM)",
-      value: "16 GB Recommended",
-      detail: "8 GB Minimum required",
+      label: t.system_requirements?.ram_label,
+      value: t.system_requirements?.ram_value,
+      detail: t.system_requirements?.ram_detail,
     },
     {
       icon: <Monitor className="w-6 h-6 text-[#0168A0]" />,
-      label: "Display Resolution",
-      value: "1920 x 1080",
-      detail: "True Color display supported",
+      label: t.system_requirements?.display_label,
+      value: t.system_requirements?.display_value,
+      detail: t.system_requirements?.display_detail,
     },
     {
       icon: <LayoutGrid className="w-6 h-6 text-[#0168A0]" />,
-      label: "Graphics Card",
-      value: "4 GB GPU (DX12)",
-      detail: "DirectX 11 compatible minimum",
+      label: t.system_requirements?.gpu_label,
+      value: t.system_requirements?.gpu_value,
+      detail: t.system_requirements?.gpu_detail,
     },
     {
       icon: <HardDrive className="w-6 h-6 text-[#0168A0]" />,
-      label: "Disk Space",
-      value: "10 GB Free Space",
-      detail: "SSD recommended for best performance",
+      label: t.system_requirements?.disk_label,
+      value: t.system_requirements?.disk_value,
+      detail: t.system_requirements?.disk_detail,
     },
   ]
 
@@ -46,10 +51,10 @@ export function SystemRequirementsSection() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-6">
-              System Requirements
+              {t.system_requirements?.title}
             </h2>
             <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-              Ensure smooth performance and fast rendering with these recommended specifications for CADlink Digital Factory 11.
+              {t.system_requirements?.description}
             </p>
           </div>
 
@@ -75,9 +80,9 @@ export function SystemRequirementsSection() {
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Pro Tip: Use an SSD</h4>
+                <h4 className="font-bold text-gray-900">{t.system_requirements?.pro_tip_title}</h4>
                 <p className="text-sm text-gray-600">
-                  Installing Digital Factory 11 on a Solid State Drive (SSD) significantly improves processing and ripping speeds.
+                  {t.system_requirements?.pro_tip_desc}
                 </p>
               </div>
             </div>

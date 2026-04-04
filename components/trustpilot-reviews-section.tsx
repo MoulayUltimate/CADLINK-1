@@ -1,7 +1,12 @@
+"use client"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Check, Star } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function TrustpilotReviewsSection() {
+  const t = useTranslation()
+
   const reviews = [
     {
       initial: "S",
@@ -10,7 +15,7 @@ export function TrustpilotReviewsSection() {
       title: "Outstanding color accuracy and speed!",
       review:
         "I'm using the trial version while waiting on my purchase to arrive. The color accuracy is something I haven't seen before—greens, purples, pinks, all coming out almost perfect. The best part: It actually prints twice as fast!",
-      badge: "Verified Purchase",
+      badge: t.trustpilot_reviews?.verified_purchase,
     },
     {
       initial: "J",
@@ -19,7 +24,7 @@ export function TrustpilotReviewsSection() {
       title: 'Great colour accuracy and "pop"',
       review:
         'I upgraded from v10 to v11 and it\'s pretty much the same, for what I do anyway. My humble opinion is… You could have snuck into my house, upgraded 10 to 11 for me and I would not have noticed. Key praise: colour accuracy, print-speed, "pop" of colours.',
-      badge: "Verified Purchase",
+      badge: t.trustpilot_reviews?.verified_purchase,
     },
     {
       initial: "M",
@@ -28,7 +33,7 @@ export function TrustpilotReviewsSection() {
       title: "Worth every penny at work",
       review:
         "We have CADlink Digital Factory v11 at work—small improvements over v10, but still worth every penny. While the jump from v10 →v11 may be modest, the overall quality makes it essential for our DTF production.",
-      badge: "Designer",
+      badge: t.trustpilot_reviews?.designer,
     },
   ]
 
@@ -47,19 +52,19 @@ export function TrustpilotReviewsSection() {
                 <span className="text-sm font-black text-gray-900">Trustpilot</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">
-                What our customers <br />
-                <span className="text-[#0168A0]">are saying about us</span>
+                {t.trustpilot_reviews?.title_prefix} <br />
+                <span className="text-[#0168A0]">{t.trustpilot_reviews?.title_highlight}</span>
               </h2>
             </div>
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
               <div className="text-center">
                 <p className="text-3xl font-black text-gray-900 leading-none">4.9</p>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Average</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">{t.trustpilot_reviews?.average}</p>
               </div>
               <div className="h-10 w-px bg-gray-100" />
               <div className="text-left">
-                <p className="text-sm font-bold text-gray-900">Excellent Service</p>
-                <p className="text-xs text-gray-400">Based on 4,317 reviews</p>
+                <p className="text-sm font-bold text-gray-900">{t.trustpilot_reviews?.excellent_service}</p>
+                <p className="text-xs text-gray-400">{t.trustpilot_reviews?.based_on_reviews}</p>
               </div>
             </div>
           </div>

@@ -1,26 +1,31 @@
+"use client"
+
 import { Zap, ShieldCheck, CreditCard, Headphones } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function FeaturesBar() {
+    const t = useTranslation()
+
     const features = [
         {
             icon: <Zap className="w-5 h-5 text-[#0168A0]" />,
-            title: "Instant Delivery",
-            subtitle: "1-30 min delivery",
+            title: t.features_bar?.instant_delivery,
+            subtitle: t.features_bar?.instant_delivery_sub,
         },
         {
             icon: <ShieldCheck className="w-5 h-5 text-[#0168A0]" />,
-            title: "No Extra Charges",
-            subtitle: "One-time payment",
+            title: t.features_bar?.no_extra_charges,
+            subtitle: t.features_bar?.no_extra_charges_sub,
         },
         {
             icon: <CreditCard className="w-5 h-5 text-[#0168A0]" />,
-            title: "Safe Payments",
-            subtitle: "Secure checkout",
+            title: t.features_bar?.safe_payments,
+            subtitle: t.features_bar?.safe_payments_sub,
         },
         {
             icon: <Headphones className="w-5 h-5 text-[#0168A0]" />,
-            title: "24/7 Support",
-            subtitle: "Always here to help",
+            title: t.features_bar?.support_24_7,
+            subtitle: t.features_bar?.support_24_7_sub,
         },
     ]
 

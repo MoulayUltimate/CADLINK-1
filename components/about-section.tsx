@@ -1,12 +1,11 @@
+"use client"
+
 import { CheckCircle2 } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function AboutSection() {
-  const points = [
-    "Advanced Color Management & White Ink Control",
-    "Automated Production Tools for High Volume",
-    "Powerful RIP Technology for Consistent Quality",
-    "Purpose-built for Direct-to-Film (DTF) Printing",
-  ]
+  const t = useTranslation()
+  const points = t.about?.points || []
 
   return (
     <section className="py-20 bg-white">
@@ -15,16 +14,14 @@ export function AboutSection() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-                Why Choose CADlink <br />
-                <span className="text-[#0168A0]">Digital Factory 11?</span>
+                {t.about?.title_prefix} <br />
+                <span className="text-[#0168A0]">{t.about?.title_highlight}</span>
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                CADLINK Digital Factory 11 DTF is the ultimate professional printing software for DTF producers, apparel
-                decorators, and digital print shops. It's engineered to provide the most precise color accuracy and
-                production efficiency in the industry.
+                {t.about?.description}
               </p>
               <div className="space-y-4">
-                {points.map((point, index) => (
+                {points.map((point: string, index: number) => (
                   <div key={index} className="flex items-center gap-3">
                     <CheckCircle2 className="w-6 h-6 text-[#0168A0]" />
                     <span className="text-gray-700 font-medium">{point}</span>
@@ -35,23 +32,16 @@ export function AboutSection() {
             <div className="bg-[#f9fafb] rounded-3xl p-8 md:p-12 border border-gray-100">
               <div className="space-y-6">
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                  <h4 className="font-bold text-gray-900 mb-2">Professional-Grade RIP</h4>
-                  <p className="text-sm text-gray-500">
-                    Industry-leading processing speeds and halftone control for the most demanding production
-                    environments.
-                  </p>
+                  <h4 className="font-bold text-gray-900 mb-2">{t.about?.card_1_title}</h4>
+                  <p className="text-sm text-gray-500">{t.about?.card_1_desc}</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                  <h4 className="font-bold text-gray-900 mb-2">Universal Compatibility</h4>
-                  <p className="text-sm text-gray-500">
-                    Supports a wide range of DTF printers, from desktop conversions to large-format industrial machines.
-                  </p>
+                  <h4 className="font-bold text-gray-900 mb-2">{t.about?.card_2_title}</h4>
+                  <p className="text-sm text-gray-500">{t.about?.card_2_desc}</p>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                  <h4 className="font-bold text-gray-900 mb-2">Instant Activation</h4>
-                  <p className="text-sm text-gray-500">
-                    Receive your genuine license key within minutes of purchase and start printing immediately.
-                  </p>
+                  <h4 className="font-bold text-gray-900 mb-2">{t.about?.card_3_title}</h4>
+                  <p className="text-sm text-gray-500">{t.about?.card_3_desc}</p>
                 </div>
               </div>
             </div>

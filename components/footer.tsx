@@ -1,38 +1,43 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function Footer() {
+  const t = useTranslation()
+
   return (
     <footer className="bg-[#f5f5f5] border-t-4 border-[#0168A0]">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Information Column */}
           <div>
-            <h3 className="font-bold text-lg text-foreground mb-4">Information</h3>
+            <h3 className="font-bold text-lg text-foreground mb-4">{t.footer?.information}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/privacy-policy" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Privacy Policy
+                  {t.footer?.privacy_policy}
                 </Link>
               </li>
               <li>
                 <Link href="/refund-returns" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Refund and Returns Policy
+                  {t.footer?.refund_returns}
                 </Link>
               </li>
               <li>
                 <Link href="/terms-conditions" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Terms and conditions
+                  {t.footer?.terms_conditions}
                 </Link>
               </li>
               <li>
                 <Link href="#faq" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  FAQs
+                  {t.footer?.faqs}
                 </Link>
               </li>
               <li>
                 <Link href="/shipping-policy" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Shipping Policy
+                  {t.footer?.shipping_policy}
                 </Link>
               </li>
             </ul>
@@ -40,26 +45,26 @@ export function Footer() {
 
           {/* Services Column */}
           <div>
-            <h3 className="font-bold text-lg text-foreground mb-4">Services</h3>
+            <h3 className="font-bold text-lg text-foreground mb-4">{t.footer?.services}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="#" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  My account
+                  {t.footer?.my_account}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Cart
+                  {t.footer?.cart}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Checkout
+                  {t.footer?.checkout}
                 </Link>
               </li>
               <li>
                 <Link href="#" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Wishlist
+                  {t.footer?.wishlist}
                 </Link>
               </li>
             </ul>
@@ -67,11 +72,11 @@ export function Footer() {
 
           {/* Contact Column */}
           <div>
-            <h3 className="font-bold text-lg text-foreground mb-4">Contact</h3>
+            <h3 className="font-bold text-lg text-foreground mb-4">{t.footer?.contact}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/contact" className="text-muted-foreground hover:text-[#0168A0] transition-colors">
-                  Contact Us
+                  {t.footer?.contact_us}
                 </Link>
               </li>
             </ul>
@@ -93,7 +98,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-gray-300">
-          <p className="text-sm text-muted-foreground">Copyright © 2025 CADlink . All Rights Reserved.</p>
+          <p className="text-sm text-muted-foreground">{t.footer?.copyright}</p>
         </div>
       </div>
     </footer>

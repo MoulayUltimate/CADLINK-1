@@ -13,38 +13,49 @@ import { Footer } from "@/components/footer"
 import { FeaturesBar } from "@/components/features-bar"
 import { BlogSection } from "@/components/blog-section"
 import { VideoSection } from "@/components/video-section"
+import { getDictionary } from "@/lib/dictionary"
+import { TranslationProvider } from "@/contexts/translation-context"
 
-export default function Page() {
+export function generateStaticParams() {
+  return [{ lang: "gb" }, { lang: "fr" }, { lang: "de" }, { lang: "pl" }]
+}
+
+export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  const dict = await getDictionary(lang)
+
   return (
-    <div className="min-h-screen bg-background">
-      <SaleBanner />
-      <Header />
-      <main>
-        <HeroSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <FeaturesBar />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <TrustedPartnersSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <AboutSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <VideoSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <ProductCardSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <PrinterCompatibilitySection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <TrustpilotReviewsSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <SystemRequirementsSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <ProductSummarySection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <FAQSection />
-        <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
-        <BlogSection />
-      </main>
-      <Footer />
-    </div>
+    <TranslationProvider dictionary={dict}>
+      <div className="min-h-screen bg-background">
+        <SaleBanner />
+        <Header lang={lang} />
+        <main>
+          <HeroSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <FeaturesBar />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <TrustedPartnersSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <AboutSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <VideoSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <ProductCardSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <PrinterCompatibilitySection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <TrustpilotReviewsSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <SystemRequirementsSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <ProductSummarySection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <FAQSection />
+          <div className="h-px bg-gray-100 w-full max-w-7xl mx-auto" />
+          <BlogSection />
+        </main>
+        <Footer />
+      </div>
+    </TranslationProvider>
   )
 }

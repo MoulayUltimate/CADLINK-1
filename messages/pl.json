@@ -1,0 +1,207 @@
+{
+    "sale_banner": {
+        "sale_ends_in": "WYPRZEDAŻ KOŃCZY SIĘ ZA:",
+        "days": "Dni",
+        "hours": "Godziny",
+        "minutes": "Minuty",
+        "seconds": "Sekundy",
+        "promo_text": "UŻYJ CAD10 I OTRZYMAJ 10% ZNIŻKI",
+        "download_now": "Pobierz teraz"
+    },
+    "header": {
+        "home": "Strona główna",
+        "shipping_policy": "Polityka wysyłki",
+        "contact_us": "Kontakt",
+        "live_status": "Status na żywo",
+        "download": "Pobierz",
+        "download_software": "Pobierz oprogramowanie"
+    },
+    "hero": {
+        "badge": "Digital Factory 11",
+        "title_prefix": "CADlink",
+        "title_highlight": "Digital Factory 11",
+        "description": "Dokończ aktywację i otrzymaj klucz licencyjny teraz! Standard branżowy w profesjonalnym druku DTF.",
+        "buy_now": "Kup teraz",
+        "excellent": "Doskonałe",
+        "trustpilot": "Trustpilot",
+        "verified_partner": "Zweryfikowany partner",
+        "official_reseller": "Oficjalny sprzedawca CADlink"
+    },
+    "features_bar": {
+        "instant_delivery": "Natychmiastowa dostawa",
+        "instant_delivery_sub": "Dostawa w 1-30 min",
+        "no_extra_charges": "Bez ukrytych opłat",
+        "no_extra_charges_sub": "Jednorazowa płatność",
+        "safe_payments": "Bezpieczne płatności",
+        "safe_payments_sub": "Bezpieczna realizacja",
+        "support_24_7": "Wsparcie 24/7",
+        "support_24_7_sub": "Zawsze do Twojej dyspozycji"
+    },
+    "about": {
+        "title_prefix": "Dlaczego warto wybrać CADlink",
+        "title_highlight": "Digital Factory 11?",
+        "description": "CADLINK Digital Factory 11 DTF to najlepsze profesjonalne oprogramowanie do druku dla producentów DTF, dekoratorów odzieży i cyfrowych drukarni. Zaprojektowane, aby zapewnić najwyższą dokładność kolorów i wydajność produkcji w branży.",
+        "points": [
+            "Zaawansowane zarządzanie kolorami i kontrola białego tuszu",
+            "Zautomatyzowane narzędzia produkcyjne do dużych nakładów",
+            "Potężna technologia RIP dla spójnej jakości",
+            "Zaprojektowane dla druku Direct-to-Film (DTF)"
+        ],
+        "card_1_title": "Profesjonalny RIP",
+        "card_1_desc": "Wiodące w branży prędkości przetwarzania i kontrola rastrowania dla najbardziej wymagających środowisk produkcyjnych.",
+        "card_2_title": "Uniwersalna kompatybilność",
+        "card_2_desc": "Obsługuje szeroką gamę drukarek DTF, od konwersji biurkowych po przemysłowe maszyny wielkoformatowe.",
+        "card_3_title": "Natychmiastowa aktywacja",
+        "card_3_desc": "Otrzymaj swój oryginalny klucz licencyjny w ciągu kilku minut od zakupu i rozpocznij drukowanie natychmiast."
+    },
+    "video": {
+        "title_prefix": "Zobacz",
+        "title_highlight": "Digital Factory 11",
+        "title_suffix": "w akcji",
+        "description": "Zobacz, jak łatwo tworzyć idealne półtony i zarządzać przepływem pracy DTF."
+    },
+    "product_card": {
+        "official_license": "Oficjalna licencja",
+        "in_stock": "Dostępne i gotowe",
+        "special_offer": "Cena specjalna",
+        "save_percent": "OSZCZĘDŹ 90%",
+        "add_to_cart": "Dodaj do koszyka",
+        "instant_key": "Natychmiastowa dostawa klucza",
+        "lifetime_activation": "Dożywotnia aktywacja"
+    },
+    "printer_compatibility": {
+        "title_prefix": "Drukarki kompatybilne z",
+        "title_highlight": "Cadlink v11",
+        "description": "Poniżej znajduje się lista drukarek potwierdzonych jako kompatybilne z Cadlink v11. Zaktualizuj tę listę na podstawie obsługiwanych urządzeń."
+    },
+    "trustpilot_reviews": {
+        "title_prefix": "Co nasi klienci",
+        "title_highlight": "mówią o nas",
+        "average": "Średnia",
+        "excellent_service": "Doskonała obsługa",
+        "based_on_reviews": "Na podstawie 4 317 opinii",
+        "verified_purchase": "Zweryfikowany zakup",
+        "designer": "Projektant"
+    },
+    "system_requirements": {
+        "title": "Wymagania systemowe",
+        "description": "Zapewnij płynne działanie i szybkie renderowanie dzięki tym zalecanym specyfikacjom dla CADlink Digital Factory 11.",
+        "os_label": "System operacyjny",
+        "os_value": "Windows 11 / 10",
+        "os_detail": "64-bit (wersja 1809 lub wyższa)",
+        "cpu_label": "Procesor",
+        "cpu_value": "Procesor 3+ GHz",
+        "cpu_detail": "Zalecane (minimum 2,5 GHz)",
+        "ram_label": "Pamięć (RAM)",
+        "ram_value": "Zalecane 16 GB",
+        "ram_detail": "Wymagane minimum 8 GB",
+        "display_label": "Rozdzielczość ekranu",
+        "display_value": "1920 x 1080",
+        "display_detail": "Obsługiwany wyświetlacz True Color",
+        "gpu_label": "Karta graficzna",
+        "gpu_value": "4 GB GPU (DX12)",
+        "gpu_detail": "Kompatybilna z DirectX 11 (minimum)",
+        "disk_label": "Miejsce na dysku",
+        "disk_value": "10 GB wolnego miejsca",
+        "disk_detail": "SSD zalecany dla najlepszej wydajności",
+        "pro_tip_title": "Porada: Użyj dysku SSD",
+        "pro_tip_desc": "Instalacja Digital Factory 11 na dysku SSD znacząco poprawia prędkość przetwarzania i rastrowania."
+    },
+    "product_summary": {
+        "title": "CADlink Digital Factory 11 !",
+        "subtitle": "- Windows",
+        "reviews_count": "(795+ Opinii)",
+        "features": [
+            "Jednorazowa płatność – Pełna aktywacja na całe życie.",
+            "Szybka dostawa e-mail gwarantowana.",
+            "Otrzymasz bezpośredni link do pobrania oprogramowania.",
+            "Film instruktażowy krok po kroku dołączony e-mailem.",
+            "Bez opłat miesięcznych i odnowień – jednorazowy zakup.",
+            "Gwarancja i wsparcie klienta 24/7."
+        ],
+        "get_it_now": "Kup teraz",
+        "instant_delivery_footer": "Natychmiastowa dostawa e-mail • Dożywotnia licencja • Wsparcie 24/7"
+    },
+    "faq": {
+        "badge": "Centrum pomocy",
+        "title_prefix": "FAQ dla",
+        "title_highlight": "CADlink",
+        "subtitle": "Digital Factory 11",
+        "questions": [
+            {
+                "q": "Jak pobrać zakupione oprogramowanie?",
+                "a": "Po zakończeniu zakupu link do pobrania pojawi się na stronie potwierdzenia zamówienia. Kliknij, aby natychmiast pobrać oprogramowanie."
+            },
+            {
+                "q": "Jakie rodzaje oprogramowania oferujecie?",
+                "a": "Oferujemy szeroki zakres oprogramowania, w tym narzędzia produktywności, oprogramowanie do projektowania, programy zabezpieczające i wiele więcej. Odwiedź nasz sklep, aby poznać dostępne produkty."
+            },
+            {
+                "q": "Czy otrzymam instrukcje instalacji?",
+                "a": "Tak! Wraz z linkiem do pobrania znajdziesz również samouczek wideo krok po kroku, który przeprowadzi Cię przez proces instalacji i aktywacji."
+            },
+            {
+                "q": "Czy są klucze sprzętowe lub klucze aktywacyjne?",
+                "a": "Żadnych kluczy sprzętowych, żadnych skomplikowanych aktywacji! Po prostu zainstaluj oprogramowanie i zacznij tworzyć."
+            },
+            {
+                "q": "Czy mogę zaktualizować oprogramowanie po zakupie?",
+                "a": "Możliwość aktualizacji zależy od dostawcy oprogramowania. Niektóre mogą wymagać nowego zakupu, inne umożliwiają bezpłatne aktualizacje. Sprawdź szczegóły produktu."
+            },
+            {
+                "q": "Co jeśli oprogramowanie mi się nie spodoba?",
+                "a": "Bez obaw — obowiązuje 90-dniowa polityka zwrotów, jeśli nie jesteś zadowolony z zakupu."
+            },
+            {
+                "q": "Jak kupić oprogramowanie?",
+                "a": "To proste! Dodaj do koszyka, wypełnij swoje dane, a otrzymasz kod aktywacyjny zaraz po zakupie."
+            },
+            {
+                "q": "Czy mogę ponownie zainstalować oprogramowanie w przyszłości?",
+                "a": "Tak, możesz ponownie zainstalować oprogramowanie, ale sugerujemy zachowanie kopii zapasowej pliku instalacyjnego. Użyj tego samego pliku i postępuj zgodnie z samouczkiem wideo."
+            },
+            {
+                "q": "Co jeśli nie widzę linku do pobrania po zakupie?",
+                "a": "Jeśli link nie pojawia się natychmiast, sprawdź e-mail z potwierdzeniem zamówienia. Jeśli nadal brakuje linku, skontaktuj się z nami."
+            },
+            {
+                "q": "Mam problemy z pobieraniem lub instalacją. Co robić?",
+                "a": "W razie trudności najpierw obejrzyj samouczek wideo. Jeśli problem nie ustąpi, wyślij nam e-mail ze szczegółami, a nasz zespół pomoże jak najszybciej."
+            },
+            {
+                "q": "Co zrobić, jeśli nie otrzymam e-maila z potwierdzeniem zamówienia?",
+                "a": "Sprawdź folder spam lub śmieci. Jeśli nadal nie otrzymałeś potwierdzenia, skontaktuj się z nami podając szczegóły zamówienia."
+            },
+            {
+                "q": "Jak mogę skontaktować się z obsługą klienta?",
+                "a": "Jeśli potrzebujesz pomocy, wyślij e-mail na adres contact@cadlink.store. Nasz zespół jest gotowy do pomocy!"
+            },
+            {
+                "q": "Jak długo link do pobrania jest dostępny?",
+                "a": "Link do pobrania jest dostępny natychmiast po zakupie, ale zalecamy pobranie oprogramowania jak najszybciej."
+            }
+        ]
+    },
+    "blog": {
+        "title_prefix": "Najnowsze z",
+        "title_highlight": "Bloga CADlink",
+        "description": "Porady ekspertów, samouczki i informacje branżowe, które pomogą Ci w pełni wykorzystać potencjał Twojego biznesu drukarskiego.",
+        "read_article": "Czytaj artykuł"
+    },
+    "footer": {
+        "information": "Informacje",
+        "privacy_policy": "Polityka prywatności",
+        "refund_returns": "Polityka zwrotów",
+        "terms_conditions": "Regulamin",
+        "faqs": "FAQ",
+        "shipping_policy": "Polityka wysyłki",
+        "services": "Usługi",
+        "my_account": "Moje konto",
+        "cart": "Koszyk",
+        "checkout": "Kasa",
+        "wishlist": "Lista życzeń",
+        "contact": "Kontakt",
+        "contact_us": "Skontaktuj się z nami",
+        "copyright": "Copyright © 2025 CADlink . Wszelkie prawa zastrzeżone."
+    }
+}

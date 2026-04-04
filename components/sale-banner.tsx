@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { X } from "lucide-react"
-import Link from "next/link"
 import { BuyNowButton } from "./buy-now-button"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function SaleBanner() {
   const [isVisible, setIsVisible] = useState(true)
@@ -13,6 +13,7 @@ export function SaleBanner() {
     minutes: 0,
     seconds: 0,
   })
+  const t = useTranslation()
 
   useEffect(() => {
     const targetDate = new Date()
@@ -38,22 +39,22 @@ export function SaleBanner() {
   return (
     <div className="bg-[#4a7c9b] text-white py-3 px-4 relative">
       <div className="container mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 text-center">
-        <span className="text-sm font-medium">SALE ENDS IN:</span>
+        <span className="text-sm font-medium">{t.sale_banner?.sale_ends_in}</span>
         <div className="flex items-center gap-2 font-mono text-sm font-bold">
-          <span>{timeLeft.days} Days</span>
+          <span>{timeLeft.days} {t.sale_banner?.days}</span>
           <span>:</span>
-          <span>{timeLeft.hours} Hours</span>
+          <span>{timeLeft.hours} {t.sale_banner?.hours}</span>
           <span>:</span>
-          <span>{timeLeft.minutes} Minutes</span>
+          <span>{timeLeft.minutes} {t.sale_banner?.minutes}</span>
           <span>:</span>
-          <span>{timeLeft.seconds} Seconds</span>
+          <span>{timeLeft.seconds} {t.sale_banner?.seconds}</span>
         </div>
-        <span className="text-sm font-bold ml-4">USE CAD10 FOR 10% OFF NOW</span>
+        <span className="text-sm font-bold ml-4">{t.sale_banner?.promo_text}</span>
         <BuyNowButton
           productId="prod_cadlink_v11"
           className="ml-4 bg-white text-[#4a7c9b] px-4 py-1.5 rounded text-sm font-semibold hover:bg-gray-100 transition-colors"
         >
-          Download now
+          {t.sale_banner?.download_now}
         </BuyNowButton>
       </div>
       <button

@@ -1,4 +1,10 @@
+"use client"
+
+import { useTranslation } from "@/contexts/translation-context"
+
 export function PrinterCompatibilitySection() {
+  const t = useTranslation()
+
   const printers = [
     "Epson SureColor 8550 (Epson 8550)",
     "Epson SureColor F2100 Series",
@@ -15,11 +21,10 @@ export function PrinterCompatibilitySection() {
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
-            Printers Compatible with <span className="text-primary">Cadlink v11</span>
+            {t.printer_compatibility?.title_prefix} <span className="text-primary">{t.printer_compatibility?.title_highlight}</span>
           </h2>
           <p className="text-muted-foreground text-center mb-8">
-            Below is a list of printers confirmed to work with Cadlink v11. Update this list based on your supported
-            devices.
+            {t.printer_compatibility?.description}
           </p>
           <ul className="grid md:grid-cols-2 gap-3">
             {printers.map((printer, index) => (

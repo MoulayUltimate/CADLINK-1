@@ -1,19 +1,24 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Clock, ArrowRight } from "lucide-react"
 import { blogs } from "@/lib/blog-data"
+import { useTranslation } from "@/contexts/translation-context"
 
 export function BlogSection() {
+    const t = useTranslation()
+
     return (
         <section className="py-24 bg-[#F8FAFC]">
             <div className="container mx-auto px-4">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-                            Latest from the <span className="text-[#0168A0]">CADlink Blog</span>
+                            {t.blog?.title_prefix} <span className="text-[#0168A0]">{t.blog?.title_highlight}</span>
                         </h2>
                         <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-                            Expert tips, tutorials, and industry insights to help you get the most out of your digital printing business.
+                            {t.blog?.description}
                         </p>
                     </div>
 
@@ -51,7 +56,7 @@ export function BlogSection() {
                                     </h3>
                                     <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-3">{blog.excerpt}</p>
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#0168A0] group-hover:gap-2 transition-all">
-                                        Read Article <ArrowRight className="w-4 h-4" />
+                                        {t.blog?.read_article} <ArrowRight className="w-4 h-4" />
                                     </div>
                                 </div>
                             </Link>

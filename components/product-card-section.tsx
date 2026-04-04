@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
+import { useTranslation } from "@/contexts/translation-context"
 
 const PAYMENT_LINK = "https://buy.stripe.com/00w4gy0uffWyelu19h5wI00"
 
 export function ProductCardSection() {
   const [quantity, setQuantity] = useState(1)
   const [product, setProduct] = useState<any>(null)
+  const t = useTranslation()
 
   useEffect(() => {
     fetch('/api/product')
@@ -22,7 +24,6 @@ export function ProductCardSection() {
   }
 
   if (!product) return null
-
 
   return (
     <section className="py-20 bg-white" id="product">
@@ -59,11 +60,11 @@ export function ProductCardSection() {
                 <div className="mb-8">
                   <div className="flex items-center gap-2 mb-4">
                     <span className="bg-[#0168A0]/10 text-[#0168A0] text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">
-                      Official License
+                      {t.product_card?.official_license}
                     </span>
                     <div className="flex items-center gap-1.5 text-[#4CAF50] text-sm font-bold">
                       <div className="w-2 h-2 bg-[#4CAF50] rounded-full animate-pulse" />
-                      In Stock & Ready
+                      {t.product_card?.in_stock}
                     </div>
                   </div>
                   <h2 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight mb-4">
@@ -77,8 +78,8 @@ export function ProductCardSection() {
                 {/* Price Section */}
                 <div className="bg-gray-50 rounded-2xl p-6 mb-8">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-500">Special Offer Price</span>
-                    <span className="bg-[#4CAF50] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">SAVE 90%</span>
+                    <span className="text-sm font-medium text-gray-500">{t.product_card?.special_offer}</span>
+                    <span className="bg-[#4CAF50] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">{t.product_card?.save_percent}</span>
                   </div>
                   <div className="flex items-baseline gap-3">
                     <span className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</span>
@@ -111,21 +112,20 @@ export function ProductCardSection() {
                     </div>
                     <button
                       onClick={handleAddToCart}
-                      // Mobile optimized button size - Massive, Premium & High-Impact
                       className="flex-1 w-full h-[88px] sm:h-[64px] bg-gradient-to-r from-[#0168A0] to-[#015580] hover:from-[#015580] hover:to-[#014460] text-2xl sm:text-xl font-black text-white rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.6)] transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
                     >
-                      Add to Cart
+                      {t.product_card?.add_to_cart}
                     </button>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-tight">
                       <Check className="w-4 h-4 text-[#4CAF50]" strokeWidth={3} />
-                      Instant Key Delivery
+                      {t.product_card?.instant_key}
                     </div>
                     <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-tight">
                       <Check className="w-4 h-4 text-[#4CAF50]" strokeWidth={3} />
-                      Lifetime Activation
+                      {t.product_card?.lifetime_activation}
                     </div>
                   </div>
                 </div>
