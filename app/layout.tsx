@@ -31,6 +31,7 @@ import { AnalyticsProvider } from "@/components/analytics-provider"
 
 import { AnalyticsHeartbeat } from "@/components/analytics-heartbeat"
 import { ScriptInjector } from "@/app/admin/components/script-injector"
+import { Toaster } from "sonner"
 
 export default function RootLayout({
   children,
@@ -60,6 +61,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className={`font-sans antialiased`}>
+        <Toaster position="top-center" richColors />
         <ScriptInjector />
         <AnalyticsProvider>
           <CartProvider>
