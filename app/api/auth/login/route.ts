@@ -14,18 +14,25 @@ export async function POST(req: NextRequest) {
         }
 
         const kv = (process.env as any).KV
+        const STATELESS_TOKEN = `stateless_v1_${ADMIN_PASSWORD}`
 
-        // Generate a secure session token
-        const token = crypto.randomUUID()
-        const sessionKey = `session:${token}`
+        let token = crypto.randomUUID()
+        let isStateless = false
 
         if (kv) {
-            // Store session in KV
-            await kv.put(sessionKey, 'valid', { expirationTtl: SESSION_TTL })
-        } else if (process.env.NODE_ENV === 'development') {
-            console.warn('KV not found, skipping session storage (DEV MODE)')
+            try {
+                // Store session in KV
+                await kv.put(`session:${token}`, 'valid', { expirationTtl: SESSION_TTL })
+            } catch (err) {
+                console.error('KV storage failed, falling back to stateless auth', err)
+                isStateless = true
+            }
         } else {
-            return NextResponse.json({ error: 'KV not configured' }, { status: 500 })
+            isStateless = true
+        }
+
+        if (isStateless) {
+            token = STATELESS_TOKEN
         }
 
         // Create response with HttpOnly cookie
