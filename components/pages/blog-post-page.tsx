@@ -1,37 +1,16 @@
-export const dynamic = 'force-static'
-
-import { blogs } from "@/lib/blog-data"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import Image from "next/image"
 import Link from "next/link"
 import { Calendar, Clock, ArrowLeft, ArrowRight } from "lucide-react"
-import { notFound } from "next/navigation"
+import { blogs } from "@/lib/blog-data"
 
-export async function generateStaticParams() {
-    const paths = []
-    const locales = ['gb', 'fr', 'de', 'pl']
-    for (const lang of locales) {
-        for (const post of blogs) {
-            paths.push({ lang, slug: post.slug })
-        }
-    }
-    return paths
-}
-
-export default async function BlogPost({ params }: { params: Promise<{ lang: string; slug: string }> }) {
-    const { slug } = await params
-    const post = blogs.find((b) => b.slug === slug)
-
-    if (!post) {
-        notFound()
-    }
-
-    const otherPosts = blogs.filter((b) => b.slug !== slug).slice(0, 2)
+export function BlogPostPage({ lang, post }: { lang: string, post: any }) {
+    const otherPosts = blogs.filter((b) => b.slug !== post.slug).slice(0, 2)
 
     return (
         <div className="min-h-screen bg-white">
-            <Header />
+            <Header lang={lang} />
             <main className="pt-12 pb-24">
                 <article className="container mx-auto px-4 max-w-4xl">
                     <Link
@@ -71,7 +50,7 @@ export default async function BlogPost({ params }: { params: Promise<{ lang: str
                         <div className="grid md:grid-cols-2 gap-8">
                             {otherPosts.map((blog, index) => (
                                 <Link
-                                    href={`/blog/${blog.slug}`}
+                                    href={`/${lang}/blog/${blog.slug}`}
                                     key={index}
                                     className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
                                 >
