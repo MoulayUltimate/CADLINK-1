@@ -21,12 +21,14 @@ export default function AdminLogin() {
                 body: JSON.stringify({ password })
             })
 
+            const data = await res.json()
+
             if (res.ok) {
                 toast.success("Login successful")
                 router.push("/admin")
                 router.refresh()
             } else {
-                toast.error("Invalid password")
+                toast.error(data.error || "Invalid password")
             }
         } catch (error) {
             toast.error("Login failed")

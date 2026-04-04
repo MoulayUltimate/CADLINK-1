@@ -21,7 +21,7 @@ export default function RefundReturnsPage() {
               </a>
             </p>
             <p className="text-muted-foreground mb-2">
-              <strong>Contact Email:</strong> contact@cadlink.us
+              <strong>Contact Email:</strong> contact@cadlink.store
             </p>
             <p className="text-muted-foreground mb-8">
               <strong>Address:</strong> 1702 Gordon Street, Colton, CA 92324, United States
@@ -76,7 +76,7 @@ export default function RefundReturnsPage() {
 
             <h3 className="text-xl font-bold text-foreground mt-8 mb-4">4. How to Request a Refund</h3>
             <p className="text-muted-foreground mb-4">
-              To request a refund, please contact our support team at: <strong>contact@cadlink.us</strong>
+              To request a refund, please contact our support team at: <strong>contact@cadlink.store</strong>
             </p>
             <p className="text-muted-foreground mb-2">Include the following details in your email:</p>
             <ul className="list-disc pl-6 mb-4 text-muted-foreground">
@@ -108,7 +108,7 @@ export default function RefundReturnsPage() {
             <p className="text-muted-foreground mb-2">
               <strong>Cadlink.us</strong>
             </p>
-            <p className="text-muted-foreground mb-2">Email: contact@cadlink.us</p>
+            <p className="text-muted-foreground mb-2">Email: contact@cadlink.store</p>
             <p className="text-muted-foreground">Address: 1702 Gordon Street, Colton, CA 92324, United States</p>
           </div>
 

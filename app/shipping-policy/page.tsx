@@ -67,7 +67,7 @@ export default function ShippingPolicyPage() {
               <p className="text-muted-foreground mb-2">
                 <strong>Contact Us:</strong>
               </p>
-              <p className="text-muted-foreground mb-2">Email: contact@cadlink.us</p>
+              <p className="text-muted-foreground mb-2">Email: contact@cadlink.store</p>
               <p className="text-muted-foreground">Address: 1702 Gordon Street, Colton, CA 92324, United States</p>
             </div>
           </div>

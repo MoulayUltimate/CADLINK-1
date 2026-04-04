@@ -59,7 +59,7 @@ export function FAQSection() {
     {
       question: "How can I contact customer support?",
       answer:
-        "If you need any assistance, feel free to send us an email at contact@Cadlink.us. Our team is ready to help!",
+        "If you need any assistance, feel free to send us an email at contact@cadlink.store. Our team is ready to help!",
     },
     {
       question: "How long is the download link available?",

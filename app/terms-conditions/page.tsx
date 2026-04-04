@@ -18,7 +18,7 @@ export default function TermsConditionsPage() {
               </a>
             </p>
             <p className="text-muted-foreground mb-2">
-              <strong>Contact Email:</strong> contact@cadlink.us
+              <strong>Contact Email:</strong> contact@cadlink.store
             </p>
             <p className="text-muted-foreground mb-8">
               <strong>Address:</strong> 1702 Gordon Street, Colton, CA 92324, United States
@@ -74,7 +74,7 @@ export default function TermsConditionsPage() {
               </li>
               <li>
                 If you do not receive your product within this time frame, please contact us at{" "}
-                <strong>contact@cadlink.us</strong>.
+                <strong>contact@cadlink.store</strong>.
               </li>
             </ul>
 
@@ -158,7 +158,7 @@ export default function TermsConditionsPage() {
             <p className="text-muted-foreground mb-2">
               <strong>Cadlink.us</strong>
             </p>
-            <p className="text-muted-foreground mb-2">Email: contact@cadlink.us</p>
+            <p className="text-muted-foreground mb-2">Email: contact@cadlink.store</p>
             <p className="text-muted-foreground">Address: 1702 Gordon Street, Colton, CA 92324, United States</p>
           </div>
 

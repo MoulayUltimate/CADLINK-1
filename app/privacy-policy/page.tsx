@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
               <li>Withdraw consent for data processing at any time.</li>
             </ul>
             <p className="text-muted-foreground mb-6">
-              To exercise these rights, please contact us at <strong>contact@cadlink.us</strong>.
+              To exercise these rights, please contact us at <strong>contact@cadlink.store</strong>.
             </p>
 
             <h3 className="text-xl font-bold text-foreground mt-8 mb-4">7. Data Retention</h3>
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
             <p className="text-muted-foreground mb-2">
               <strong>Cadlink.us</strong>
             </p>
-            <p className="text-muted-foreground mb-2">Email: contact@cadlink.us</p>
+            <p className="text-muted-foreground mb-2">Email: contact@cadlink.store</p>
             <p className="text-muted-foreground">Address: 1702 Gordon Street, Colton, CA 92324, United States</p>
           </div>
 
