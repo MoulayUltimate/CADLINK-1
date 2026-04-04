@@ -8,12 +8,6 @@ import Link from "next/link"
 import { Calendar, Clock, ArrowLeft, ArrowRight } from "lucide-react"
 import { notFound } from "next/navigation"
 
-export async function generateStaticParams() {
-    return blogs.map((post) => ({
-        slug: post.slug,
-    }))
-}
-
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params
     const post = blogs.find((b) => b.slug === slug)

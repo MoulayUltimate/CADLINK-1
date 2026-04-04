@@ -18,10 +18,6 @@ import { VideoSection } from "@/components/video-section"
 import { getDictionary } from "@/lib/dictionary"
 import { TranslationProvider } from "@/contexts/translation-context"
 
-export function generateStaticParams() {
-  return [{ lang: "gb" }, { lang: "fr" }, { lang: "de" }, { lang: "pl" }]
-}
-
 export default async function Page({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   const dict = await getDictionary(lang)
