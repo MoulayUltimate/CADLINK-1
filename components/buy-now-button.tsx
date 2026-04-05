@@ -4,8 +4,7 @@ import type React from "react"
 
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
-
-const PAYMENT_LINK = "https://buy.stripe.com/00w4gy0uffWyelu19h5wI00"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface BuyNowButtonProps {
   productId: string
@@ -22,8 +21,10 @@ export function BuyNowButton({
   className,
   children,
 }: BuyNowButtonProps) {
+  const { stripeLink } = useCurrency()
+
   const handleBuyNow = () => {
-    window.open(PAYMENT_LINK, "_blank")
+    window.open(stripeLink, "_blank")
   }
 
   return (

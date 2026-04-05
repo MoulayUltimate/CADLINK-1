@@ -4,10 +4,12 @@ import { Check, Star, Download, ShieldCheck, Clock, Zap } from "lucide-react"
 import { BuyNowButton } from "./buy-now-button"
 import { useState, useEffect } from "react"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function ProductSummarySection() {
-  const [price, setPrice] = useState<number | null>(null)
+  const [price, setPrice] = useState<number>(75.19)
   const t = useTranslation()
+  const { formatPrice } = useCurrency()
 
   useEffect(() => {
     fetch('/api/product')
@@ -65,7 +67,7 @@ export function ProductSummarySection() {
               productId="prod_cadlink_v11"
               className="w-full md:w-auto bg-[#0168A0] hover:bg-[#015580] text-white font-black px-12 py-6 text-xl rounded-2xl shadow-[0_20px_40px_-12px_rgba(1,104,160,0.5)] transition-all hover:-translate-y-1 active:scale-95"
             >
-              {t.product_summary?.get_it_now} - ${price ? price.toFixed(2) : '75.19'}
+              {t.product_summary?.get_it_now} - {formatPrice(price)}
             </BuyNowButton>
             <p className="mt-4 text-xs text-gray-400 font-medium">
               {t.product_summary?.instant_delivery_footer}

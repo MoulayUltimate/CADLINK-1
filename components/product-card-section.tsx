@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
 import { useTranslation } from "@/contexts/translation-context"
-
-const PAYMENT_LINK = "https://buy.stripe.com/00w4gy0uffWyelu19h5wI00"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function ProductCardSection() {
   const [quantity, setQuantity] = useState(1)
   const [product, setProduct] = useState<any>(null)
   const t = useTranslation()
+  const { stripeLink, formatPrice } = useCurrency()
 
   useEffect(() => {
     fetch('/api/product')
@@ -20,7 +20,7 @@ export function ProductCardSection() {
   }, [])
 
   const handleAddToCart = () => {
-    window.open(PAYMENT_LINK, "_blank")
+    window.open(stripeLink, "_blank")
   }
 
   if (!product) return null
@@ -82,8 +82,8 @@ export function ProductCardSection() {
                     <span className="bg-[#4CAF50] text-white text-[11px] font-bold px-2 py-0.5 rounded-md">{t.product_card?.save_percent}</span>
                   </div>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-4xl font-black text-gray-900">${product.price.toFixed(2)}</span>
-                    <span className="text-lg text-gray-400 line-through font-medium">$800.00</span>
+                    <span className="text-4xl font-black text-gray-900">{formatPrice(product.price)}</span>
+                    <span className="text-lg text-gray-400 line-through font-medium">{formatPrice(800)}</span>
                   </div>
                 </div>
 

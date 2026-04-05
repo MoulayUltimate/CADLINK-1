@@ -2,11 +2,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { BuyNowButton } from "./buy-now-button"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function PricingSection() {
+  const { formatPrice } = useCurrency()
   const plans = [
     {
       name: "Starter",
+      price: 25.00,
       description: "Perfect for small shops",
       features: [
         "Single workstation license",
@@ -18,6 +21,7 @@ export function PricingSection() {
     },
     {
       name: "Professional",
+      price: 75.19,
       description: "For growing businesses",
       popular: true,
       features: [
@@ -31,6 +35,7 @@ export function PricingSection() {
     },
     {
       name: "Enterprise",
+      price: 150.00,
       description: "Multi-facility solutions",
       features: [
         "Unlimited workstations",
@@ -69,9 +74,12 @@ export function PricingSection() {
                   </div>
                 </div>
               )}
-              <CardHeader className="pb-8 pt-8">
+              <CardHeader className="pb-8 pt-8 text-center sm:text-left">
                 <h3 className="text-2xl font-bold text-foreground">{plan.name}</h3>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
+                <div className="mt-2">
+                  <span className="text-4xl font-black text-gray-900">{formatPrice(plan.price)}</span>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <ul className="space-y-3">
