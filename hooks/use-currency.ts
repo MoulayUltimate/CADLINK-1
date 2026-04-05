@@ -1,12 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 import { CURRENCY_CONFIG, DEFAULT_CURRENCY, type CurrencyInfo } from "@/lib/currency-config"
+import { useLang } from "@/contexts/translation-context"
 
 export function useCurrency() {
     const params = useParams()
-    const lang = (params?.lang as string) || "us"
+    const pathname = usePathname()
+    const contextLang = useLang()
+
+    // Extract lang from context, params or pathname
+    const getLang = () => {
+        if (contextLang) return contextLang
+        if (params?.lang) return params.lang as string
+        const segments = pathname?.split("/") || []
+        if (segments[1] && CURRENCY_CONFIG[segments[1]]) return segments[1]
+        return "gb" // Default to gb instead of us since the project uses gb
+    }
+
+    const lang = getLang()
     const [currency, setCurrency] = useState<CurrencyInfo>(
         CURRENCY_CONFIG[lang] || DEFAULT_CURRENCY
     )
@@ -18,15 +31,20 @@ export function useCurrency() {
         // 2. Check for Google Translate detection (googtrans cookie)
         const getGoogleTranslateLang = () => {
             if (typeof document === 'undefined') return null
+
+            // Check googtrans cookie
             const match = document.cookie.match(/googtrans=\/([^/]+)\/([^/]+)/)
             if (match && match[2]) {
                 return match[2].toLowerCase()
             }
-            // Also check html lang attribute which Google Translate updates
-            const htmlLang = document.documentElement.getAttribute('lang')
-            if (htmlLang && htmlLang !== 'en' && htmlLang.length === 2) {
-                return htmlLang.toLowerCase()
+
+            // Check for 'goog-te-menu-value' if using the standard widget
+            // Or just look for the class added by Google Translate
+            if (document.body.classList.contains('translated-ltr') || document.body.classList.contains('translated-rtl')) {
+                const htmlLang = document.documentElement.getAttribute('lang')
+                if (htmlLang && htmlLang !== 'en') return htmlLang.toLowerCase()
             }
+
             return null
         }
 

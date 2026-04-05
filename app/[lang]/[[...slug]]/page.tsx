@@ -22,27 +22,27 @@ export default async function UnifiedPage({ params }: { params: Promise<{ lang: 
 
     // Routing Logics
     if (slug.length === 0) {
-        return <TranslationProvider dictionary={dict}><HomePage lang={lang} /></TranslationProvider>
+        return <TranslationProvider dictionary={dict} lang={lang}><HomePage lang={lang} /></TranslationProvider>
     }
 
     const first = slug[0]
     const second = slug[1]
 
-    if (first === 'contact') return <TranslationProvider dictionary={dict}><ContactPage lang={lang} /></TranslationProvider>
-    if (first === 'privacy-policy') return <TranslationProvider dictionary={dict}><PrivacyPolicyPage lang={lang} /></TranslationProvider>
-    if (first === 'refund-returns') return <TranslationProvider dictionary={dict}><RefundReturnsPage lang={lang} /></TranslationProvider>
-    if (first === 'shipping-policy') return <TranslationProvider dictionary={dict}><ShippingPolicyPage lang={lang} /></TranslationProvider>
-    if (first === 'terms-conditions') return <TranslationProvider dictionary={dict}><TermsConditionsPage lang={lang} /></TranslationProvider>
+    if (first === 'contact') return <TranslationProvider dictionary={dict} lang={lang}><ContactPage lang={lang} /></TranslationProvider>
+    if (first === 'privacy-policy') return <TranslationProvider dictionary={dict} lang={lang}><PrivacyPolicyPage lang={lang} /></TranslationProvider>
+    if (first === 'refund-returns') return <TranslationProvider dictionary={dict} lang={lang}><RefundReturnsPage lang={lang} /></TranslationProvider>
+    if (first === 'shipping-policy') return <TranslationProvider dictionary={dict} lang={lang}><ShippingPolicyPage lang={lang} /></TranslationProvider>
+    if (first === 'terms-conditions') return <TranslationProvider dictionary={dict} lang={lang}><TermsConditionsPage lang={lang} /></TranslationProvider>
 
     if (first === 'checkout') {
-        if (second === 'success') return <TranslationProvider dictionary={dict}><SuccessPage /></TranslationProvider>
-        return <TranslationProvider dictionary={dict}><CheckoutPage /></TranslationProvider>
+        if (second === 'success') return <TranslationProvider dictionary={dict} lang={lang}><SuccessPage /></TranslationProvider>
+        return <TranslationProvider dictionary={dict} lang={lang}><CheckoutPage /></TranslationProvider>
     }
 
     if (first === 'blog' && second) {
         const post = blogs.find(b => b.slug === second)
         if (!post) notFound()
-        return <TranslationProvider dictionary={dict}><BlogPostPage lang={lang} post={post} /></TranslationProvider>
+        return <TranslationProvider dictionary={dict} lang={lang}><BlogPostPage lang={lang} post={post} /></TranslationProvider>
     }
 
     notFound()

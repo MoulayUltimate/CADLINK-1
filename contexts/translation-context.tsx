@@ -5,23 +5,38 @@ import type { ReactNode } from "react"
 
 type Dictionary = Record<string, any>
 
-const TranslationContext = createContext<Dictionary>({})
+interface TranslationContextType {
+    dictionary: Dictionary
+    lang: string
+}
+
+const TranslationContext = createContext<TranslationContextType>({
+    dictionary: {},
+    lang: "gb"
+})
 
 export function TranslationProvider({
     dictionary,
+    lang,
     children,
 }: {
     dictionary: Dictionary
+    lang: string
     children: ReactNode
 }) {
     return (
-        <TranslationContext.Provider value={dictionary}>
+        <TranslationContext.Provider value={{ dictionary, lang }}>
             {children}
         </TranslationContext.Provider>
     )
 }
 
 export function useTranslation() {
-    const dict = useContext(TranslationContext)
-    return dict
+    const context = useContext(TranslationContext)
+    return context.dictionary
+}
+
+export function useLang() {
+    const context = useContext(TranslationContext)
+    return context.lang
 }
