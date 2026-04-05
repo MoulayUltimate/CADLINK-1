@@ -4,9 +4,11 @@ import { useState, useEffect } from "react"
 import { X } from "lucide-react"
 import { BuyNowButton } from "./buy-now-button"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function SaleBanner() {
   const [isVisible, setIsVisible] = useState(true)
+  const { activeLang, currency } = useCurrency()
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -57,6 +59,9 @@ export function SaleBanner() {
           {t.sale_banner?.download_now}
         </BuyNowButton>
       </div>
+      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-white/40 font-mono hidden md:inline">
+        [{activeLang}:{currency}]
+      </span>
       <button
         onClick={() => setIsVisible(false)}
         className="absolute right-4 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"

@@ -5,10 +5,12 @@ import { X, ShoppingBag, Trash2, Lock } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { createCheckoutSession } from "@/app/actions/create-checkout"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function CartDrawer() {
     const { items, removeItem, isOpen, setIsOpen, subtotal } = useCart()
     const [isLoading, setIsLoading] = useState(false)
+    const { stripeLink, formatPrice } = useCurrency()
 
     // Prevent body scroll when cart is open
     useEffect(() => {
@@ -24,7 +26,7 @@ export function CartDrawer() {
 
     const handleCheckout = () => {
         setIsOpen(false)
-        window.open("https://buy.stripe.com/00w4gy0uffWyelu19h5wI00", "_blank")
+        window.open(stripeLink, "_blank")
     }
 
     if (!isOpen) return null
@@ -89,7 +91,7 @@ export function CartDrawer() {
                                     <div className="flex-1 flex flex-col justify-between">
                                         <div>
                                             <h3 className="font-bold text-gray-900 line-clamp-2 leading-tight">{item.name}</h3>
-                                            <p className="text-[#0168A0] font-bold mt-1">${item.price.toFixed(2)}</p>
+                                            <p className="text-[#0168A0] font-bold mt-1">{formatPrice(item.price)}</p>
                                         </div>
                                         <div className="flex items-center justify-between mt-2">
                                             <span className="text-xs text-gray-500">Qty: 1</span>
@@ -113,7 +115,7 @@ export function CartDrawer() {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-500">Subtotal</span>
-                                <span className="font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+                                <span className="font-bold text-gray-900">{formatPrice(subtotal)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="text-gray-500">Shipping</span>
@@ -121,7 +123,7 @@ export function CartDrawer() {
                             </div>
                             <div className="flex items-center justify-between text-lg font-black border-t border-gray-200 pt-2 mt-2">
                                 <span className="text-gray-900">Total</span>
-                                <span className="text-[#0168A0]">${subtotal.toFixed(2)}</span>
+                                <span className="text-[#0168A0]">{formatPrice(subtotal)}</span>
                             </div>
                         </div>
 
