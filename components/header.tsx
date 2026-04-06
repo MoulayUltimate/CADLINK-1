@@ -10,7 +10,8 @@ import { useTranslation } from "@/contexts/translation-context"
 import { usePathname } from "next/navigation"
 
 const locales = [
-  { code: "gb", label: "English", flag: "🇬🇧" },
+  { code: "us", label: "English (US)", flag: "🇺🇸" },
+  { code: "gb", label: "English (UK)", flag: "🇬🇧" },
   { code: "fr", label: "Français", flag: "🇫🇷" },
   { code: "de", label: "Deutsch", flag: "🇩🇪" },
   { code: "pl", label: "Polski", flag: "🇵🇱" },
@@ -38,7 +39,7 @@ export function Header({ lang }: { lang?: string }) {
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-12">
-            <Link href={`/${lang || "gb"}`} className="flex items-center gap-2 group">
+            <Link href={`/${lang || "us"}`} className="flex items-center gap-2 group">
               <Image
                 src="/images/cropped-ixtzd985wxrrucij9vkr.avif"
                 alt="CADLINK"
@@ -49,16 +50,16 @@ export function Header({ lang }: { lang?: string }) {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-8">
-              <Link href={`/${lang || "gb"}`} className="text-sm font-bold text-gray-600 hover:text-[#0168A0] transition-colors">
+              <Link href={`/${lang || "us"}`} className="text-sm font-bold text-gray-600 hover:text-[#0168A0] transition-colors">
                 {t.header?.home}
               </Link>
               <Link
-                href={`/${lang || "gb"}/shipping-policy`}
+                href={`/${lang || "us"}/shipping-policy`}
                 className="text-sm font-bold text-gray-600 hover:text-[#0168A0] transition-colors"
               >
                 {t.header?.shipping_policy}
               </Link>
-              <Link href={`/${lang || "gb"}/contact`} className="text-sm font-bold text-gray-600 hover:text-[#0168A0] transition-colors">
+              <Link href={`/${lang || "us"}/contact`} className="text-sm font-bold text-gray-600 hover:text-[#0168A0] transition-colors">
                 {t.header?.contact_us}
               </Link>
             </nav>
@@ -84,8 +85,8 @@ export function Header({ lang }: { lang?: string }) {
                         setLangDropdownOpen(false)
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${locale.code === lang
-                          ? "bg-[#0168A0]/5 text-[#0168A0] font-bold"
-                          : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-[#0168A0]/5 text-[#0168A0] font-bold"
+                        : "text-gray-700 hover:bg-gray-50"
                         }`}
                     >
                       <span className="text-lg">{locale.flag}</span>
@@ -129,13 +130,13 @@ export function Header({ lang }: { lang?: string }) {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-gray-100 bg-white py-6 animate-in slide-in-from-top duration-300">
           <div className="container mx-auto px-4 flex flex-col gap-6">
-            <Link href={`/${lang || "gb"}`} className="text-lg font-bold text-gray-900">
+            <Link href={`/${lang || "us"}`} className="text-lg font-bold text-gray-900">
               {t.header?.home}
             </Link>
-            <Link href={`/${lang || "gb"}/shipping-policy`} className="text-lg font-bold text-gray-900">
+            <Link href={`/${lang || "us"}/shipping-policy`} className="text-lg font-bold text-gray-900">
               {t.header?.shipping_policy}
             </Link>
-            <Link href={`/${lang || "gb"}/contact`} className="text-lg font-bold text-gray-900">
+            <Link href={`/${lang || "us"}/contact`} className="text-lg font-bold text-gray-900">
               {t.header?.contact_us}
             </Link>
             {/* Mobile Language Switcher */}
@@ -145,8 +146,8 @@ export function Header({ lang }: { lang?: string }) {
                   key={locale.code}
                   onClick={() => switchLocale(locale.code)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${locale.code === lang
-                      ? "bg-[#0168A0]/10 text-[#0168A0]"
-                      : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-[#0168A0]/10 text-[#0168A0]"
+                    : "text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <span className="text-lg">{locale.flag}</span>

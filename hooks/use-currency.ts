@@ -30,7 +30,7 @@ export function useCurrency() {
         if (params?.lang) return params.lang as string
         const segments = pathname?.split("/") || []
         if (segments[1] && CURRENCY_CONFIG[segments[1]]) return segments[1]
-        return "gb"
+        return "us"
     })()
 
     // Detection logic for Google Translate

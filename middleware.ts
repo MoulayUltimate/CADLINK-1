@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const locales = ['fr', 'gb', 'de', 'pl']
-const defaultLocale = 'gb'
+const locales = ['fr', 'gb', 'de', 'pl', 'us']
+const defaultLocale = 'us'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   if (pathnameHasLocale) return
 
   // Redirect if there is no locale
-  // For now we always use the defaultLocale 'gb' as the prefix if none is provided
+  // For now we always use the defaultLocale 'us' as the prefix if none is provided
   // In a more advanced setup, we would detect the user's preferred language from the 'accept-language' header
   const url = new URL(`/${defaultLocale}${pathname === '/' ? '' : pathname}`, request.url)
   return NextResponse.redirect(url)

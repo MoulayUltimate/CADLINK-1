@@ -5,10 +5,12 @@ import Image from "next/image"
 import { Star, ShieldCheck, Zap } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCurrency } from "@/hooks/use-currency"
 
 export function HeroSection() {
   const [price, setPrice] = useState<number | null>(null)
   const t = useTranslation()
+  const { formatPrice } = useCurrency()
 
   useEffect(() => {
     fetch('/api/product')
@@ -51,8 +53,8 @@ export function HeroSection() {
                   {t.hero?.buy_now}
                 </BuyNowButton>
                 <div className="flex flex-col items-start">
-                  <span className="text-4xl font-black text-gray-900">${price ? price.toFixed(2) : '75.19'}</span>
-                  <span className="text-sm font-bold text-gray-400 line-through">$800.00</span>
+                  <span className="text-4xl font-black text-gray-900">{formatPrice(price || 75.19)}</span>
+                  <span className="text-sm font-bold text-gray-400 line-through">{formatPrice(800.00)}</span>
                 </div>
               </div>
             </div>
