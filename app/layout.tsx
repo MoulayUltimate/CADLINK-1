@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     ],
     apple: "/icon.webp",
   },
+  verification: {
+    google: "7bozejK9cfecuHdru2xu5cJyhDfBQL9XsxKt6P-OHGM",
+  },
 }
 
 import { CartProvider } from "@/contexts/cart-context"
