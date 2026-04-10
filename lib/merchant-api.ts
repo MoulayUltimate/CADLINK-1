@@ -67,8 +67,13 @@ function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
 
 /** Decode PEM to ArrayBuffer — strips everything that isn't valid base64 */
 function pemToArrayBuffer(pem: string): ArrayBuffer {
-  // Keep only valid base64 characters; drops headers, newlines, spaces, dashes, invisible chars
-  const b64 = pem.replace(/[^A-Za-z0-9+/=]/g, "")
+  // Remove PEM headers/footers first
+  const body = pem
+    .replace(/-----BEGIN[^-]+-----/g, "")
+    .replace(/-----END[^-]+-----/g, "")
+  
+  // Keep only valid base64 characters; drops newlines, spaces, dashes, invisible chars
+  const b64 = body.replace(/[^A-Za-z0-9+/=]/g, "")
   const binary = atob(b64)
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
