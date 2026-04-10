@@ -40,45 +40,68 @@ export interface MerchantApiResponse {
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
+/** Encode object to base64url (no Buffer — works in CF Workers) */
+function base64UrlEncodeObj(obj: object): string {
+  const json = JSON.stringify(obj)
+  let binary = ""
+  for (let i = 0; i < json.length; i++) binary += String.fromCharCode(json.charCodeAt(i))
+  return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
+}
+
+/** Encode string to base64url */
+function base64UrlEncodeStr(str: string): string {
+  const encoder = new TextEncoder()
+  const bytes = encoder.encode(str)
+  let binary = ""
+  for (const b of bytes) binary += String.fromCharCode(b)
+  return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
+}
+
+/** Convert ArrayBuffer to base64url */
+function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ""
+  for (const b of bytes) binary += String.fromCharCode(b)
+  return btoa(binary).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_")
+}
+
+/** Decode PEM base64 to ArrayBuffer (no Buffer) */
+function pemToArrayBuffer(pem: string): ArrayBuffer {
+  const b64 = pem
+    .replace(/-----BEGIN PRIVATE KEY-----/, "")
+    .replace(/-----END PRIVATE KEY-----/, "")
+    .replace(/\s+/g, "") // strip all whitespace including \r\n
+  const binary = atob(b64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes.buffer
+}
+
 async function getAccessToken(): Promise<string> {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!
   const rawKey = process.env.GOOGLE_PRIVATE_KEY!
 
-  const privateKey = rawKey.replace(/\\n/g, "\n")
+  // Normalize: handle both escaped \n and real newlines
+  const privateKey = rawKey.replace(/\\n/g, "\n").trim()
 
   const now = Math.floor(Date.now() / 1000)
-  const payload = {
+
+  const headerB64 = base64UrlEncodeObj({ alg: "RS256", typ: "JWT" })
+  const payloadB64 = base64UrlEncodeObj({
     iss: email,
     scope: "https://www.googleapis.com/auth/content",
     aud: "https://oauth2.googleapis.com/token",
     exp: now + 3600,
     iat: now,
-  }
+  })
 
-  // Build JWT
-  const header = { alg: "RS256", typ: "JWT" }
-  const encode = (obj: object) =>
-    Buffer.from(JSON.stringify(obj))
-      .toString("base64")
-      .replace(/=/g, "")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-
-  const headerB64 = encode(header)
-  const payloadB64 = encode(payload)
   const signingInput = `${headerB64}.${payloadB64}`
 
-  // Import private key and sign
-  const keyData = privateKey
-    .replace("-----BEGIN PRIVATE KEY-----", "")
-    .replace("-----END PRIVATE KEY-----", "")
-    .replace(/\s/g, "")
-
-  const binaryKey = Buffer.from(keyData, "base64")
-
+  // Import private key using pure Web Crypto (works in CF Workers)
+  const keyBuffer = pemToArrayBuffer(privateKey)
   const cryptoKey = await crypto.subtle.importKey(
     "pkcs8",
-    binaryKey,
+    keyBuffer,
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
     ["sign"]
@@ -87,16 +110,10 @@ async function getAccessToken(): Promise<string> {
   const signature = await crypto.subtle.sign(
     "RSASSA-PKCS1-v1_5",
     cryptoKey,
-    Buffer.from(signingInput)
+    new TextEncoder().encode(signingInput)
   )
 
-  const signatureB64 = Buffer.from(signature)
-    .toString("base64")
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-
-  const jwt = `${signingInput}.${signatureB64}`
+  const jwt = `${signingInput}.${arrayBufferToBase64Url(signature)}`
 
   // Exchange JWT for access token
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -116,6 +133,7 @@ async function getAccessToken(): Promise<string> {
   const { access_token } = await tokenResponse.json()
   return access_token
 }
+
 
 // ─── API Calls ────────────────────────────────────────────────────────────────
 
