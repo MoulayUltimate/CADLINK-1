@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 }
 
 import { CartProvider } from "@/contexts/cart-context"
+import { MerchantStructuredData } from "@/components/merchant-structured-data"
 import { CartDrawer } from "@/components/cart-drawer"
 import { LiveChatWidget } from "@/components/live-chat-widget"
 
@@ -67,6 +68,8 @@ export default function RootLayout({
             gtag('config', 'AW-17964763241');
           `}
         </Script>
+        {/* Google Merchant Center – Product Structured Data */}
+        <MerchantStructuredData />
       </head>
       <body className={`font-sans antialiased`}>
         <Toaster position="top-center" richColors />
