@@ -23,21 +23,46 @@ function isAuthorized(req: NextRequest): boolean {
   return auth === `Bearer ${secret}`
 }
 
-// ─── GET: list products ────────────────────────────────────────────────────────
+// ─── GET: debug key info ───────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
+  const raw = process.env.GOOGLE_PRIVATE_KEY ?? ""
+  const normalized = raw.replace(/\\n/g, "\n").trim()
+  const b64 = normalized.replace(/[^A-Za-z0-9+/=]/g, "")
+
+  let importError = ""
   try {
-    const products = await listProducts()
-    return NextResponse.json({ count: products.length, products })
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return NextResponse.json({ error: message }, { status: 500 })
+    const binary = atob(b64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    await crypto.subtle.importKey(
+      "pkcs8",
+      bytes.buffer,
+      { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+      false,
+      ["sign"]
+    )
+    importError = "SUCCESS"
+  } catch (e: unknown) {
+    importError = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
   }
+
+  return NextResponse.json({
+    rawLength: raw.length,
+    normalizedLength: normalized.length,
+    b64Length: b64.length,
+    startsCorrectly: normalized.startsWith("-----BEGIN PRIVATE KEY-----"),
+    endsCorrectly: normalized.endsWith("-----END PRIVATE KEY-----"),
+    first30: normalized.slice(0, 30),
+    importResult: importError,
+    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "NOT SET",
+  })
 }
+
 
 // ─── POST: sync products ───────────────────────────────────────────────────────
 
