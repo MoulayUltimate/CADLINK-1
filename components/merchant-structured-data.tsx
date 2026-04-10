@@ -9,7 +9,7 @@
  *  - WebSite              → sitelinks search box
  */
 
-const BASE_URL = "https://cadlink.com"
+const BASE_URL = "https://cadlink.store"
 
 const products = [
   {

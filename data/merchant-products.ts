@@ -5,7 +5,7 @@
 
 import type { MerchantProduct } from "@/lib/merchant-api"
 
-const BASE_URL = "https://cadlink.com"
+const BASE_URL = "https://cadlink.store"
 const IMAGE_URL = `${BASE_URL}/icon.webp`
 
 // Google Product Taxonomy ID for physical software (boxed/disc)
