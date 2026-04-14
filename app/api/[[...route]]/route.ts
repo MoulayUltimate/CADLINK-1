@@ -203,29 +203,36 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
 
     // 2. Payment (Mollie)
     if (path === 'payment') {
-        const { currency = 'USD', amount: requestedAmount, email, name } = await req.json()
+        const { currency = 'USD', amount: requestedAmount, email, name, cardToken } = await req.json()
         let amount = requestedAmount || 75.19
         if (KV) { const d = await KV.get("product:prod_cadlink_v11", 'json'); if (d?.price) amount = Math.min(amount, d.price) }
         
         try {
             const baseUrl = req.headers.get('origin') || 'https://' + (req.headers.get('host') || 'localhost:3000')
             
+            
+            const payload: any = {
+                amount: {
+                    currency: 'EUR', // Mollie sandbox standard
+                    value: amount.toFixed(2)
+                },
+                description: 'CADLINK Software',
+                redirectUrl: `${baseUrl}/checkout/success`,
+                webhookUrl: `${baseUrl}/api/mollie-webhook`,
+                metadata: { email, name: name || 'Customer', amount, currency }
+            }
+            if (cardToken) {
+                payload.method = 'creditcard'
+                payload.cardToken = cardToken
+            }
+
             const response = await fetch('https://api.mollie.com/v2/payments', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${process.env.MOLLIE_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    amount: {
-                        currency: 'EUR', // Mollie supports mostly EUR for sandbox standard or USD for some
-                        value: amount.toFixed(2)
-                    },
-                    description: 'CADLINK Software',
-                    redirectUrl: `${baseUrl}/checkout/success`,
-                    webhookUrl: `${baseUrl}/api/mollie-webhook`,
-                    metadata: { email, name: name || 'Customer', amount, currency }
-                })
+                body: JSON.stringify(payload)
             })
             
             const data = await response.json()
@@ -234,6 +241,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
             }
             if (data._links && data._links.checkout) {
                 return NextResponse.json({ checkoutUrl: data._links.checkout.href })
+            }
+            if (data.status === 'paid' || data.status === 'authorized' || data.status === 'pending') {
+                return NextResponse.json({ checkoutUrl: `${baseUrl}/checkout/success` })
             }
             
             return NextResponse.json({ error: data.detail || 'Failed to initialize payment' }, { status: 400 })

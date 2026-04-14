@@ -1,9 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
-
-import { Loader2, Lock, ShieldCheck } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { Loader2, Lock, ShieldCheck, CreditCard } from "lucide-react"
 import { toast } from "sonner"
+
+declare global {
+    interface Window {
+        Mollie: any;
+    }
+}
 
 export function CheckoutForm({
     amount,
@@ -14,6 +19,53 @@ export function CheckoutForm({
 }) {
     const [message, setMessage] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [mollieInstance, setMollieInstance] = useState<any>(null)
+    const [isMollieReady, setIsMollieReady] = useState(false)
+    const componentsMounted = useRef(false)
+
+    useEffect(() => {
+        if (document.getElementById('mollie-script')) {
+            if (window.Mollie) initMollie()
+            return
+        }
+        const script = document.createElement("script")
+        script.id = 'mollie-script'
+        script.src = "https://js.mollie.com/v1/mollie.js"
+        script.onload = initMollie
+        document.body.appendChild(script)
+
+        function initMollie() {
+            const profileId = process.env.NEXT_PUBLIC_MOLLIE_PROFILE_ID
+            if (!profileId || profileId.includes('replace_me')) {
+                console.error("Mollie Profile ID is missing in .env.local")
+                setMessage("Payment Gateway Configuration Error: Missing Profile ID")
+                return
+            }
+            if (window.Mollie && !mollieInstance) {
+                const instance = window.Mollie(profileId, { locale: 'en_US', testmode: true })
+                setMollieInstance(instance)
+            }
+        }
+    }, [mollieInstance])
+
+    useEffect(() => {
+        if (mollieInstance && !componentsMounted.current) {
+            componentsMounted.current = true
+            
+            const styles = { base: { color: '#111827', fontSize: '15px' }, '::placeholder': { color: '#9CA3AF' } }
+            const cardNumber = mollieInstance.createComponent('cardNumber', { styles })
+            const cardHolder = mollieInstance.createComponent('cardHolder', { styles })
+            const expiryDate = mollieInstance.createComponent('expiryDate', { styles })
+            const verificationCode = mollieInstance.createComponent('verificationCode', { styles })
+
+            cardNumber.mount('#card-number')
+            cardHolder.mount('#card-holder')
+            expiryDate.mount('#expiry-date')
+            verificationCode.mount('#verification-code')
+            
+            setIsMollieReady(true)
+        }
+    }, [mollieInstance])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -44,13 +96,25 @@ export function CheckoutForm({
         }
 
         try {
+            let cardToken = null
+            if (mollieInstance) {
+                const { token, error } = await mollieInstance.createToken()
+                if (error) {
+                    toast.error(error.message)
+                    setIsLoading(false)
+                    return
+                }
+                cardToken = token
+            }
+
             const response = await fetch('/api/payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     amount, 
                     email: customerDetails.email, 
-                    name: `${customerDetails.firstName} ${customerDetails.lastName}` 
+                    name: `${customerDetails.firstName} ${customerDetails.lastName}`,
+                    cardToken
                 })
             })
 
@@ -82,8 +146,28 @@ export function CheckoutForm({
                     </div>
                 </div>
 
-                <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center text-sm text-gray-500">
-                    You will be redirected securely to Mollie to complete your purchase using your preferred payment method.
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Holder</label>
+                        <div id="card-holder" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Number</label>
+                        <div className="relative">
+                           <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                           <div id="card-number" className="h-[46px] border border-gray-200 rounded-lg pl-10 pr-3 py-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
+                            <div id="expiry-date" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">CVC</label>
+                            <div id="verification-code" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                        </div>
+                    </div>
                 </div>
 
                 {message && (
@@ -94,14 +178,14 @@ export function CheckoutForm({
             </div>
 
             <button
-                disabled={isLoading}
+                disabled={isLoading || !isMollieReady}
                 id="submit"
                 className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
             >
-                {isLoading ? (
+                {isLoading || !isMollieReady ? (
                     <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Redirecting...
+                        {isLoading ? 'Decrypting Secure Gateway...' : 'Loading Payment System...'}
                     </>
                 ) : (
                     <>
