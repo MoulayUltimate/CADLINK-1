@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Check, Star } from "lucide-react"
 import Image from "next/image"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCart } from "@/contexts/cart-context"
 import { useCurrency } from "@/hooks/use-currency"
 
 export function ProductCardSection() {
@@ -11,6 +12,7 @@ export function ProductCardSection() {
   const [product, setProduct] = useState<any>(null)
   const t = useTranslation()
   const { formatPrice } = useCurrency()
+  const { addItem } = useCart()
 
   useEffect(() => {
     fetch('/api/product')
@@ -20,7 +22,15 @@ export function ProductCardSection() {
   }, [])
 
   const handleAddToCart = () => {
-    window.location.href = "/checkout"
+    if (product) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: quantity
+      })
+    }
   }
 
   if (!product) return null
