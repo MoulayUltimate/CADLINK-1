@@ -8,30 +8,21 @@ import { useSearchParams } from "next/navigation"
 function SuccessContent() {
     const { clearCart } = useCart()
     const searchParams = useSearchParams()
-    const paymentIntent = searchParams.get("payment_intent")
     const isRecording = useRef(false)
 
     useEffect(() => {
-        if (paymentIntent) {
-            const rKey = `order_recorded_${paymentIntent}`
-            if (sessionStorage.getItem(rKey) || isRecording.current) return
+        if (!isRecording.current) {
             isRecording.current = true
-            const email = localStorage.getItem('checkout_email') || 'unknown@example.com'
-            const name = localStorage.getItem('checkout_name') || 'Valued Customer'
-            fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name, amount: 75.19, paymentIntent, currency: 'USD' }) })
-                .then(() => sessionStorage.setItem(rKey, 'true'))
-                .catch(() => isRecording.current = false)
             clearCart()
         }
-    }, [paymentIntent, clearCart])
+    }, [clearCart])
 
     const generateInvoice = () => {
         const clientName = localStorage.getItem('checkout_name') || 'Valued Customer'
         const clientEmail = localStorage.getItem('checkout_email') || 'N/A'
-        const orderId = paymentIntent ? `ORD-${paymentIntent.substring(3, 11).toUpperCase()}` : 'ORD-PENDING'
         const win = window.open('', '_blank')
         if (win) {
-            win.document.write(`<html><body><h1>Invoice ${orderId}</h1><p>${clientName} (${clientEmail})</p><p>Amount: $75.19</p><script>window.print()</script></body></html>`)
+            win.document.write(`<html><body><h1>Order Confirmation</h1><p>${clientName} (${clientEmail})</p><p>Amount: Paid</p><p>Details have been sent to your email.</p><script>window.print()</script></body></html>`)
             win.document.close()
         }
     }

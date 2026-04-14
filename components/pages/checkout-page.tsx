@@ -1,19 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { loadStripe } from "@stripe/stripe-js"
-import { Elements } from "@stripe/react-stripe-js"
 import { CheckoutForm } from "@/components/checkout/checkout-form"
 import { useCart } from "@/contexts/cart-context"
 import { Loader2, ShoppingCart, ArrowLeft, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder")
-
 export function CheckoutPage() {
     const { items: cart, subtotal: total } = useCart()
-    const [clientSecret, setClientSecret] = useState("")
 
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
@@ -26,21 +21,7 @@ export function CheckoutPage() {
     const finalTotal = Math.max(0, total - discount)
     const [error, setError] = useState("")
 
-    useEffect(() => {
-        if (finalTotal > 0) {
-            fetch('/api/payment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: finalTotal })
-            })
-                .then(res => res.json())
-                .then((data) => {
-                    if (data.clientSecret) setClientSecret(data.clientSecret)
-                    else setError(data.error || "Failed to initialize payment")
-                })
-                .catch((err) => setError(`System error: ${err.message || JSON.stringify(err)}`))
-        }
-    }, [finalTotal])
+
 
     const handleApplyCoupon = () => {
         if (couponCode.toUpperCase() === "CAD10") {
@@ -107,16 +88,8 @@ export function CheckoutPage() {
                                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={handleEmailBlur} required className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg outline-none" placeholder="john@example.com" />
                             </div>
                         </div>
-                        <div>
-                            {clientSecret ? (
-                                <Elements options={{ clientSecret, appearance: { theme: 'stripe', variables: { colorPrimary: '#0168A0' } } }} stripe={stripePromise}>
-                                    <CheckoutForm amount={finalTotal} customerDetails={{ firstName, lastName, email }} />
-                                </Elements>
-                            ) : (
-                                <div className="h-[400px] flex items-center justify-center bg-white border border-gray-100 rounded-2xl shadow-sm">
-                                    {error ? <div className="text-center p-6"><h3 className="text-lg font-bold mb-2">Error</h3><p className="text-sm">{error}</p></div> : <Loader2 className="w-8 h-8 text-[#0168A0] animate-spin" />}
-                                </div>
-                            )}
+                        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
+                            <CheckoutForm amount={finalTotal} customerDetails={{ firstName, lastName, email }} />
                         </div>
                     </div>
                     <div className="space-y-6 lg:sticky lg:top-8 h-fit">

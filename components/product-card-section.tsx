@@ -10,7 +10,7 @@ export function ProductCardSection() {
   const [quantity, setQuantity] = useState(1)
   const [product, setProduct] = useState<any>(null)
   const t = useTranslation()
-  const { stripeLink, formatPrice } = useCurrency()
+  const { formatPrice } = useCurrency()
 
   useEffect(() => {
     fetch('/api/product')
@@ -20,7 +20,7 @@ export function ProductCardSection() {
   }, [])
 
   const handleAddToCart = () => {
-    window.open(stripeLink, "_blank")
+    window.location.href = "/checkout"
   }
 
   if (!product) return null

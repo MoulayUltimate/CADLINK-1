@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
 import { verifyAdmin } from '@/lib/auth'
 import { getGA4Data } from '@/lib/ga4'
 
@@ -202,36 +201,80 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
         return res
     }
 
-    // 2. Payment
+    // 2. Payment (Mollie)
     if (path === 'payment') {
-        const { currency = 'usd' } = await req.json()
-        let amount = 75.19
-        if (KV) { const d = await KV.get("product:prod_cadlink_v11", 'json'); if (d?.price) amount = d.price }
-        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { httpClient: Stripe.createFetchHttpClient() })
-        const pi = await stripe.paymentIntents.create({ amount: Math.round(amount * 100), currency: 'usd', automatic_payment_methods: { enabled: true } })
-        return NextResponse.json({ clientSecret: pi.client_secret })
-    }
-
-    // 3. Orders (Create)
-    if (path === 'orders') {
-        const { paymentIntent, email: cEmail, name: cName } = await req.json()
-        if (!KV || !paymentIntent) return NextResponse.json({ error: 'Failed' }, { status: 400 })
-        const exists = await KV.get(`${PI_PREFIX}${paymentIntent}`, 'text')
-        if (exists) return NextResponse.json(await KV.get(`${KV_PREFIX}${exists}`, 'json'))
-
-        let email = cEmail || 'unknown', name = cName || 'Customer', amount = 75.19
-        if (process.env.STRIPE_SECRET_KEY) {
-            const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { httpClient: Stripe.createFetchHttpClient() })
-            const pi = await stripe.paymentIntents.retrieve(paymentIntent)
-            if (pi.status !== 'succeeded') return NextResponse.json({ error: 'Unpaid' }, { status: 400 })
-            email = pi.receipt_email || email; amount = pi.amount / 100
+        const { currency = 'USD', amount: requestedAmount, email, name } = await req.json()
+        let amount = requestedAmount || 75.19
+        if (KV) { const d = await KV.get("product:prod_cadlink_v11", 'json'); if (d?.price) amount = Math.min(amount, d.price) }
+        
+        try {
+            const baseUrl = req.headers.get('origin') || 'https://' + (req.headers.get('host') || 'localhost:3000')
+            
+            const response = await fetch('https://api.mollie.com/v2/payments', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.MOLLIE_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: {
+                        currency: 'EUR', // Mollie supports mostly EUR for sandbox standard or USD for some
+                        value: amount.toFixed(2)
+                    },
+                    description: 'CADLINK Software',
+                    redirectUrl: `${baseUrl}/checkout/success`,
+                    webhookUrl: `${baseUrl}/api/mollie-webhook`,
+                    metadata: { email, name: name || 'Customer', amount, currency }
+                })
+            })
+            
+            const data = await response.json()
+            if (data.status === 401) {
+                return NextResponse.json({ error: 'Mollie API Key is invalid' }, { status: 401 })
+            }
+            if (data._links && data._links.checkout) {
+                return NextResponse.json({ checkoutUrl: data._links.checkout.href })
+            }
+            
+            return NextResponse.json({ error: data.detail || 'Failed to initialize payment' }, { status: 400 })
+        } catch (error: any) {
+            return NextResponse.json({ error: error.message }, { status: 500 })
         }
-        const orderId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-        const order = { id: orderId, email, name, amount, status: 'completed', timestamp: Date.now(), paymentIntent }
-        await KV.put(`${KV_PREFIX}${orderId}`, JSON.stringify(order))
-        await KV.put(`${PI_PREFIX}${paymentIntent}`, orderId)
-        return NextResponse.json(order)
     }
+
+    // Mollie Webhook Callback
+    if (path === 'mollie-webhook') {
+        const bodyText = await req.text()
+        const id = new URLSearchParams(bodyText).get('id')
+        if (!id || !KV) return new NextResponse('OK', { status: 200 })
+
+        try {
+            const response = await fetch(`https://api.mollie.com/v2/payments/${id}`, {
+                headers: { 'Authorization': `Bearer ${process.env.MOLLIE_API_KEY}` }
+            })
+            const payment = await response.json()
+            
+            if (payment.status === 'paid') {
+                const existingOrderStr = await KV.get(`${PI_PREFIX}${id}`, 'text')
+                if (!existingOrderStr) {
+                    const meta = payment.metadata || {}
+                    const email = meta.email || 'unknown'
+                    const name = meta.name || 'Customer'
+                    const amount = parseFloat(meta.amount || payment.amount?.value || '75.19')
+                    
+                    const orderId = `ORD-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+                    const order = { id: orderId, email, name, amount, status: 'completed', timestamp: Date.now(), paymentIntent: id }
+                    await KV.put(`${KV_PREFIX}${orderId}`, JSON.stringify(order))
+                    await KV.put(`${PI_PREFIX}${id}`, orderId)
+                }
+            }
+            return new NextResponse('OK', { status: 200 })
+        } catch (e) {
+            return new NextResponse('OK', { status: 200 })
+        }
+    }
+
+    // Orders POST removed for security, handled by webhook only
 
     // 4. Abandoned Checkouts (Capture)
     if (path === 'abandoned-checkouts') {

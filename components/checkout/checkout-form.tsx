@@ -1,11 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-    PaymentElement,
-    useStripe,
-    useElements
-} from "@stripe/react-stripe-js"
+
 import { Loader2, Lock, ShieldCheck } from "lucide-react"
 import { toast } from "sonner"
 
@@ -16,52 +12,11 @@ export function CheckoutForm({
     amount: number
     customerDetails: { firstName: string; lastName: string; email: string }
 }) {
-    const stripe = useStripe()
-    const elements = useElements()
-
     const [message, setMessage] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
-    useEffect(() => {
-        if (!stripe) {
-            return
-        }
-
-        const clientSecret = new URLSearchParams(window.location.search).get(
-            "payment_intent_client_secret"
-        )
-
-        if (!clientSecret) {
-            return
-        }
-
-        stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-            switch (paymentIntent?.status) {
-                case "succeeded":
-                    setMessage("Payment succeeded!")
-                    toast.success("Payment succeeded!")
-                    break
-                case "processing":
-                    setMessage("Your payment is processing.")
-                    break
-                case "requires_payment_method":
-                    setMessage("Your payment was not successful, please try again.")
-                    toast.error("Payment failed. Please try again.")
-                    break
-                default:
-                    setMessage("Something went wrong.")
-                    toast.error("Something went wrong.")
-                    break
-            }
-        })
-    }, [stripe])
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-
-        if (!stripe || !elements) {
-            return
-        }
 
         if (!customerDetails.email || !customerDetails.firstName || !customerDetails.lastName) {
             toast.error("Please fill in all customer details.")
@@ -88,28 +43,31 @@ export function CheckoutForm({
             });
         }
 
-        const { error } = await stripe.confirmPayment({
-            elements,
-            confirmParams: {
-                return_url: `${window.location.origin}/checkout/success`,
-                payment_method_data: {
-                    billing_details: {
-                        name: `${customerDetails.firstName} ${customerDetails.lastName}`,
-                        email: customerDetails.email,
-                    },
-                },
-            },
-        })
+        try {
+            const response = await fetch('/api/payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    amount, 
+                    email: customerDetails.email, 
+                    name: `${customerDetails.firstName} ${customerDetails.lastName}` 
+                })
+            })
 
-        if (error.type === "card_error" || error.type === "validation_error") {
-            setMessage(error.message || "An unexpected error occurred.")
-            toast.error(error.message || "An unexpected error occurred.")
-        } else {
+            const data = await response.json()
+
+            if (data.checkoutUrl) {
+                window.location.href = data.checkoutUrl
+            } else {
+                setMessage(data.error || "An unexpected error occurred.")
+                toast.error(data.error || "An unexpected error occurred.")
+                setIsLoading(false)
+            }
+        } catch (error) {
             setMessage("An unexpected error occurred.")
             toast.error("An unexpected error occurred.")
+            setIsLoading(false)
         }
-
-        setIsLoading(false)
     }
 
     return (
@@ -124,7 +82,9 @@ export function CheckoutForm({
                     </div>
                 </div>
 
-                <PaymentElement id="payment-element" options={{ layout: "tabs" }} />
+                <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center text-sm text-gray-500">
+                    You will be redirected securely to Mollie to complete your purchase using your preferred payment method.
+                </div>
 
                 {message && (
                     <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm font-bold">
@@ -134,25 +94,25 @@ export function CheckoutForm({
             </div>
 
             <button
-                disabled={isLoading || !stripe || !elements}
+                disabled={isLoading}
                 id="submit"
                 className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
             >
                 {isLoading ? (
                     <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Processing...
+                        Redirecting...
                     </>
                 ) : (
                     <>
                         <ShieldCheck className="w-5 h-5" />
-                        Pay ${amount.toFixed(2)}
+                        Proceed to Payment (${amount.toFixed(2)})
                     </>
                 )}
             </button>
 
             <p className="text-center text-xs text-gray-400">
-                Powered by Stripe. Your payment information is securely processed.
+                Powered by Mollie. Your payment information is securely processed.
             </p>
         </form>
     )

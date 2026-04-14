@@ -21,10 +21,8 @@ export function BuyNowButton({
   className,
   children,
 }: BuyNowButtonProps) {
-  const { stripeLink } = useCurrency()
-
   const handleBuyNow = () => {
-    window.open(stripeLink, "_blank")
+    window.location.href = "/checkout"
   }
 
   return (

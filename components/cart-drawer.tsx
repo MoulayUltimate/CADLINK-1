@@ -10,7 +10,7 @@ import { useCurrency } from "@/hooks/use-currency"
 export function CartDrawer() {
     const { items, removeItem, isOpen, setIsOpen, subtotal } = useCart()
     const [isLoading, setIsLoading] = useState(false)
-    const { stripeLink, formatPrice } = useCurrency()
+    const { formatPrice } = useCurrency()
 
     // Prevent body scroll when cart is open
     useEffect(() => {
@@ -26,7 +26,7 @@ export function CartDrawer() {
 
     const handleCheckout = () => {
         setIsOpen(false)
-        window.open(stripeLink, "_blank")
+        window.location.href = "/checkout"
     }
 
     if (!isOpen) return null
