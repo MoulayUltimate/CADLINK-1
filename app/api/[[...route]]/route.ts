@@ -203,7 +203,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
 
     // 2. Payment (Mollie)
     if (path === 'payment') {
-        const { currency = 'USD', amount: requestedAmount, email, name, cardToken } = await req.json()
+        const { currency = 'USD', amount: requestedAmount, email, name, cardToken, method } = await req.json()
         let amount = requestedAmount || 75.19
         if (KV) { const d = await KV.get("product:prod_cadlink_v11", 'json'); if (d?.price) amount = Math.min(amount, d.price) }
         
@@ -224,6 +224,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
             if (cardToken) {
                 payload.method = 'creditcard'
                 payload.cardToken = cardToken
+            } else if (method && method !== 'googlepay') {
+                payload.method = method
             }
 
             const response = await fetch('https://api.mollie.com/v2/payments', {

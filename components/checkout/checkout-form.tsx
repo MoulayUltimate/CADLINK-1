@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Loader2, Lock, ShieldCheck, CreditCard } from "lucide-react"
+import { Loader2, Lock, ShieldCheck, CreditCard, Apple, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
 declare global {
@@ -19,6 +19,7 @@ export function CheckoutForm({
 }) {
     const [message, setMessage] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [loadingMethod, setLoadingMethod] = useState<string | null>(null)
     const [mollieInstance, setMollieInstance] = useState<any>(null)
     const [isMollieReady, setIsMollieReady] = useState(false)
     const componentsMounted = useRef(false)
@@ -67,8 +68,8 @@ export function CheckoutForm({
         }
     }, [mollieInstance])
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleSubmit = async (e?: React.FormEvent, alternativeMethod?: string) => {
+        if (e) e.preventDefault()
 
         if (!customerDetails.email || !customerDetails.firstName || !customerDetails.lastName) {
             toast.error("Please fill in all customer details.")
@@ -76,6 +77,7 @@ export function CheckoutForm({
         }
 
         setIsLoading(true)
+        if (alternativeMethod) setLoadingMethod(alternativeMethod)
 
         // Save details for success page
         localStorage.setItem('checkout_name', `${customerDetails.firstName} ${customerDetails.lastName}`)
@@ -97,11 +99,12 @@ export function CheckoutForm({
 
         try {
             let cardToken = null
-            if (mollieInstance) {
+            if (mollieInstance && !alternativeMethod) {
                 const { token, error } = await mollieInstance.createToken()
                 if (error) {
                     toast.error(error.message)
                     setIsLoading(false)
+                    setLoadingMethod(null)
                     return
                 }
                 cardToken = token
@@ -114,7 +117,8 @@ export function CheckoutForm({
                     amount, 
                     email: customerDetails.email, 
                     name: `${customerDetails.firstName} ${customerDetails.lastName}`,
-                    cardToken
+                    cardToken: cardToken || undefined,
+                    method: alternativeMethod || undefined
                 })
             })
 
@@ -126,11 +130,13 @@ export function CheckoutForm({
                 setMessage(data.error || "An unexpected error occurred.")
                 toast.error(data.error || "An unexpected error occurred.")
                 setIsLoading(false)
+                setLoadingMethod(null)
             }
         } catch (error) {
             setMessage("An unexpected error occurred.")
             toast.error("An unexpected error occurred.")
             setIsLoading(false)
+            setLoadingMethod(null)
         }
     }
 
@@ -144,6 +150,30 @@ export function CheckoutForm({
                         <Lock className="w-3 h-3" />
                         Secure Encrypted
                     </div>
+                </div>
+
+                <div className="mb-6 grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(undefined, 'applepay')}
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+                    >
+                        {loadingMethod === 'applepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Apple className="w-5 h-5 filling-current" /> Pay</>}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(undefined, 'googlepay')}
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-semibold py-3 rounded-xl transition-all disabled:opacity-50 shadow-sm"
+                    >
+                        {loadingMethod === 'googlepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Wallet className="w-5 h-5" /> GPay</>}
+                    </button>
+                </div>
+
+                <div className="relative mb-6">
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+                    <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-400 font-medium">Or pay with card</span></div>
                 </div>
 
                 <div className="space-y-4">
@@ -182,10 +212,10 @@ export function CheckoutForm({
                 id="submit"
                 className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
             >
-                {isLoading || !isMollieReady ? (
+                {isLoading || (!isMollieReady && !loadingMethod) ? (
                     <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        {isLoading ? 'Decrypting Secure Gateway...' : 'Loading Payment System...'}
+                        {isLoading && !loadingMethod ? 'Decrypting Secure Gateway...' : 'Loading Payment System...'}
                     </>
                 ) : (
                     <>
