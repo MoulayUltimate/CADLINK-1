@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Loader2, Lock, ShieldCheck, CreditCard, Apple, Wallet, ChevronRight } from "lucide-react"
+import { Loader2, Lock, ShieldCheck, CreditCard, Apple, Wallet } from "lucide-react"
 import { toast } from "sonner"
 
 declare global {
@@ -22,7 +22,6 @@ export function CheckoutForm({
     const [loadingMethod, setLoadingMethod] = useState<string | null>(null)
     const [mollieInstance, setMollieInstance] = useState<any>(null)
     const [isMollieReady, setIsMollieReady] = useState(false)
-    const [activeMethod, setActiveMethod] = useState<'card' | null>('card')
     const componentsMounted = useRef(false)
 
     useEffect(() => {
@@ -143,125 +142,88 @@ export function CheckoutForm({
 
     return (
         <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
-            {/* Apple Pay Button (Standalone at top) */}
-            <button
-                type="button"
-                onClick={() => handleSubmit(undefined, 'applepay')}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white font-semibold py-4 rounded-xl transition-all disabled:opacity-50"
-            >
-                {loadingMethod === 'applepay' ? <Loader2 className="w-6 h-6 animate-spin" /> : <><Apple className="w-6 h-6 filling-current -mt-1" /> <span className="text-xl">Pay</span></>}
-            </button>
-
-            {/* Accordion Payment Methods */}
-            <div className="border border-gray-200 rounded-xl bg-white overflow-hidden shadow-sm">
-                
-                {/* 1. Card Option */}
-                <div 
-                    className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${activeMethod === 'card' ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
-                    onClick={() => setActiveMethod(activeMethod === 'card' ? null : 'card')}
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-7 bg-[#1F2937] rounded flex items-center justify-center text-white shadow-sm">
-                            <CreditCard className="w-4 h-4 opacity-80" />
-                        </div>
-                        <span className="font-semibold text-gray-900 text-lg">Card</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-gray-400">
-                        <div className="flex gap-1">
-                            <div className="bg-[#142A5C] text-white text-[10px] font-bold px-1 rounded flex items-center">VISA</div>
-                            <div className="bg-[#EB001B] text-white text-[10px] font-bold px-1 rounded flex items-center shadow-inner">MC</div>
-                            <div className="bg-[#0070CE] text-white text-[10px] font-bold px-1 rounded flex items-center">AMEX</div>
-                        </div>
-                        <ChevronRight className={`w-5 h-5 transition-transform ${activeMethod === 'card' ? 'rotate-90 text-gray-800' : ''}`} />
+            {/* Payment Details */}
+            <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-bold text-gray-900">Payment Details</h3>
+                    <div className="flex items-center gap-2 text-xs text-[#00b67a] bg-[#00b67a]/10 px-3 py-1 rounded-full font-bold">
+                        <Lock className="w-3 h-3" />
+                        Secure Encrypted
                     </div>
                 </div>
 
-                {/* Card Expanded Content */}
-                {activeMethod === 'card' && (
-                    <div className="px-5 pb-5 pt-2 bg-gray-50 border-t border-gray-100">
-                        <div className="mb-5">
-                            <label className="block text-[15px] font-semibold text-gray-600 mb-2">Card information</label>
-                            
-                            <div className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-[#0168A0] focus-within:border-[#0168A0] transition-all">
-                                {/* Card Number Row */}
-                                <div className="p-3 border-b border-gray-200">
-                                    <div id="card-number" className="h-[22px]"></div>
-                                </div>
-                                {/* Expiry & CVC Row */}
-                                <div className="flex">
-                                    <div className="p-3 flex-1 border-r border-gray-200">
-                                        <div id="expiry-date" className="h-[22px]"></div>
-                                    </div>
-                                    <div className="p-3 flex-1">
-                                        <div id="verification-code" className="h-[22px]"></div>
-                                    </div>
-                                </div>
-                            </div>
+                <div className="mb-6 grid grid-cols-2 gap-3">
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(undefined, 'applepay')}
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+                    >
+                        {loadingMethod === 'applepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Apple className="w-5 h-5 filling-current" /> Pay</>}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(undefined, 'googlepay')}
+                        disabled={isLoading}
+                        className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-semibold py-3 rounded-xl transition-all disabled:opacity-50 shadow-sm"
+                    >
+                        {loadingMethod === 'googlepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Wallet className="w-5 h-5" /> GPay</>}
+                    </button>
+                </div>
+
+                <div className="relative mb-6">
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+                    <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-400 font-medium">Or pay with card</span></div>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Holder</label>
+                        <div id="card-holder" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Number</label>
+                        <div className="relative">
+                           <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                           <div id="card-number" className="h-[46px] border border-gray-200 rounded-lg pl-10 pr-3 py-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
                         </div>
-
-                        <div className="mb-6">
-                            <label className="block text-[15px] font-semibold text-gray-600 mb-2">Cardholder name</label>
-                            <div className="bg-white border border-gray-300 rounded-lg p-3 shadow-sm focus-within:ring-1 focus-within:ring-[#0168A0] focus-within:border-[#0168A0] transition-all">
-                                <div id="card-holder" className="h-[22px]"></div>
-                            </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
+                            <div id="expiry-date" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
                         </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">CVC</label>
+                            <div id="verification-code" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
+                        </div>
+                    </div>
+                </div>
 
-                        {message && (
-                            <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm font-bold">
-                                {message}
-                            </div>
-                        )}
-
-                        <button
-                            disabled={isLoading || !isMollieReady}
-                            id="submit"
-                            className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-md shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading || (!isMollieReady && !loadingMethod) ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    {isLoading && !loadingMethod ? 'Processing payment...' : 'Initializing Secure Gateway...'}
-                                </>
-                            ) : (
-                                <>
-                                    <ShieldCheck className="w-5 h-5" />
-                                    Pay ${amount.toFixed(2)}
-                                </>
-                            )}
-                        </button>
+                {message && (
+                    <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm font-bold">
+                        {message}
                     </div>
                 )}
-
-                {/* 2. iDEAL Option */}
-                <div 
-                    className="flex items-center justify-between p-4 cursor-pointer border-t border-gray-200 hover:bg-gray-50 transition-colors"
-                    onClick={() => handleSubmit(undefined, 'ideal')}
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-7 bg-[#FFF0F4] rounded flex items-center justify-center text-[#E5005B] font-extrabold text-[10px] border border-[#ffb3cf] shadow-sm">
-                            iDEAL
-                        </div>
-                        <span className="font-semibold text-gray-700 text-lg">iDEAL | Wero</span>
-                    </div>
-                    {loadingMethod === 'ideal' ? <Loader2 className="w-5 h-5 text-gray-400 animate-spin" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
-                </div>
-
-                {/* 3. Bank Transfer Option */}
-                <div 
-                    className="flex items-center justify-between p-4 cursor-pointer border-t border-gray-200 hover:bg-gray-50 transition-colors"
-                    onClick={() => handleSubmit(undefined, 'banktransfer')}
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-7 bg-[#0055A5] rounded flex items-center justify-center text-white font-extrabold text-[10px] shadow-sm">
-                            SEPA
-                        </div>
-                        <span className="font-semibold text-gray-700 text-lg">Bank transfer</span>
-                    </div>
-                    {loadingMethod === 'banktransfer' ? <Loader2 className="w-5 h-5 text-gray-400 animate-spin" /> : <ChevronRight className="w-5 h-5 text-gray-400" />}
-                </div>
-
             </div>
+
+            <button
+                disabled={isLoading || !isMollieReady}
+                id="submit"
+                className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
+            >
+                {isLoading || (!isMollieReady && !loadingMethod) ? (
+                    <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        {isLoading && !loadingMethod ? 'Decrypting Secure Gateway...' : 'Loading Payment System...'}
+                    </>
+                ) : (
+                    <>
+                        <ShieldCheck className="w-5 h-5" />
+                        Proceed to Payment (${amount.toFixed(2)})
+                    </>
+                )}
+            </button>
 
             <p className="text-center text-xs text-gray-400">
                 Powered by Mollie. Your payment information is securely processed.
