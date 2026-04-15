@@ -118,7 +118,7 @@ export function CheckoutForm({
                     email: customerDetails.email, 
                     name: `${customerDetails.firstName} ${customerDetails.lastName}`,
                     cardToken: cardToken || undefined,
-                    method: alternativeMethod || undefined
+                    method: (alternativeMethod === 'applepay' || alternativeMethod === 'googlepay') ? undefined : alternativeMethod || undefined
                 })
             })
 
