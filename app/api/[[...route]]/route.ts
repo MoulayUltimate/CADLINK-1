@@ -206,20 +206,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
         const { currency = 'USD', amount: requestedAmount, email, name, cardToken, method } = await req.json()
         let amount = requestedAmount || 75.19
         if (KV) { const d = await KV.get("product:prod_cadlink_v11", 'json'); if (d?.price) amount = Math.min(amount, d.price) }
-        
+
+        // Mollie requires an ISO 4217 currency supported by the merchant's account.
+        // Whitelist the ones this storefront advertises so a malformed client payload
+        // can't cause Mollie to reject the request.
+        const allowedCurrencies = ['EUR', 'USD', 'GBP', 'PLN']
+        const payCurrency = allowedCurrencies.includes((currency || '').toUpperCase())
+            ? (currency as string).toUpperCase()
+            : 'EUR'
+
         try {
             const baseUrl = req.headers.get('origin') || 'https://' + (req.headers.get('host') || 'localhost:3000')
-            
-            
+
+
             const payload: any = {
                 amount: {
-                    currency: 'EUR', // Mollie sandbox standard
+                    currency: payCurrency,
                     value: amount.toFixed(2)
                 },
                 description: 'CADLINK Software',
                 redirectUrl: `${baseUrl}/checkout/success`,
                 webhookUrl: `${baseUrl}/api/mollie-webhook`,
-                metadata: { email, name: name || 'Customer', amount, currency }
+                metadata: { email, name: name || 'Customer', amount, currency: payCurrency }
             }
             if (cardToken) {
                 payload.method = 'creditcard'

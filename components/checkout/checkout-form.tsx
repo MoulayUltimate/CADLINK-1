@@ -38,12 +38,15 @@ export function CheckoutForm({
         function initMollie() {
             const profileId = process.env.NEXT_PUBLIC_MOLLIE_PROFILE_ID
             if (!profileId || profileId.includes('replace_me')) {
-                console.error("Mollie Profile ID is missing in .env.local")
+                console.error("Mollie Profile ID is missing. Set NEXT_PUBLIC_MOLLIE_PROFILE_ID at build time.")
                 setMessage("Payment Gateway Configuration Error: Missing Profile ID")
                 return
             }
+            // testmode must only be true when using a test profile + test API key.
+            // Controlled via NEXT_PUBLIC_MOLLIE_TEST_MODE (must be set at build time).
+            const testmode = process.env.NEXT_PUBLIC_MOLLIE_TEST_MODE === 'true'
             if (window.Mollie && !mollieInstance) {
-                const instance = window.Mollie(profileId, { locale: 'en_US', testmode: true })
+                const instance = window.Mollie(profileId, { locale: 'en_US', testmode })
                 setMollieInstance(instance)
             }
         }
@@ -113,9 +116,10 @@ export function CheckoutForm({
             const response = await fetch('/api/payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    amount, 
-                    email: customerDetails.email, 
+                body: JSON.stringify({
+                    amount,
+                    currency: 'USD',
+                    email: customerDetails.email,
                     name: `${customerDetails.firstName} ${customerDetails.lastName}`,
                     cardToken: cardToken || undefined,
                     method: (alternativeMethod === 'applepay' || alternativeMethod === 'googlepay') ? undefined : alternativeMethod || undefined

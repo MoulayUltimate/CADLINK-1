@@ -4,7 +4,6 @@ import { useCart } from "@/contexts/cart-context"
 import { X, ShoppingBag, Trash2, Lock } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { createCheckoutSession } from "@/app/actions/create-checkout"
 import { useCurrency } from "@/hooks/use-currency"
 
 export function CartDrawer() {
