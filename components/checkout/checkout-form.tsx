@@ -194,45 +194,22 @@ export function CheckoutForm({
         }
     }
 
-    // Re-usable field wrapper that renders a Mollie Component mount point with
-    // consistent focus / error styling tied to the `fields` state map.
-    const Field = ({
-        name,
-        label,
-        id,
-        children,
-    }: {
-        name: MollieField
-        label?: string
-        id: string
-        children?: React.ReactNode
-    }) => {
-        const status = fields[name]
-        const showError = !!status.error && status.dirty && !status.focused
-        const borderClass = showError
+    // Derive per-field UI state from the live Mollie Components events. Plain
+    // functions (no inline component) so the mount <div>s are never remounted
+    // by React — Mollie's iframes would otherwise detach on every re-render.
+    const wrapClass = (name: MollieField) => {
+        const s = fields[name]
+        const showError = !!s.error && s.dirty && !s.focused
+        const border = showError
             ? "border-red-300 ring-1 ring-red-200"
-            : status.focused
+            : s.focused
                 ? "border-[#0168A0] ring-2 ring-[#0168A0]/15"
                 : "border-gray-200 hover:border-gray-300"
-
-        return (
-            <div>
-                {label && (
-                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
-                        {label}
-                    </label>
-                )}
-                <div
-                    className={`relative h-[48px] rounded-xl bg-white border ${borderClass} transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)]`}
-                >
-                    {children}
-                    <div id={id} className="h-full w-full px-3.5 flex items-center" />
-                </div>
-                {showError && (
-                    <p className="text-[12px] text-red-600 mt-1.5 font-medium">{status.error}</p>
-                )}
-            </div>
-        )
+        return `relative h-[48px] rounded-xl bg-white border ${border} transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)] px-3.5`
+    }
+    const fieldError = (name: MollieField) => {
+        const s = fields[name]
+        return !!s.error && s.dirty && !s.focused ? s.error : null
     }
 
     return (
@@ -296,18 +273,48 @@ export function CheckoutForm({
                 </div>
             </div>
 
-            {/* Card form */}
+            {/* Card form — each mount node is rendered as a STABLE element so
+                Mollie's iframes are never orphaned by re-renders. */}
             <div className="space-y-3.5">
-                <Field name="cardHolder" label={FIELD_LABEL.cardHolder} id="card-holder" />
-                <Field name="cardNumber" label={FIELD_LABEL.cardNumber} id="card-number">
-                    {/* Card brand hint — Mollie auto-detects and styles its own internal logo */}
-                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-300">
-                        <CreditCard className="w-5 h-5" />
-                    </div>
-                </Field>
+                <div>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
+                        {FIELD_LABEL.cardHolder}
+                    </label>
+                    <div id="card-holder" className={wrapClass("cardHolder")} />
+                    {fieldError("cardHolder") && (
+                        <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("cardHolder")}</p>
+                    )}
+                </div>
+
+                <div>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
+                        {FIELD_LABEL.cardNumber}
+                    </label>
+                    <div id="card-number" className={wrapClass("cardNumber")} />
+                    {fieldError("cardNumber") && (
+                        <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("cardNumber")}</p>
+                    )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-3.5">
-                    <Field name="expiryDate" label={FIELD_LABEL.expiryDate} id="expiry-date" />
-                    <Field name="verificationCode" label={FIELD_LABEL.verificationCode} id="verification-code" />
+                    <div>
+                        <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
+                            {FIELD_LABEL.expiryDate}
+                        </label>
+                        <div id="expiry-date" className={wrapClass("expiryDate")} />
+                        {fieldError("expiryDate") && (
+                            <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("expiryDate")}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
+                            {FIELD_LABEL.verificationCode}
+                        </label>
+                        <div id="verification-code" className={wrapClass("verificationCode")} />
+                        {fieldError("verificationCode") && (
+                            <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("verificationCode")}</p>
+                        )}
+                    </div>
                 </div>
             </div>
 
