@@ -197,20 +197,26 @@ export function CheckoutForm({
     // Derive per-field UI state from the live Mollie Components events. Plain
     // functions (no inline component) so the mount <div>s are never remounted
     // by React — Mollie's iframes would otherwise detach on every re-render.
-    const wrapClass = (name: MollieField) => {
-        const s = fields[name]
-        const showError = !!s.error && s.dirty && !s.focused
-        const border = showError
-            ? "border-red-300 ring-1 ring-red-200"
-            : s.focused
-                ? "border-[#0168A0] ring-2 ring-[#0168A0]/15"
-                : "border-gray-200 hover:border-gray-300"
-        return `relative h-[48px] rounded-xl bg-white border ${border} transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)] px-3.5`
-    }
+    const anyFocused = (Object.keys(fields) as MollieField[]).some((k) => fields[k].focused)
+    const anyError = (Object.keys(fields) as MollieField[]).some(
+        (k) => !!fields[k].error && fields[k].dirty && !fields[k].focused
+    )
+    const containerBorder = anyError
+        ? "border-red-300 ring-1 ring-red-200"
+        : anyFocused
+            ? "border-[#0168A0] ring-2 ring-[#0168A0]/15"
+            : "border-gray-200"
+
     const fieldError = (name: MollieField) => {
         const s = fields[name]
         return !!s.error && s.dirty && !s.focused ? s.error : null
     }
+    // The first collected error for summary display below the unified field block.
+    const firstError =
+        fieldError("cardHolder") ||
+        fieldError("cardNumber") ||
+        fieldError("expiryDate") ||
+        fieldError("verificationCode")
 
     return (
         <form id="payment-form" onSubmit={handleSubmit} className="space-y-5">
@@ -273,49 +279,50 @@ export function CheckoutForm({
                 </div>
             </div>
 
-            {/* Card form — each mount node is rendered as a STABLE element so
-                Mollie's iframes are never orphaned by re-renders. */}
-            <div className="space-y-3.5">
-                <div>
-                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
-                        {FIELD_LABEL.cardHolder}
-                    </label>
-                    <div id="card-holder" className={wrapClass("cardHolder")} />
-                    {fieldError("cardHolder") && (
-                        <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("cardHolder")}</p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
-                        {FIELD_LABEL.cardNumber}
-                    </label>
-                    <div id="card-number" className={wrapClass("cardNumber")} />
-                    {fieldError("cardNumber") && (
-                        <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("cardNumber")}</p>
-                    )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3.5">
-                    <div>
-                        <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
-                            {FIELD_LABEL.expiryDate}
+            {/* Unified card entry block — single surface, tiny internal labels,
+                hairline dividers. Mount <div>s are kept identity-stable so
+                Mollie's iframes are never orphaned across re-renders. */}
+            <div>
+                <div
+                    className={`rounded-xl bg-white border ${containerBorder} transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)] overflow-hidden`}
+                >
+                    <div className="px-3.5 pt-2 pb-1 border-b border-gray-100">
+                        <label className="block text-[10.5px] font-bold text-gray-400 uppercase tracking-[0.1em]">
+                            {FIELD_LABEL.cardHolder}
                         </label>
-                        <div id="expiry-date" className={wrapClass("expiryDate")} />
-                        {fieldError("expiryDate") && (
-                            <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("expiryDate")}</p>
-                        )}
+                        <div id="card-holder" className="h-9 -mx-0.5" />
                     </div>
-                    <div>
-                        <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
-                            {FIELD_LABEL.verificationCode}
+
+                    <div className="px-3.5 pt-2 pb-1 border-b border-gray-100 relative">
+                        <label className="block text-[10.5px] font-bold text-gray-400 uppercase tracking-[0.1em]">
+                            {FIELD_LABEL.cardNumber}
                         </label>
-                        <div id="verification-code" className={wrapClass("verificationCode")} />
-                        {fieldError("verificationCode") && (
-                            <p className="text-[12px] text-red-600 mt-1.5 font-medium">{fieldError("verificationCode")}</p>
-                        )}
+                        <div id="card-number" className="h-9 -mx-0.5" />
+                        <CreditCard className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300" />
+                    </div>
+
+                    <div className="grid grid-cols-2">
+                        <div className="px-3.5 pt-2 pb-1 border-r border-gray-100">
+                            <label className="block text-[10.5px] font-bold text-gray-400 uppercase tracking-[0.1em]">
+                                {FIELD_LABEL.expiryDate}
+                            </label>
+                            <div id="expiry-date" className="h-9 -mx-0.5" />
+                        </div>
+                        <div className="px-3.5 pt-2 pb-1">
+                            <label className="block text-[10.5px] font-bold text-gray-400 uppercase tracking-[0.1em]">
+                                {FIELD_LABEL.verificationCode}
+                            </label>
+                            <div id="verification-code" className="h-9 -mx-0.5" />
+                        </div>
                     </div>
                 </div>
+
+                {firstError && (
+                    <p className="text-[12px] text-red-600 mt-2 font-medium flex items-center gap-1.5">
+                        <span>⚠</span>
+                        <span>{firstError}</span>
+                    </p>
+                )}
             </div>
 
             {message && (
