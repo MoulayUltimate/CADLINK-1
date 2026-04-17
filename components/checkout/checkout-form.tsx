@@ -10,6 +10,18 @@ declare global {
     }
 }
 
+// Field-level validation state reported by the Mollie Components SDK.
+// Keys match the component ids we create below.
+type MollieField = "cardHolder" | "cardNumber" | "expiryDate" | "verificationCode"
+type FieldStatus = { focused: boolean; dirty: boolean; valid: boolean; error?: string }
+
+const FIELD_LABEL: Record<MollieField, string> = {
+    cardHolder: "Card Holder",
+    cardNumber: "Card Number",
+    expiryDate: "Expiry Date",
+    verificationCode: "CVC",
+}
+
 export function CheckoutForm({
     amount,
     customerDetails
@@ -23,6 +35,12 @@ export function CheckoutForm({
     const [mollieInstance, setMollieInstance] = useState<any>(null)
     const [isMollieReady, setIsMollieReady] = useState(false)
     const componentsMounted = useRef(false)
+    const [fields, setFields] = useState<Record<MollieField, FieldStatus>>({
+        cardHolder: { focused: false, dirty: false, valid: false },
+        cardNumber: { focused: false, dirty: false, valid: false },
+        expiryDate: { focused: false, dirty: false, valid: false },
+        verificationCode: { focused: false, dirty: false, valid: false },
+    })
 
     useEffect(() => {
         if (document.getElementById('mollie-script')) {
@@ -55,18 +73,50 @@ export function CheckoutForm({
     useEffect(() => {
         if (mollieInstance && !componentsMounted.current) {
             componentsMounted.current = true
-            
-            const styles = { base: { color: '#111827', fontSize: '15px' }, '::placeholder': { color: '#9CA3AF' } }
-            const cardNumber = mollieInstance.createComponent('cardNumber', { styles })
-            const cardHolder = mollieInstance.createComponent('cardHolder', { styles })
-            const expiryDate = mollieInstance.createComponent('expiryDate', { styles })
-            const verificationCode = mollieInstance.createComponent('verificationCode', { styles })
 
-            cardNumber.mount('#card-number')
-            cardHolder.mount('#card-holder')
-            expiryDate.mount('#expiry-date')
-            verificationCode.mount('#verification-code')
-            
+            // Styles that mirror the CADLINK card-input treatment: subtle gray
+            // surface, site-blue focus ring, Inter-ish typography.
+            const styles = {
+                base: {
+                    color: '#111827',
+                    fontSize: '15px',
+                    fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif',
+                    letterSpacing: '0.01em',
+                    '::placeholder': { color: '#9CA3AF' },
+                },
+                valid: { color: '#111827' },
+                invalid: { color: '#DC2626' },
+            }
+
+            const controls: Array<[MollieField, string]> = [
+                ['cardHolder', '#card-holder'],
+                ['cardNumber', '#card-number'],
+                ['expiryDate', '#expiry-date'],
+                ['verificationCode', '#verification-code'],
+            ]
+
+            controls.forEach(([name, mount]) => {
+                const component = mollieInstance.createComponent(name, { styles })
+                component.mount(mount)
+                component.addEventListener('focus', () => {
+                    setFields((f) => ({ ...f, [name]: { ...f[name], focused: true } }))
+                })
+                component.addEventListener('blur', () => {
+                    setFields((f) => ({ ...f, [name]: { ...f[name], focused: false } }))
+                })
+                component.addEventListener('change', (e: any) => {
+                    setFields((f) => ({
+                        ...f,
+                        [name]: {
+                            ...f[name],
+                            dirty: !!e?.touched || !!e?.dirty || f[name].dirty,
+                            valid: !!e?.valid,
+                            error: e?.error || undefined,
+                        },
+                    }))
+                })
+            })
+
             setIsMollieReady(true)
         }
     }, [mollieInstance])
@@ -144,94 +194,179 @@ export function CheckoutForm({
         }
     }
 
-    return (
-        <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
-            {/* Payment Details */}
-            <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-bold text-gray-900">Payment Details</h3>
-                    <div className="flex items-center gap-2 text-xs text-[#00b67a] bg-[#00b67a]/10 px-3 py-1 rounded-full font-bold">
-                        <Lock className="w-3 h-3" />
-                        Secure Encrypted
-                    </div>
-                </div>
+    // Re-usable field wrapper that renders a Mollie Component mount point with
+    // consistent focus / error styling tied to the `fields` state map.
+    const Field = ({
+        name,
+        label,
+        id,
+        children,
+    }: {
+        name: MollieField
+        label?: string
+        id: string
+        children?: React.ReactNode
+    }) => {
+        const status = fields[name]
+        const showError = !!status.error && status.dirty && !status.focused
+        const borderClass = showError
+            ? "border-red-300 ring-1 ring-red-200"
+            : status.focused
+                ? "border-[#0168A0] ring-2 ring-[#0168A0]/15"
+                : "border-gray-200 hover:border-gray-300"
 
-                <div className="mb-6 grid grid-cols-2 gap-3">
-                    <button
-                        type="button"
-                        onClick={() => handleSubmit(undefined, 'applepay')}
-                        disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 bg-black hover:bg-gray-900 text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
-                    >
-                        {loadingMethod === 'applepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Apple className="w-5 h-5 filling-current" /> Pay</>}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => handleSubmit(undefined, 'googlepay')}
-                        disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-900 font-semibold py-3 rounded-xl transition-all disabled:opacity-50 shadow-sm"
-                    >
-                        {loadingMethod === 'googlepay' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Wallet className="w-5 h-5" /> GPay</>}
-                    </button>
+        return (
+            <div>
+                {label && (
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
+                        {label}
+                    </label>
+                )}
+                <div
+                    className={`relative h-[48px] rounded-xl bg-white border ${borderClass} transition-all shadow-[0_1px_2px_rgba(16,24,40,0.04)]`}
+                >
+                    {children}
+                    <div id={id} className="h-full w-full px-3.5 flex items-center" />
                 </div>
-
-                <div className="relative mb-6">
-                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-                    <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-gray-400 font-medium">Or pay with card</span></div>
-                </div>
-
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Holder</label>
-                        <div id="card-holder" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">Card Number</label>
-                        <div className="relative">
-                           <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
-                           <div id="card-number" className="h-[46px] border border-gray-200 rounded-lg pl-10 pr-3 py-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Expiry Date</label>
-                            <div id="expiry-date" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">CVC</label>
-                            <div id="verification-code" className="h-[46px] border border-gray-200 rounded-lg p-3 bg-gray-50 focus-within:border-[#0168A0] focus-within:ring-1 focus-within:ring-[#0168A0] transition-all"></div>
-                        </div>
-                    </div>
-                </div>
-
-                {message && (
-                    <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-lg text-red-600 text-sm font-bold">
-                        {message}
-                    </div>
+                {showError && (
+                    <p className="text-[12px] text-red-600 mt-1.5 font-medium">{status.error}</p>
                 )}
             </div>
+        )
+    }
 
+    return (
+        <form id="payment-form" onSubmit={handleSubmit} className="space-y-5">
+            {/* Header with trust badge */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-black text-gray-900 leading-none">Payment Details</h3>
+                    <p className="text-[13px] text-gray-500 mt-1">Pay securely via Mollie. You'll be redirected to confirm.</p>
+                </div>
+                <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#00b67a] bg-[#00b67a]/10 px-2.5 py-1 rounded-full font-bold">
+                    <Lock className="w-3 h-3" />
+                    256-bit TLS
+                </div>
+            </div>
+
+            {/* Wallet quick-pay row */}
+            <div className="grid grid-cols-2 gap-2.5">
+                <button
+                    type="button"
+                    onClick={() => handleSubmit(undefined, 'applepay')}
+                    disabled={isLoading}
+                    aria-label="Pay with Apple Pay"
+                    className="group h-12 flex items-center justify-center gap-2 bg-black text-white font-semibold rounded-xl transition-all disabled:opacity-50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
+                >
+                    {loadingMethod === 'applepay' ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <>
+                            <Apple className="w-5 h-5 fill-current" />
+                            <span className="text-[15px]">Pay</span>
+                        </>
+                    )}
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handleSubmit(undefined, 'googlepay')}
+                    disabled={isLoading}
+                    aria-label="Pay with Google Pay"
+                    className="group h-12 flex items-center justify-center gap-2 bg-white border border-gray-200 hover:border-gray-300 text-gray-900 font-semibold rounded-xl transition-all disabled:opacity-50 shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:-translate-y-0.5 hover:shadow-md"
+                >
+                    {loadingMethod === 'googlepay' ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                        <>
+                            <Wallet className="w-5 h-5 text-[#0168A0]" />
+                            <span className="text-[15px]">Google Pay</span>
+                        </>
+                    )}
+                </button>
+            </div>
+
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="px-3 bg-white text-[12px] uppercase tracking-[0.14em] text-gray-400 font-bold">
+                        or pay by card
+                    </span>
+                </div>
+            </div>
+
+            {/* Card form */}
+            <div className="space-y-3.5">
+                <Field name="cardHolder" label={FIELD_LABEL.cardHolder} id="card-holder" />
+                <Field name="cardNumber" label={FIELD_LABEL.cardNumber} id="card-number">
+                    {/* Card brand hint — Mollie auto-detects and styles its own internal logo */}
+                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-300">
+                        <CreditCard className="w-5 h-5" />
+                    </div>
+                </Field>
+                <div className="grid grid-cols-2 gap-3.5">
+                    <Field name="expiryDate" label={FIELD_LABEL.expiryDate} id="expiry-date" />
+                    <Field name="verificationCode" label={FIELD_LABEL.verificationCode} id="verification-code" />
+                </div>
+            </div>
+
+            {message && (
+                <div className="p-3.5 bg-red-50 border border-red-100 rounded-xl text-red-600 text-[13px] font-semibold flex items-start gap-2">
+                    <span className="mt-0.5">⚠️</span>
+                    <span>{message}</span>
+                </div>
+            )}
+
+            {/* Submit */}
             <button
                 disabled={isLoading || !isMollieReady}
                 id="submit"
-                className="w-full bg-[#0168A0] hover:bg-[#015580] text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-[#0168A0]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
+                className="w-full h-14 bg-[#0168A0] hover:bg-[#015580] text-white font-bold rounded-xl transition-all shadow-lg shadow-[#0168A0]/25 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
             >
                 {isLoading || (!isMollieReady && !loadingMethod) ? (
                     <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        {isLoading && !loadingMethod ? 'Decrypting Secure Gateway...' : 'Loading Payment System...'}
+                        <span>{isLoading && !loadingMethod ? 'Securely processing…' : 'Loading secure form…'}</span>
                     </>
                 ) : (
                     <>
                         <ShieldCheck className="w-5 h-5" />
-                        Proceed to Payment (${amount.toFixed(2)})
+                        <span>Pay ${amount.toFixed(2)}</span>
                     </>
                 )}
             </button>
 
-            <p className="text-center text-xs text-gray-400">
-                Powered by Mollie. Your payment information is securely processed.
-            </p>
+            {/* Trust row */}
+            <div className="flex flex-col items-center gap-2 pt-1">
+                <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium">
+                    <Lock className="w-3 h-3" />
+                    <span>Encrypted end-to-end. We never see your card details.</span>
+                </div>
+                <div className="flex items-center gap-3 text-gray-400">
+                    <span className="text-[11px] font-semibold">Powered by</span>
+                    <svg viewBox="0 0 100 24" className="h-4" aria-label="Mollie">
+                        <text x="0" y="18" fontFamily="Inter, system-ui, sans-serif" fontWeight="800" fontSize="18" fill="#0D1117">mollie</text>
+                    </svg>
+                </div>
+                <div className="flex items-center gap-2 opacity-70">
+                    <CardBrand name="Visa" />
+                    <CardBrand name="Mastercard" />
+                    <CardBrand name="Amex" />
+                    <CardBrand name="iDEAL" />
+                </div>
+            </div>
         </form>
+    )
+}
+
+// Tiny inline brand chips — no external assets needed, match the site's neutral
+// palette. Mollie renders its own branded card-number field, these are only for
+// reassurance below the submit button.
+function CardBrand({ name }: { name: string }) {
+    return (
+        <span className="text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-500">
+            {name}
+        </span>
     )
 }

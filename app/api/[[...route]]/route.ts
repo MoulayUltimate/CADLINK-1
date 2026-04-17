@@ -153,6 +153,29 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ rout
         })
     }
 
+    // 7a. Payment Status (server-side verification for the success page)
+    if (path === 'payment-status') {
+        const paymentId = searchParams.get('id')
+        if (!paymentId || !/^tr_[A-Za-z0-9]+$/.test(paymentId)) {
+            return NextResponse.json({ paid: false, error: 'Missing or malformed payment id' }, { status: 400 })
+        }
+        try {
+            const r = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
+                headers: { 'Authorization': `Bearer ${process.env.MOLLIE_API_KEY}` }
+            })
+            const p = await r.json()
+            const paid = p.status === 'paid' || p.status === 'authorized'
+            return NextResponse.json({
+                paid,
+                status: p.status,
+                amount: p.amount,
+                metadata: p.metadata || null
+            })
+        } catch {
+            return NextResponse.json({ paid: false, error: 'Could not verify payment' }, { status: 502 })
+        }
+    }
+
     // 7. Chat
     if (path === 'chat') {
         const sessionId = searchParams.get('sessionId')
@@ -249,14 +272,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ rou
             if (data.status === 401) {
                 return NextResponse.json({ error: 'Mollie API Key is invalid' }, { status: 401 })
             }
+            // Primary path — Mollie returns a hosted checkout URL the customer
+            // must complete (card 3DS, Apple/Google Pay sheet, iDEAL, etc.).
             if (data._links && data._links.checkout) {
                 return NextResponse.json({ checkoutUrl: data._links.checkout.href })
             }
-            if (data.status === 'paid' || data.status === 'authorized' || data.status === 'pending') {
-                return NextResponse.json({ checkoutUrl: `${baseUrl}/checkout/success` })
+            // Edge path — Mollie confirmed the payment instantly (rare, e.g. a
+            // tokenized card with no 3DS requirement). We still route through
+            // the success page WITH the payment id so the success page can
+            // re-verify via /api/payment-status before showing confirmation.
+            if (data.status === 'paid' || data.status === 'authorized') {
+                return NextResponse.json({
+                    checkoutUrl: `${baseUrl}/checkout/success?payment_id=${encodeURIComponent(data.id)}`
+                })
             }
-            
-            return NextResponse.json({ error: data.detail || 'Failed to initialize payment' }, { status: 400 })
+            // "open"/"pending" on a brand-new payment means the customer hasn't
+            // paid yet and Mollie didn't give us a checkout link — surface that
+            // as an error instead of silently sending them to a success screen.
+            return NextResponse.json({
+                error: data.detail || `Payment could not be started (status: ${data.status || 'unknown'})`
+            }, { status: 400 })
         } catch (error: any) {
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
